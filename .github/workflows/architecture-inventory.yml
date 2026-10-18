@@ -1,0 +1,37 @@
+name: ODMM architecture inventory
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '02-Sources/**'
+      - '09-Tools/INVENTORY-DEPENDENCIES.py'
+      - '.github/workflows/architecture-inventory.yml'
+jobs:
+  static-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inventory imports and validate Python syntax
+        run: |
+          mkdir -p reports
+          python 09-Tools/INVENTORY-DEPENDENCIES.py --output reports/ODMM-IMPORT-DEPENDENCIES.json
+      - name: Summarize inventory
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('reports/ODMM-IMPORT-DEPENDENCIES.json',encoding='utf-8'))
+          print('Python files:',d['source_count'])
+          print('Parsed:',d['parsed_count'])
+          print('No static inbound imports (review candidates only):',len(d['no_static_inbound_imports']))
+          print('Parse errors:',len(d['parse_errors']))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ODMM-architecture-dependency-inventory
+          path: reports/ODMM-IMPORT-DEPENDENCIES.json
+          if-no-files-found: warn
