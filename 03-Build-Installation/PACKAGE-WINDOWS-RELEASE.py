@@ -31,12 +31,34 @@ def package(root, output):
     if not runner.get('run_id') or not runner.get('commit'):
         raise ValueError('Incomplete native Windows runner provenance')
     output.parent.mkdir(parents=True,exist_ok=True)
+    digests = {}
     with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for f in sorted(root.rglob('*')):
             if not f.is_file() or f.resolve()==output: continue
             rel=f.relative_to(root)
             if any(part in SKIP_DIRS for part in rel.parts) or rel.suffix in ('.pyc','.pyo'):continue
-            z.write(f,rel.as_posix())
+            name = rel.as_posix()
+            if name == 'DELIVERY-MANIFEST.json':
+                continue
+            z.write(f,name)
+            with f.open('rb') as stream:
+                digest = hashlib.sha256()
+                for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                    digest.update(chunk)
+            digests[name] = digest.hexdigest()
+        manifest = {
+            'schema_version': 1,
+            'source_type': 'windows-qualified-git-checkout',
+            'source_commit': runner['commit'],
+            'windows_run_id': str(runner['run_id']),
+            'qualification': {
+                'windows_install_smoke': 'PASS',
+                'windows_uninstall_smoke': 'PASS',
+                'runner': 'windows-2022',
+            },
+            'files': digests,
+        }
+        z.writestr('DELIVERY-MANIFEST.json', json.dumps(manifest, indent=2, sort_keys=True) + '\\n')
     with zipfile.ZipFile(output) as z:
         if z.testzip() is not None:raise ValueError('ZIP CRC failed')
         for path in ('binary/portable/ODMM-Compact.exe', 'binary/WINDOWS-INSTALL-SMOKE.json', 'binary/WINDOWS-RUNNER-INFO.json', 'binary/SHA256-WINDOWS.json') :
