@@ -64,6 +64,9 @@ jobs:
           } finally {
             if (!$proc.HasExited) { Stop-Process -Id $proc.Id -Force }
           }
+      - name: Smoke test standalone executable outside source tree
+        shell: pwsh
+        run: ./03-Build-Installation/TEST-WINDOWS-STANDALONE.ps1
       - name: Smoke test silent install and uninstall
         shell: pwsh
         run: |
