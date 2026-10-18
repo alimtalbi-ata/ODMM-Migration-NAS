@@ -34,9 +34,18 @@ jobs:
           $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
           if (!(Test-Path $iscc)) { throw 'ISCC.exe missing' }
           "INNO_ISCC=$iscc" >> $env:GITHUB_ENV
+      - name: Preserve Windows runner provenance across atomic binary publication
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path 03-Build-Installation | Out-Null
+          Copy-Item binary/WINDOWS-RUNNER-INFO.json 03-Build-Installation/WINDOWS-RUNNER-INFO.json -Force
       - name: Compile portable and installer
         shell: cmd
         run: call 03-Build-Installation\BUILD-WINDOWS-COMPACT.cmd
+      - name: Restore Windows runner provenance after atomic publication
+        shell: pwsh
+        run: |
+          Copy-Item 03-Build-Installation/WINDOWS-RUNNER-INFO.json binary/WINDOWS-RUNNER-INFO.json -Force
       - name: Verify published release
         shell: pwsh
         run: |
