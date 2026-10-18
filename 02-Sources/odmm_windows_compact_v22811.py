@@ -298,4 +298,26 @@ def main():
         root.after(6500, root.destroy)
     root.mainloop()
 
-if __name__ == "__main__": main()
+def self_test_tk():
+    """Verify bundled Tcl/Tk can initialize without application sources."""
+    import json
+    import sys
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        details = {"status": "PASS", "tcl": root.tk.call("info", "patchlevel"),
+                   "tk": root.tk.call("package", "require", "Tk"),
+                   "frozen": bool(getattr(sys, "frozen", False))}
+        root.destroy()
+        print(json.dumps(details), flush=True)
+        return 0
+    except Exception as exc:
+        print(json.dumps({"status": "FAIL", "error": str(exc)}), flush=True)
+        return 1
+
+
+if __name__ == "__main__":
+    import sys
+    if "--self-test-tk" in sys.argv:
+        raise SystemExit(self_test_tk())
+    main()
