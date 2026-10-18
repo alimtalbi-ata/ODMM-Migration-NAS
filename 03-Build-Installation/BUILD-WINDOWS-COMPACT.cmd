@@ -24,8 +24,9 @@ rem ISCC /? may return a nonzero exit code even when the compiler is healthy.
 rem The actual installer compilation below is the authoritative execution check.
 if not exist "%ISCC%" (echo ERROR: Inno Setup compiler not found & exit /b 32)
 rem Do not touch the published binary directory until validation and promotion.
-set "PY=py -3"
-where py >nul 2>&1 || set "PY=python"
+rem Prefer the selected Python on PATH (GitHub Actions setup-python pins 3.11).
+set "PY=python"
+where python >nul 2>&1 || set "PY=py -3.11"
 %PY% -c "import sys;sys.exit(0 if sys.version_info >= (3,10) and sys.maxsize > 2**32 else 1)" || (echo ERROR: Python 3.10+ x64 required & exit /b 10)
 if not exist "%VENV%\Scripts\python.exe" %PY% -m venv "%VENV%" || exit /b 11
 set "VPY=%VENV%\Scripts\python.exe"
