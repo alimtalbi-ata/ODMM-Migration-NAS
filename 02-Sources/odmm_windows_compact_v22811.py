@@ -4,6 +4,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from odmm_refresh_service import fetch_into_queue
+from odmm_windows_view_model import build_jobs_view
 from odmm_desktop_model_v2258 import read_report, report_summary
 from odmm_compact_dashboard_v2280 import dashboard
 from odmm_attention_v2281 import attention_summary
@@ -68,24 +69,19 @@ def main():
     def refresh_table(*_):
         selected_ids = {str(tree.item(item, "values")[0]) for item in tree.selection() if tree.item(item, "values")}
         for item in tree.get_children(): tree.delete(item)
-        view = dashboard(rows, search.get(), state.get())
-        visible = sort_jobs(view["jobs"], sort_state["column"], sort_state["reverse"])
-        page_rows, page_number, page_count = paginate(visible, page_index[0], page_size)
-        page_index[0] = page_number
-        page_label.set(f"Page {page_number + 1} / {page_count} · {len(visible)} résultats filtrés")
-        previous_button.configure(state="normal" if page_number > 0 else "disabled")
-        next_button.configure(state="normal" if page_number + 1 < page_count else "disabled")
-        for row in page_rows:
-            normalized_status = str(row.get("status", "UNKNOWN")).strip().upper()
-            item = tree.insert("", "end", values=(row.get("id", ""), row.get("status", "")),
-                               tags=(normalized_status if normalized_status in {"FAILED", "RUNNING", "COMPLETED", "PENDING"} else "UNKNOWN",))
-            if str(row.get("id", "")) in selection_after_filter(selected_ids, visible):
+        model = build_jobs_view(
+            rows, search.get(), state.get(), sort_state["column"],
+            sort_state["reverse"], page_index[0], page_size, selected_ids,
+        )
+        page_index[0] = model["page"]
+        page_label.set(model["page_label"])
+        previous_button.configure(state="normal" if model["page"] > 0 else "disabled")
+        next_button.configure(state="normal" if model["page"] + 1 < model["pages"] else "disabled")
+        for row in model["rows"]:
+            item = tree.insert("", "end", values=(row["id"], row["status"]), tags=(row["tag"],))
+            if row["selected"]:
                 tree.selection_add(item)
-        c = view["visible"]
-        overall = view["total"]
-        a = attention_summary(rows)
-        health = assess(rows)
-        summary.set(f"Total : {overall['total']}  |  En cours : {overall['running']}  |  Échecs : {a['failed']}  |  À examiner : {a['needs_attention']}  |  Affichés : {c['total']}  |  Diagnostic : {health['level']}")
+        summary.set(model["summary"])
         if not tree.selection():
             detail.set("Sélectionnez un job pour afficher son identifiant et son état.")
         else:
