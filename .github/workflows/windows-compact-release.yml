@@ -52,6 +52,17 @@ jobs:
           python 03-Build-Installation/VALIDATE-WINDOWS-RELEASE.py binary
           if (!(Test-Path binary/portable/ODMM-Compact.exe)) { throw 'Portable missing' }
           if (!(Test-Path binary/installer/ODMM-Compact-Setup-V7.9.31.exe)) { throw 'Installer missing' }
+      - name: Verify bundled Tcl/Tk runtime self-test
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path 'binary/portable/ODMM-Compact.exe').Path
+          $proc = Start-Process -FilePath $exe -ArgumentList '--self-test-tk' -PassThru
+          try {
+            if (!$proc.WaitForExit(30000)) { throw 'Tk runtime self-test timed out' }
+            if ($proc.ExitCode -ne 0) { throw "Bundled Tcl/Tk failed initialization (exit $($proc.ExitCode))" }
+          } finally {
+            if (!$proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+          }
       - name: Smoke test portable GUI startup
         shell: pwsh
         run: |
