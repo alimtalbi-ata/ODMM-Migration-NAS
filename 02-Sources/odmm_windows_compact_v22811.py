@@ -18,7 +18,7 @@ from odmm_ui_diagnostics_v22858 import refresh_message, safe_count
 from odmm_pagination_v22859 import paginate, sort_jobs
 from odmm_refresh_guard_v22860 import server_limit_notice
 
-VERSION = "7.9.27"  # Product version for cumulative delivery V228.71
+VERSION = "7.9.29"  # Product version for cumulative delivery V228.74
 AUTHOR = "Abdelhalim Talbi"
 
 def main():

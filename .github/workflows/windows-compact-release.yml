@@ -1,4 +1,4 @@
-name: ODMM Windows Compact native build
+name: ODMM Windows Compact native build V228.74
 on:
   workflow_dispatch:
   push:
@@ -6,6 +6,9 @@ on:
       - '02-Sources/**'
       - '03-Build-Installation/**'
       - '.github/workflows/windows-compact-release.yml'
+concurrency:
+  group: odmm-windows-compact-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   windows-build:
     runs-on: windows-2022
@@ -16,6 +19,11 @@ jobs:
         with:
           python-version: '3.11'
           architecture: x64
+      - name: Record Windows runner environment
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path binary | Out-Null
+          [ordered]@{os=[Environment]::OSVersion.VersionString; architecture=$env:PROCESSOR_ARCHITECTURE; python=(python --version 2>&1 | Out-String).Trim(); run_id=$env:GITHUB_RUN_ID; commit=$env:GITHUB_SHA} | ConvertTo-Json | Set-Content binary/WINDOWS-RUNNER-INFO.json
       - name: Install Inno Setup
         shell: pwsh
         run: |
@@ -31,7 +39,7 @@ jobs:
         run: |
           python 03-Build-Installation/VALIDATE-WINDOWS-RELEASE.py binary
           if (!(Test-Path binary/portable/ODMM-Compact.exe)) { throw 'Portable missing' }
-          if (!(Test-Path binary/installer/ODMM-Compact-Setup-V7.9.27.exe)) { throw 'Installer missing' }
+          if (!(Test-Path binary/installer/ODMM-Compact-Setup-V7.9.29.exe)) { throw 'Installer missing' }
       - name: Smoke test portable GUI startup
         shell: pwsh
         run: |
@@ -47,21 +55,38 @@ jobs:
       - name: Smoke test silent install and uninstall
         shell: pwsh
         run: |
-          ./03-Build-Installation/TEST-WINDOWS-INSTALL.ps1 -Version '7.9.27'
-      - name: Upload smoke report on failure
+          ./03-Build-Installation/TEST-WINDOWS-INSTALL.ps1 -Version '7.9.29'
+      - name: Verify smoke test report
+        shell: pwsh
+        run: |
+          $report = Get-Content binary/WINDOWS-INSTALL-SMOKE.json -Raw | ConvertFrom-Json
+          if (!$report.passed -or !$report.installed -or !$report.uninstalled) { throw "Installation smoke test not qualified" }
+      - name: Package qualified Windows cumulative ZIP
+        shell: pwsh
+        run: |
+          python 03-Build-Installation/PACKAGE-WINDOWS-RELEASE.py --root . --output ODMM-V228.74-Windows-Qualified-Cumulative.zip
+      - name: Upload qualified cumulative ZIP
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ODMM-V228.74-Windows-qualified-cumulative
+          path: ODMM-V228.74-Windows-Qualified-Cumulative.zip
+          if-no-files-found: error
+      - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ODMM-V228.71-Windows-failure-evidence
+          name: ODMM-V228.74-Windows-failure-evidence
           path: |
             binary/WINDOWS-INSTALL-SMOKE.json
+            binary/WINDOWS-RUNNER-INFO.json
             03-Build-Installation/WINDOWS-TOOLCHAIN-REPORT.json
           if-no-files-found: warn
       - name: Upload native Windows binaries and evidence
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ODMM-V228.71-Windows-binary
+          name: ODMM-V228.74-Windows-binary
           path: |
             binary/
             03-Build-Installation/WINDOWS-TOOLCHAIN-REPORT.json

@@ -1,5 +1,6 @@
 param([Parameter(Mandatory=$true)][string]$Version)
 $ErrorActionPreference = 'Stop'
+if ($env:GITHUB_ACTIONS -ne 'true' -and $env:ODMM_ALLOW_DISPOSABLE_INSTALL_TEST -ne 'YES') { throw 'Installation smoke test requires a disposable runner (GITHUB_ACTIONS=true or ODMM_ALLOW_DISPOSABLE_INSTALL_TEST=YES)' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $installer = Join-Path $root "binary/installer/ODMM-Compact-Setup-V$Version.exe"
 $target = Join-Path $env:LOCALAPPDATA 'Programs/ODMM Compact'

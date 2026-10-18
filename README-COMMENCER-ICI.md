@@ -1,18 +1,12 @@
-# ODMM V228.71 — Qualification Windows Compact
+# ODMM V228.73 — Packaging de livraison Windows qualifiée
 
-Auteur : Abdelhalim Talbi
+Cette version ajoute une étape de CI qui crée **une seconde archive cumulative qualifiée** après compilation Windows native, contrôle des empreintes et test d'installation/désinstallation. Le ZIP source livré ici ne contient **aucun EXE précompilé**.
 
-## Nouveautés
-- Packaging version 7.9.27.
-- Test d’installation silencieuse et de désinstallation sur runner Windows jetable.
-- Refus du test si une installation existe déjà, afin de ne pas effacer une installation utilisateur.
-- Rapport `binary/WINDOWS-INSTALL-SMOKE.json` et conservation des preuves en cas d’échec.
-- Publication des exécutables uniquement après succès du workflow.
-
-## Compilation Windows
-Lancer `03-Build-Installation\BUILD-WINDOWS-COMPACT.cmd` sur Windows x64.
-Sorties attendues : `binary/portable/ODMM-Compact.exe` et `binary/installer/ODMM-Compact-Setup-V7.9.27.exe`.
-Le test d’installation est réservé à une machine Windows de CI jetable sans installation ODMM préexistante.
+## Lancement
+Déclencher le workflow `ODMM Windows Compact native build` dans GitHub Actions (Windows Server 2022). Le workflow génère les deux exécutables dans `binary/`, exécute les tests et téléverse l'archive `ODMM-V228.73-Windows-Qualified-Cumulative.zip` uniquement en cas de succès.
 
 ## Limites
-Les binaires natifs ne sont pas précompilés dans cette archive. Le workflow GitHub Actions doit être exécuté dans un dépôt Windows compatible. Aucun test Windows réel n’a été exécuté dans cet environnement Linux.
+Le runner GitHub Actions n'a pas été exécuté ici. Aucun résultat de compilation, d'installation ou de désinstallation native n'est revendiqué. Le test de démarrage GUI sur runner ne garantit pas une recette interactive Windows 10/11.
+
+## Contrôles
+Le script `PACKAGE-WINDOWS-RELEASE.py` exige la validation du manifeste SHA-256 et du rapport de tests natifs avant création du ZIP. Les fichiers de build temporaires et `.git` sont exclus. Le moteur de migration est inchangé.

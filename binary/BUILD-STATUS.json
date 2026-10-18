@@ -1,7 +1,5 @@
 {
-  "version": "V228.69",
-  "packaging_version": "7.9.25",
-  "native_windows_build": "NOT_RUN",
-  "portable_exe_present": false,
-  "installer_exe_present": false
+  "build": "not_run",
+  "version": "7.9.29",
+  "reason": "Native Windows build not executed in this environment"
 }
