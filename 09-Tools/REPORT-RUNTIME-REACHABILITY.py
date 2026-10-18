@@ -9,6 +9,8 @@ from pathlib import Path
 
 ENTRYPOINTS = (
     "odmm_windows_compact_v22811.py",
+    "odmm_linux_compact_v22811.py",
+    "test_odmm_market_readiness_v22812.py",
     "native_posix_migration.py",
     "odmm_operations_portal.py",
 )
@@ -37,8 +39,8 @@ def report(inventory, entrypoints=ENTRYPOINTS):
         "statically_reachable": sorted(reached),
         "not_reachable_from_selected_entrypoints": sorted(modules - reached),
         "limitations": [
-            "Entrypoints cover selected Windows Compact, POSIX prototype and operations portal only.",
-            "Other Linux editions, dynamic imports, subprocesses and shell/build references are not modeled.",
+            "Entrypoints cover Windows Compact, Linux Compact, Linux Full qualification test, POSIX prototype and operations portal; additional entrypoints may exist.",
+            "Dynamic imports, subprocesses and shell/build references are not modeled.",
             "Not reachable does NOT mean dead code. No deletion is authorized by this report."
         ]
     }
