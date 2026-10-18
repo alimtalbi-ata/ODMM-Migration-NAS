@@ -3,10 +3,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - '09-Tools/BUILD-DELIVERY-ZIP.py'
-      - '09-Tools/VERIFY-DELIVERY-MANIFEST.py'
-      - '.github/workflows/cumulative-source-release.yml'
 permissions:
   contents: read
 jobs:
