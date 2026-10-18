@@ -7,6 +7,7 @@ on:
       - '09-Tools/INVENTORY-DEPENDENCIES.py'
       - '09-Tools/REPORT-RUNTIME-REACHABILITY.py'
       - '09-Tools/test_architecture_inventory.py'
+      - '09-Tools/test_windows_refresh_service.py'
       - '.github/workflows/architecture-inventory.yml'
 jobs:
   static-inventory:
@@ -19,6 +20,8 @@ jobs:
           python-version: '3.11'
       - name: Test architecture inventory and reachability
         run: python -m unittest discover -s 09-Tools -p test_architecture_inventory.py -v
+      - name: Test Windows refresh service without GUI
+        run: python -m unittest discover -s 09-Tools -p test_windows_refresh_service.py -v
       - name: Inventory imports and validate Python syntax
         run: |
           mkdir -p reports
