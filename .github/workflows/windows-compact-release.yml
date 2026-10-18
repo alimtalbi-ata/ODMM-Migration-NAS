@@ -2,10 +2,7 @@ name: ODMM Windows Compact native build V228.77
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '02-Sources/**'
-      - '03-Build-Installation/**'
-      - '.github/workflows/windows-compact-release.yml'
+    branches: [main]
 concurrency:
   group: odmm-windows-compact-${{ github.ref }}
   cancel-in-progress: false
