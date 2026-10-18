@@ -1,0 +1,21 @@
+{
+  "version": "228.26",
+  "author": "Abdelhalim Talbi",
+  "scope": "Linux Full qualification entry point, not migration runtime",
+  "tests": "4/4 passed",
+  "preflight": [
+    "PASS 02-Sources/odmm_linux_compact_v22811.py",
+    "PASS 02-Sources/odmm_windows_compact_v22811.py",
+    "PASS 02-Sources/BUILD-WINDOWS-COMPACT-V22811.cmd",
+    "PASS 02-Sources/ODMM-COMPACT-WINDOWS-V22811.iss",
+    "PASS 03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd",
+    "PASS 03-Build-Installation/RUN-LINUX-COMPACT.sh",
+    "PASS 03-Build-Installation/RUN-LINUX-FULL.sh",
+    "PASS 02-Sources/test_odmm_market_readiness_v22812.py"
+  ],
+  "limitations": [
+    "NAS real transfer not tested",
+    "Windows native build not tested",
+    "No legacy business module removed"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": "V228.51",
+  "target": "Windows Compact read-only",
+  "changes": [
+    "safe actionable HTTP/network/TLS diagnostics",
+    "no credentials/endpoint in UI error messages",
+    "explicit diagnostics module preflight in Windows build",
+    "token handling notice in UI"
+  ],
+  "tests": "9/9 targeted tests passed on Linux",
+  "windows_native_build": "not performed",
+  "real_windows_screenshots": "not available"
+}

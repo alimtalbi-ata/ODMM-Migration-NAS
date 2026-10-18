@@ -1,0 +1,37 @@
+{
+  "version": "224.7",
+  "author": "Abdelhalim Talbi",
+  "checks": [
+    {
+      "procedure": "file:odmm_portable_doctor_v2246.py",
+      "status": "PASS"
+    },
+    {
+      "procedure": "file:ODMM-PORTABLE-CHECK.sh",
+      "status": "PASS"
+    },
+    {
+      "procedure": "file:ODMM-PORTABLE-CHECK.cmd",
+      "status": "PASS"
+    },
+    {
+      "procedure": "isolated-python-preflight",
+      "status": "PASS"
+    },
+    {
+      "procedure": "isolated-linux-launcher",
+      "status": "PASS"
+    },
+    {
+      "procedure": "windows-native-execution",
+      "status": "NOT_TESTED"
+    },
+    {
+      "procedure": "nas-migration-e2e",
+      "status": "NOT_TESTED"
+    }
+  ],
+  "findings": [],
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "scope": "Isolated portable preflight only; not an application or migration end-to-end test"
+}

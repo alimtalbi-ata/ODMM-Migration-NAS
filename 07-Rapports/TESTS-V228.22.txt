@@ -1,0 +1,10 @@
+test_historical_review_no_deletion (test_decision_matrix_v22822.DecisionTests.test_historical_review_no_deletion) ... ok
+test_import_review (test_decision_matrix_v22822.DecisionTests.test_import_review) ... ok
+test_roots_protected (test_decision_matrix_v22822.DecisionTests.test_roots_protected) ... ok
+test_tests_preserved_for_review (test_decision_matrix_v22822.DecisionTests.test_tests_preserved_for_review) ... ok
+test_version_family (test_decision_matrix_v22822.DecisionTests.test_version_family) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.007s
+
+OK

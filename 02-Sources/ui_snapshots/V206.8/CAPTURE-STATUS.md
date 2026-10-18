@@ -1,0 +1,1 @@
+Captures réelles Chromium headless sur HTML local existant ; aucune authentification OIDC ou connexion NAS réelle. La capture demo modifie le DOM pour illustration, pas un état serveur. Auteur : Abdelhalim Talbi.

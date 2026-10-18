@@ -1,0 +1,16 @@
+{
+  "version": "228.46",
+  "tests": 16,
+  "passed": 16,
+  "platform": "Linux",
+  "changes": [
+    "commit.claim_lookup",
+    "commit.claim_update",
+    "commit.sqlite_commit"
+  ],
+  "limitations": [
+    "NAS physical not tested",
+    "Windows native not tested",
+    "No performance gain claimed"
+  ]
+}

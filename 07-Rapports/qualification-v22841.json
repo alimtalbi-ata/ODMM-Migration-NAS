@@ -1,0 +1,11 @@
+{
+  "version": "228.41",
+  "new_tests": 5,
+  "new_tests_passed": 5,
+  "scope": "statistical baseline over recorded V228.40 runs; no new production engine change",
+  "limitations": [
+    "stage timings may overlap; do not sum stage durations",
+    "bootstrap confidence intervals describe observed local runs, not NAS performance",
+    "small samples and warm cache effects limit inference"
+  ]
+}

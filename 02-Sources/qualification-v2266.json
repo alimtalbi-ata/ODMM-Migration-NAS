@@ -1,0 +1,9 @@
+{
+  "version": "226.6",
+  "compact": "7.7.6",
+  "tests_targeted": "48 passed",
+  "platform": "Linux",
+  "windows_exe_compiled": false,
+  "real_server_integration": false,
+  "real_ui_snapshots": false
+}

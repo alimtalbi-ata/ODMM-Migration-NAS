@@ -1,0 +1,18 @@
+
+.........................................................................................................................../usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd4b8619120>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd4b8618f40>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd4b8618e50>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......................................../mnt/data/odmm_v1813/nested_group_review.py:52: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd4b8618e50>
+  findings.append({'subject':list(subject),'groups':[list(x) for x in sorted(visited)],'missing':[list(x) for x in sorted(missing)],'cycles':[list(x) for x in sorted(cycles)],'status':status})
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.......................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 426 tests in 1.812s
+
+OK

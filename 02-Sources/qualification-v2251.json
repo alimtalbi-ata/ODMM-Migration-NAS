@@ -1,0 +1,64 @@
+{
+  "version": "225.1",
+  "compact_version": "7.6.1",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "checks": [
+    {
+      "name": "full-verified-portal",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "full-verified-api",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "full-unverified-portal",
+      "status": "PASS",
+      "detail": "HTTP 403"
+    },
+    {
+      "name": "full-unverified-api",
+      "status": "PASS",
+      "detail": "HTTP 403"
+    },
+    {
+      "name": "compact-scoped-verified-portal",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "compact-scoped-verified-api-empty-scope",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "compact-scoped-unverified-portal",
+      "status": "PASS",
+      "detail": "HTTP 403"
+    },
+    {
+      "name": "compact-scoped-unverified-api",
+      "status": "PASS",
+      "detail": "HTTP 403"
+    },
+    {
+      "name": "real-oidc-idp",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "windows-native-execution",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "nas-nfs-smb-e2e",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "acl-effective-access",
+      "status": "NOT_TESTED"
+    }
+  ]
+}

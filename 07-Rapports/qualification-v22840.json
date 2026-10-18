@@ -1,0 +1,7 @@
+{
+  "version": "V228.40",
+  "test_command": "/opt/pyvenv/bin/python benchmark_executor_v22839.py --sizes-mib 1 4 16 --repetitions 3 --output /mnt/data/odmm22840_work/07-Rapports/benchmark-executor-v22840.json",
+  "unittest_result": "20 passed (3 new + 17 existing)",
+  "benchmark_scope": "Linux local; 3 runs per size; no NAS",
+  "engine_change": "instrument copy.native_posix and verify.source_inventory; no migration decision changes"
+}

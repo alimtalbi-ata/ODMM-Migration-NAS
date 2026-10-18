@@ -1,0 +1,23 @@
+.................................................................................................................................................../mnt/data/odmm_v1810/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fc36cf59030>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1810/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fc36cf58e50>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1810/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fc36cf58d60>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1810/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fc36cf588b0>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................................................................................................................................................................../usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fc36cb3b2e0>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fc36cb3b100>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................................................................................
+----------------------------------------------------------------------
+Ran 397 tests in 1.707s
+
+OK

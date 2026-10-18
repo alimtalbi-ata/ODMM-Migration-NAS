@@ -1,0 +1,9 @@
+{
+  "version": "226.4",
+  "compact": "7.7.4",
+  "targeted_tests_passed": 35,
+  "windows_build": "NOT_RUN",
+  "windows_installer": "NOT_BUILT",
+  "real_server_api": "NOT_TESTED",
+  "screenshots": "NOT_CAPTURED"
+}

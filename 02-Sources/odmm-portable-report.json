@@ -1,0 +1,19 @@
+{
+  "version": "224.6",
+  "author": "Abdelhalim Talbi",
+  "host": {
+    "system": "Linux",
+    "python": "3.13.5",
+    "architecture": "x86_64"
+  },
+  "root": "/mnt/data/odmm2246work",
+  "scripts_checked": 919,
+  "python_checked": 916,
+  "launchers": [
+    "ODMM-PORTABLE-CHECK.cmd",
+    "ODMM-PORTABLE-CHECK.sh"
+  ],
+  "findings": [],
+  "status": "PASS",
+  "qualification": "Local syntax/dependency preflight only; no Windows/NAS/OIDC live validation"
+}

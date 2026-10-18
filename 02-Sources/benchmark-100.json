@@ -1,0 +1,12 @@
+{
+  "schema": "odmm.acl.benchmark.v2162",
+  "synthetic": true,
+  "records": 100,
+  "insert_seconds": 0.0429,
+  "verify_seconds": 0.0019,
+  "page_seconds": 0.0004,
+  "pages": 1,
+  "verified": true,
+  "platform": "posix",
+  "vendor_qualified": false
+}

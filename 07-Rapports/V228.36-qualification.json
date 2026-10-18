@@ -1,0 +1,18 @@
+{
+  "version": "V228.36",
+  "author": "Abdelhalim Talbi",
+  "scope": "Linux local POSIX SQLite only",
+  "tests_run": 102,
+  "tests_passed": 102,
+  "new_tests": [
+    "source same-content inode replacement during final hash",
+    "target same-content inode replacement during final hash"
+  ],
+  "changes": "Two regression tests; no production engine change",
+  "limits": [
+    "not NAS-qualified",
+    "not ACL fidelity qualified",
+    "not Windows native compiled",
+    "no atomic guarantee against uncooperative external writers"
+  ]
+}

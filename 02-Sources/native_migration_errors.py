@@ -1,0 +1,2 @@
+class MigrationBlocked(RuntimeError):
+    pass

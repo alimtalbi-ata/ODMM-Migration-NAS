@@ -1,0 +1,11 @@
+{
+  "version": "V228.27",
+  "command": "bash 03-Build-Installation/RUN-NATIVE-LOCAL-CONTRACT.sh",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_changed_source_fails_closed (__main__.LocalNativeContract.test_changed_source_fails_closed) ... ok\ntest_claim_survives_restart (__main__.LocalNativeContract.test_claim_survives_restart) ... ok\ntest_crash_after_publish_requires_reconciliation (__main__.LocalNativeContract.test_crash_after_publish_requires_reconciliation) ... ok\ntest_existing_target_not_overwritten (__main__.LocalNativeContract.test_existing_target_not_overwritten) ... ok\ntest_no_implicit_second_copy (__main__.LocalNativeContract.test_no_implicit_second_copy) ... ok\ntest_verified_copy_and_no_cutover (__main__.LocalNativeContract.test_verified_copy_and_no_cutover) ... ok\ntest_wrong_token_fails_closed (__main__.LocalNativeContract.test_wrong_token_fails_closed) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.110s\n\nOK\n",
+  "qualification": "LOCAL_POSIX_ONLY",
+  "nas_tested": false,
+  "windows_tested": false,
+  "cutover_tested": false
+}

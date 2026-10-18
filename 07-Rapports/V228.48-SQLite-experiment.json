@@ -1,0 +1,19 @@
+{
+  "experiment": "isolated sqlite claim validation",
+  "production_modified": false,
+  "caveat": "Synthetic SQLite workload, not an ODMM end-to-end migration benchmark",
+  "results": [
+    {
+      "mode": "baseline",
+      "iterations": 200,
+      "median_ms": 0.956529,
+      "p95_ms": 1.334202
+    },
+    {
+      "mode": "returning",
+      "iterations": 200,
+      "median_ms": 0.962017,
+      "p95_ms": 1.110352
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+test_all_three_editions (test_entrypoint_contract_v22818.ContractTests.test_all_three_editions) ... ok
+test_current_release_files (test_entrypoint_contract_v22818.ContractTests.test_current_release_files) ... ok
+test_missing_fails_closed (test_entrypoint_contract_v22818.ContractTests.test_missing_fails_closed) ... ok
+test_no_unsafe_claim (test_entrypoint_contract_v22818.ContractTests.test_no_unsafe_claim) ... ok
+test_read_only_role (test_entrypoint_contract_v22818.ContractTests.test_read_only_role) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

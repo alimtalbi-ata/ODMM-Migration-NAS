@@ -1,0 +1,96 @@
+{
+  "version": "224.8",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "entries": [
+    {
+      "file": "odmm_operations_app.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": false,
+      "app_factories": [
+        "create_operations_app",
+        "create_oidc_operations_app",
+        "create_netapp_operations_app",
+        "create_netapp_full_operations_app",
+        "create_nas_qualification_operations_app",
+        "create_nas_access_operations_app",
+        "create_nas_audit_dashboard_app",
+        "create_nas_detailed_audit_app",
+        "create_nas_integrated_operations_app",
+        "create_nas_acl_integrated_operations_app",
+        "create_nas_acl_history_operations_app",
+        "create_nas_acl_cas_operations_app"
+      ],
+      "cli_functions": []
+    },
+    {
+      "file": "odmm_operations_cli.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": true,
+      "app_factories": [],
+      "cli_functions": [
+        "main"
+      ]
+    },
+    {
+      "file": "odmm_production_entrypoint.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": false,
+      "app_factories": [
+        "create_production_app"
+      ],
+      "cli_functions": []
+    },
+    {
+      "file": "odmm_scoped_app.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": false,
+      "app_factories": [
+        "create_scoped_app"
+      ],
+      "cli_functions": []
+    },
+    {
+      "file": "odmm_scoped_cli.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": true,
+      "app_factories": [],
+      "cli_functions": [
+        "run",
+        "main"
+      ]
+    },
+    {
+      "file": "odmm_oidc_http_entrypoint.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": false,
+      "app_factories": [
+        "create_oidc_app"
+      ],
+      "cli_functions": []
+    },
+    {
+      "file": "odmm_audit_cli.py",
+      "exists": true,
+      "parse": "PASS",
+      "main_guard": true,
+      "app_factories": [],
+      "cli_functions": [
+        "main"
+      ]
+    }
+  ],
+  "missing_or_invalid": [],
+  "qualification": {
+    "static_inventory": "PASS",
+    "application_start": "NOT_TESTED",
+    "windows_native": "NOT_TESTED",
+    "nas_migration_e2e": "NOT_TESTED"
+  }
+}

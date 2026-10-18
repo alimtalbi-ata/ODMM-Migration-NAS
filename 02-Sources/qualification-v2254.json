@@ -1,0 +1,93 @@
+{
+  "version": "225.4",
+  "compact_version": "7.6.4",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "checks": [
+    {
+      "name": "post-publish-crash",
+      "status": "PASS",
+      "detail": "returncode=-9"
+    },
+    {
+      "name": "published-file-intact",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "intent-durable",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "commit-not-recorded",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "copy-blocked-without-recovery",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "reconcile-blocked-without-recovery",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "explicit-reconcile",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "verified-after-reconcile",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "atomic-final-register",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "corruption-intent-present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tampered-destination-rejected",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no-overwrite-of-corrupt-target",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "corrupt-intent-remains",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "windows-portable",
+      "status": "NOT_TESTED",
+      "detail": "Not qualified in local POSIX fixture"
+    },
+    {
+      "name": "real-nfs-smb",
+      "status": "NOT_TESTED",
+      "detail": "Not qualified in local POSIX fixture"
+    },
+    {
+      "name": "effective-acl",
+      "status": "NOT_TESTED",
+      "detail": "Not qualified in local POSIX fixture"
+    },
+    {
+      "name": "power-failure-durability",
+      "status": "NOT_TESTED",
+      "detail": "Not qualified in local POSIX fixture"
+    }
+  ]
+}

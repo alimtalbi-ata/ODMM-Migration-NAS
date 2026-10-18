@@ -1,0 +1,634 @@
+{
+  "schema": "odmm.consolidation-gate.v1",
+  "version": "228.23",
+  "total_modules": 1078,
+  "versioned_families": 42,
+  "families": [
+    {
+      "family": "native_verified_batch",
+      "members": [
+        "02-Sources/native_verified_batch_v2040.py",
+        "02-Sources/native_verified_batch_v2041.py"
+      ],
+      "referenced_members": [
+        "native_verified_batch_v2040",
+        "native_verified_batch_v2041"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_cockpit_collection",
+      "members": [
+        "02-Sources/odmm_cockpit_collection_v2057.py",
+        "02-Sources/odmm_cockpit_collection_v2058.py",
+        "02-Sources/odmm_cockpit_collection_v2060.py"
+      ],
+      "referenced_members": [
+        "odmm_cockpit_collection_v2057",
+        "odmm_cockpit_collection_v2060"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_collector_registry",
+      "members": [
+        "02-Sources/odmm_collector_registry_v2090.py",
+        "02-Sources/odmm_collector_registry_v2092.py"
+      ],
+      "referenced_members": [
+        "odmm_collector_registry_v2090",
+        "odmm_collector_registry_v2092"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_compact_dashboard",
+      "members": [
+        "02-Sources/odmm_compact_dashboard_v2278.py",
+        "02-Sources/odmm_compact_dashboard_v2279.py",
+        "02-Sources/odmm_compact_dashboard_v2280.py"
+      ],
+      "referenced_members": [
+        "odmm_compact_dashboard_v2278",
+        "odmm_compact_dashboard_v2279",
+        "odmm_compact_dashboard_v2280"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_desktop_api",
+      "members": [
+        "02-Sources/odmm_desktop_api_v2264.py",
+        "02-Sources/odmm_desktop_api_v2265.py",
+        "02-Sources/odmm_desktop_api_v2266.py"
+      ],
+      "referenced_members": [
+        "odmm_desktop_api_v2264",
+        "odmm_desktop_api_v2265",
+        "odmm_desktop_api_v2266"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_desktop_preflight",
+      "members": [
+        "02-Sources/odmm_desktop_preflight_v2260.py",
+        "02-Sources/odmm_desktop_preflight_v2261.py"
+      ],
+      "referenced_members": [
+        "odmm_desktop_preflight_v2260",
+        "odmm_desktop_preflight_v2261"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_editions",
+      "members": [
+        "02-Sources/odmm_editions_v2277.py",
+        "02-Sources/odmm_editions_v2278.py",
+        "02-Sources/odmm_editions_v2279.py",
+        "02-Sources/odmm_editions_v2280.py",
+        "02-Sources/odmm_editions_v2281.py",
+        "02-Sources/odmm_editions_v22810.py",
+        "02-Sources/odmm_editions_v22811.py",
+        "02-Sources/odmm_editions_v2282.py",
+        "02-Sources/odmm_editions_v2283.py",
+        "02-Sources/odmm_editions_v2284.py",
+        "02-Sources/odmm_editions_v2285.py",
+        "02-Sources/odmm_editions_v2286.py",
+        "02-Sources/odmm_editions_v2287.py",
+        "02-Sources/odmm_editions_v2288.py",
+        "02-Sources/odmm_editions_v2289.py"
+      ],
+      "referenced_members": [
+        "odmm_editions_v2277",
+        "odmm_editions_v2278",
+        "odmm_editions_v2279",
+        "odmm_editions_v2280",
+        "odmm_editions_v2281",
+        "odmm_editions_v22810",
+        "odmm_editions_v22811",
+        "odmm_editions_v2282",
+        "odmm_editions_v2283",
+        "odmm_editions_v2284",
+        "odmm_editions_v2285",
+        "odmm_editions_v2286",
+        "odmm_editions_v2287",
+        "odmm_editions_v2288",
+        "odmm_editions_v2289"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_evidence_ledger",
+      "members": [
+        "02-Sources/odmm_evidence_ledger_v22814.py",
+        "02-Sources/odmm_evidence_ledger_v22815.py"
+      ],
+      "referenced_members": [
+        "odmm_evidence_ledger_v22814",
+        "odmm_evidence_ledger_v22815"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_evidence_ledger_cli",
+      "members": [
+        "02-Sources/odmm_evidence_ledger_cli_v22814.py",
+        "02-Sources/odmm_evidence_ledger_cli_v22815.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_health",
+      "members": [
+        "02-Sources/odmm_health_v2271.py",
+        "02-Sources/odmm_health_v2283.py"
+      ],
+      "referenced_members": [
+        "odmm_health_v2271",
+        "odmm_health_v2283"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_linux_compact",
+      "members": [
+        "02-Sources/odmm_linux_compact_v2277.py",
+        "02-Sources/odmm_linux_compact_v2278.py",
+        "02-Sources/odmm_linux_compact_v2279.py",
+        "02-Sources/odmm_linux_compact_v2280.py",
+        "02-Sources/odmm_linux_compact_v2281.py",
+        "02-Sources/odmm_linux_compact_v22810.py",
+        "02-Sources/odmm_linux_compact_v22811.py",
+        "02-Sources/odmm_linux_compact_v2282.py",
+        "02-Sources/odmm_linux_compact_v2283.py",
+        "02-Sources/odmm_linux_compact_v2284.py",
+        "02-Sources/odmm_linux_compact_v2285.py",
+        "02-Sources/odmm_linux_compact_v2286.py",
+        "02-Sources/odmm_linux_compact_v2287.py",
+        "02-Sources/odmm_linux_compact_v2288.py",
+        "02-Sources/odmm_linux_compact_v2289.py"
+      ],
+      "referenced_members": [
+        "odmm_linux_compact_v22810",
+        "odmm_linux_compact_v2289"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_oidc_routes",
+      "members": [
+        "02-Sources/odmm_oidc_routes_v2072.py",
+        "02-Sources/odmm_oidc_routes_v2073.py"
+      ],
+      "referenced_members": [
+        "odmm_oidc_routes_v2072",
+        "odmm_oidc_routes_v2073"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_oidc_sqlite_audit",
+      "members": [
+        "02-Sources/odmm_oidc_sqlite_audit_v2000.py",
+        "02-Sources/odmm_oidc_sqlite_audit_v2111.py"
+      ],
+      "referenced_members": [
+        "odmm_oidc_sqlite_audit_v2000",
+        "odmm_oidc_sqlite_audit_v2111"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_payload_gate",
+      "members": [
+        "02-Sources/odmm_payload_gate_v2284.py",
+        "02-Sources/odmm_payload_gate_v2285.py"
+      ],
+      "referenced_members": [
+        "odmm_payload_gate_v2284",
+        "odmm_payload_gate_v2285"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_runtime_qualification",
+      "members": [
+        "02-Sources/odmm_runtime_qualification_v2249.py",
+        "02-Sources/odmm_runtime_qualification_v2250.py"
+      ],
+      "referenced_members": [
+        "odmm_runtime_qualification_v2249",
+        "odmm_runtime_qualification_v2250"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_windows_build_audit",
+      "members": [
+        "02-Sources/odmm_windows_build_audit_v2259.py",
+        "02-Sources/odmm_windows_build_audit_v2273.py"
+      ],
+      "referenced_members": [
+        "odmm_windows_build_audit_v2259"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_windows_compact",
+      "members": [
+        "02-Sources/odmm_windows_compact_v2275.py",
+        "02-Sources/odmm_windows_compact_v2276.py",
+        "02-Sources/odmm_windows_compact_v2277.py",
+        "02-Sources/odmm_windows_compact_v2278.py",
+        "02-Sources/odmm_windows_compact_v2279.py",
+        "02-Sources/odmm_windows_compact_v2280.py",
+        "02-Sources/odmm_windows_compact_v2281.py",
+        "02-Sources/odmm_windows_compact_v22810.py",
+        "02-Sources/odmm_windows_compact_v22811.py",
+        "02-Sources/odmm_windows_compact_v2282.py",
+        "02-Sources/odmm_windows_compact_v2283.py",
+        "02-Sources/odmm_windows_compact_v2284.py",
+        "02-Sources/odmm_windows_compact_v2285.py",
+        "02-Sources/odmm_windows_compact_v2286.py",
+        "02-Sources/odmm_windows_compact_v2287.py",
+        "02-Sources/odmm_windows_compact_v2288.py",
+        "02-Sources/odmm_windows_compact_v2289.py"
+      ],
+      "referenced_members": [
+        "odmm_windows_compact_v2275"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "odmm_windows_desktop",
+      "members": [
+        "02-Sources/odmm_windows_desktop_v2257.py",
+        "02-Sources/odmm_windows_desktop_v2258.py",
+        "02-Sources/odmm_windows_desktop_v2261.py",
+        "02-Sources/odmm_windows_desktop_v2262.py",
+        "02-Sources/odmm_windows_desktop_v2263.py",
+        "02-Sources/odmm_windows_desktop_v2264.py",
+        "02-Sources/odmm_windows_desktop_v2265.py",
+        "02-Sources/odmm_windows_desktop_v2266.py",
+        "02-Sources/odmm_windows_desktop_v2267.py",
+        "02-Sources/odmm_windows_desktop_v2268.py",
+        "02-Sources/odmm_windows_desktop_v2269.py",
+        "02-Sources/odmm_windows_desktop_v2270.py",
+        "02-Sources/odmm_windows_desktop_v2271.py",
+        "02-Sources/odmm_windows_desktop_v2272.py",
+        "02-Sources/odmm_windows_desktop_v2273.py",
+        "02-Sources/odmm_windows_desktop_v2274.py"
+      ],
+      "referenced_members": [
+        "odmm_windows_desktop_v2257",
+        "odmm_windows_desktop_v2258"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "qualification",
+      "members": [
+        "02-Sources/qualification.py",
+        "02-Sources/qualification_v1772.py"
+      ],
+      "referenced_members": [
+        "qualification",
+        "qualification_v1772"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "recette_navigateur",
+      "members": [
+        "02-Sources/recette_navigateur_v2202.py",
+        "02-Sources/recette_navigateur_v2203.py"
+      ],
+      "referenced_members": [
+        "recette_navigateur_v2203"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_native_audit_export",
+      "members": [
+        "02-Sources/test_native_audit_export.py",
+        "02-Sources/test_native_audit_export_v1908.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_campaign",
+      "members": [
+        "02-Sources/test_odmm_campaign_v2049.py",
+        "02-Sources/test_odmm_campaign_v2095.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_campaign_dashboard",
+      "members": [
+        "02-Sources/test_odmm_campaign_dashboard_v2196.py",
+        "02-Sources/test_odmm_campaign_dashboard_v2200.py",
+        "02-Sources/test_odmm_campaign_dashboard_v2201.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_campaign_dashboard_ui",
+      "members": [
+        "02-Sources/test_odmm_campaign_dashboard_ui_v2198.py",
+        "02-Sources/test_odmm_campaign_dashboard_ui_v2199.py"
+      ],
+      "referenced_members": [
+        "test_odmm_campaign_dashboard_ui_v2198",
+        "test_odmm_campaign_dashboard_ui_v2199"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_collector_registry",
+      "members": [
+        "02-Sources/test_odmm_collector_registry_v2090.py",
+        "02-Sources/test_odmm_collector_registry_v2092.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_dashboard",
+      "members": [
+        "02-Sources/test_odmm_dashboard_v2270.py",
+        "02-Sources/test_odmm_dashboard_v2278.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_desktop_api",
+      "members": [
+        "02-Sources/test_odmm_desktop_api_v2264.py",
+        "02-Sources/test_odmm_desktop_api_v2265.py",
+        "02-Sources/test_odmm_desktop_api_v2266.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_desktop_preflight",
+      "members": [
+        "02-Sources/test_odmm_desktop_preflight_v2260.py",
+        "02-Sources/test_odmm_desktop_preflight_v2261.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_evidence_ledger",
+      "members": [
+        "02-Sources/test_odmm_evidence_ledger_v22814.py",
+        "02-Sources/test_odmm_evidence_ledger_v22815.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_health",
+      "members": [
+        "02-Sources/test_odmm_health_v2271.py",
+        "02-Sources/test_odmm_health_v2283.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_nas_acl",
+      "members": [
+        "02-Sources/test_odmm_nas_acl_v2160.py",
+        "02-Sources/test_odmm_nas_acl_v2161.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_nas_acl_operations",
+      "members": [
+        "02-Sources/test_odmm_nas_acl_operations_v2157.py",
+        "02-Sources/test_odmm_nas_acl_operations_v2165.py"
+      ],
+      "referenced_members": [
+        "test_odmm_nas_acl_operations_v2157"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_oidc_rotation_outage",
+      "members": [
+        "02-Sources/test_odmm_oidc_rotation_outage_v1992.py",
+        "02-Sources/test_odmm_oidc_rotation_outage_v2076.py"
+      ],
+      "referenced_members": [
+        "test_odmm_oidc_rotation_outage_v1992"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_oidc_routes",
+      "members": [
+        "02-Sources/test_odmm_oidc_routes_v2072.py",
+        "02-Sources/test_odmm_oidc_routes_v2073.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_oidc_sqlite_audit",
+      "members": [
+        "02-Sources/test_odmm_oidc_sqlite_audit_v2000.py",
+        "02-Sources/test_odmm_oidc_sqlite_audit_v2111.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_payload_gate",
+      "members": [
+        "02-Sources/test_odmm_payload_gate_v2284.py",
+        "02-Sources/test_odmm_payload_gate_v2285.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_release",
+      "members": [
+        "02-Sources/test_odmm_release_v2282.py",
+        "02-Sources/test_odmm_release_v2283.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_runtime_qualification",
+      "members": [
+        "02-Sources/test_odmm_runtime_qualification_v2249.py",
+        "02-Sources/test_odmm_runtime_qualification_v2250.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_odmm_scoped",
+      "members": [
+        "02-Sources/test_odmm_scoped_v1971.py",
+        "02-Sources/test_odmm_scoped_v1972.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_qualification",
+      "members": [
+        "02-Sources/test_qualification.py",
+        "02-Sources/test_qualification_v1772.py"
+      ],
+      "referenced_members": [],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_qualification_review_http",
+      "members": [
+        "02-Sources/test_qualification_review_http_v2222.py",
+        "02-Sources/test_qualification_review_http_v2223.py"
+      ],
+      "referenced_members": [
+        "test_qualification_review_http_v2223"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    },
+    {
+      "family": "test_qualification_witness_rotation",
+      "members": [
+        "02-Sources/test_qualification_witness_rotation_v2232.py",
+        "02-Sources/test_qualification_witness_rotation_v2233.py"
+      ],
+      "referenced_members": [
+        "test_qualification_witness_rotation_v2232"
+      ],
+      "decision": "REVIEW_ONLY",
+      "delete_authorized": false
+    }
+  ],
+  "unreferenced_by_static_imports": [
+    "02-Sources/odmm_access_campaign_worker_v2183.py",
+    "02-Sources/odmm_acl_benchmark_v2162.py",
+    "02-Sources/odmm_architecture_audit_v2257.py",
+    "02-Sources/odmm_browser_deploy.py",
+    "02-Sources/odmm_cockpit_collection_v2058.py",
+    "02-Sources/odmm_entrypoint_contract.py",
+    "02-Sources/odmm_evidence_audit_cli_v22813.py",
+    "02-Sources/odmm_evidence_ledger_cli_v22814.py",
+    "02-Sources/odmm_evidence_ledger_cli_v22815.py",
+    "02-Sources/odmm_linux_compact_v2277.py",
+    "02-Sources/odmm_linux_compact_v2278.py",
+    "02-Sources/odmm_linux_compact_v2279.py",
+    "02-Sources/odmm_linux_compact_v2280.py",
+    "02-Sources/odmm_linux_compact_v2281.py",
+    "02-Sources/odmm_linux_compact_v22811.py",
+    "02-Sources/odmm_linux_compact_v2282.py",
+    "02-Sources/odmm_linux_compact_v2283.py",
+    "02-Sources/odmm_linux_compact_v2284.py",
+    "02-Sources/odmm_linux_compact_v2285.py",
+    "02-Sources/odmm_linux_compact_v2286.py",
+    "02-Sources/odmm_linux_compact_v2287.py",
+    "02-Sources/odmm_linux_compact_v2288.py",
+    "02-Sources/odmm_readiness_cli_v22812.py",
+    "02-Sources/odmm_static_reachability.py",
+    "02-Sources/odmm_windows_build_audit_v2273.py",
+    "02-Sources/odmm_windows_compact_v2276.py",
+    "02-Sources/odmm_windows_compact_v2277.py",
+    "02-Sources/odmm_windows_compact_v2278.py",
+    "02-Sources/odmm_windows_compact_v2279.py",
+    "02-Sources/odmm_windows_compact_v2280.py",
+    "02-Sources/odmm_windows_compact_v2281.py",
+    "02-Sources/odmm_windows_compact_v22810.py",
+    "02-Sources/odmm_windows_compact_v22811.py",
+    "02-Sources/odmm_windows_compact_v2282.py",
+    "02-Sources/odmm_windows_compact_v2283.py",
+    "02-Sources/odmm_windows_compact_v2284.py",
+    "02-Sources/odmm_windows_compact_v2285.py",
+    "02-Sources/odmm_windows_compact_v2286.py",
+    "02-Sources/odmm_windows_compact_v2287.py",
+    "02-Sources/odmm_windows_compact_v2288.py",
+    "02-Sources/odmm_windows_compact_v2289.py",
+    "02-Sources/odmm_windows_desktop_v2261.py",
+    "02-Sources/odmm_windows_desktop_v2262.py",
+    "02-Sources/odmm_windows_desktop_v2263.py",
+    "02-Sources/odmm_windows_desktop_v2264.py",
+    "02-Sources/odmm_windows_desktop_v2265.py",
+    "02-Sources/odmm_windows_desktop_v2266.py",
+    "02-Sources/odmm_windows_desktop_v2267.py",
+    "02-Sources/odmm_windows_desktop_v2268.py",
+    "02-Sources/odmm_windows_desktop_v2269.py",
+    "02-Sources/odmm_windows_desktop_v2270.py",
+    "02-Sources/odmm_windows_desktop_v2271.py",
+    "02-Sources/odmm_windows_desktop_v2272.py",
+    "02-Sources/odmm_windows_desktop_v2273.py",
+    "02-Sources/odmm_windows_desktop_v2274.py",
+    "02-Sources/recette_navigateur_v2202.py"
+  ],
+  "parse_errors": [],
+  "delete_authorized": false,
+  "limitations": [
+    "Static import graph is not a runtime trace",
+    "File names may collide across directories",
+    "Dynamic imports, shell entrypoints and plugin discovery need runtime tests",
+    "Unreferenced does not mean unused"
+  ]
+}

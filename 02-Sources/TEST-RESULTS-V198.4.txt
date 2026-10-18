@@ -1,0 +1,20 @@
+test_atomic_consume (test_odmm_oidc_concurrency_v1984.StoreConcurrencyTests.test_atomic_consume) ... ok
+test_cross_session_rejection_and_restart (test_odmm_oidc_concurrency_v1984.StoreConcurrencyTests.test_cross_session_rejection_and_restart) ... ok
+test_csrf_expiry_and_logout (test_odmm_oidc_concurrency_v1984.StoreConcurrencyTests.test_csrf_expiry_and_logout) ... ok
+test_binding_and_logout (test_odmm_oidc_csrf_binding_v1983.BindingTests.test_binding_and_logout) ... ok
+test_restart_persistence (test_odmm_oidc_csrf_binding_v1983.BindingTests.test_restart_persistence) ... ok
+test_bad_origin (test_odmm_oidc_browser_csrf_v1982.BrowserBoundaryTests.test_bad_origin) ... ok
+test_bad_token (test_odmm_oidc_browser_csrf_v1982.BrowserBoundaryTests.test_bad_token) ... ok
+test_missing_token (test_odmm_oidc_browser_csrf_v1982.BrowserBoundaryTests.test_missing_token) ... ok
+test_valid (test_odmm_oidc_browser_csrf_v1982.BrowserBoundaryTests.test_valid) ... ok
+test_cross_instance_session (test_odmm_oidc_session_store.SessionStoreTests.test_cross_instance_session) ... ok
+test_expiration (test_odmm_oidc_session_store.SessionStoreTests.test_expiration) ... ok
+test_expired_pending (test_odmm_oidc_session_store.SessionStoreTests.test_expired_pending) ... ok
+test_file_mode (test_odmm_oidc_session_store.SessionStoreTests.test_file_mode) ... ok
+test_reject_unverified (test_odmm_oidc_session_store.SessionStoreTests.test_reject_unverified) ... ok
+test_single_use_across_connections (test_odmm_oidc_session_store.SessionStoreTests.test_single_use_across_connections) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.089s
+
+OK

@@ -1,0 +1,2 @@
+pytest: 11 passed in 3.45s
+Scope: runtime surface + reachability + entrypoint contract

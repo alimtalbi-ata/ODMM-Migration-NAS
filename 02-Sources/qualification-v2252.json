@@ -1,0 +1,53 @@
+{
+  "version": "225.2",
+  "compact_version": "7.6.2",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "checks": [
+    {
+      "name": "hard-kill-child",
+      "status": "PASS",
+      "detail": "returncode=-9; stderr="
+    },
+    {
+      "name": "partial-file-survives",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sqlite-reopen-and-resume",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "cutover-fail-closed",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "metadata-and-hashes",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "windows-portable-execution",
+      "status": "NOT_TESTED",
+      "detail": "Outside this local POSIX qualification scope"
+    },
+    {
+      "name": "nfs-smb-real-nas",
+      "status": "NOT_TESTED",
+      "detail": "Outside this local POSIX qualification scope"
+    },
+    {
+      "name": "effective-acl-identity",
+      "status": "NOT_TESTED",
+      "detail": "Outside this local POSIX qualification scope"
+    },
+    {
+      "name": "mid-file-crash-atomicity",
+      "status": "NOT_TESTED",
+      "detail": "Outside this local POSIX qualification scope"
+    }
+  ]
+}

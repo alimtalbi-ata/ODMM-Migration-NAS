@@ -1,0 +1,6 @@
+{
+  "release": "V228.64",
+  "static_tests": "passed 3 assertions",
+  "windows_native": "not_run",
+  "windows_executables": "not_included"
+}

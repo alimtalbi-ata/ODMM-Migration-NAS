@@ -1,0 +1,15 @@
+{
+  "version": "225.5",
+  "compact_version": "7.6.5",
+  "author": "Abdelhalim Talbi",
+  "environment": "Linux local",
+  "targeted_tests": 26,
+  "passed": 26,
+  "warnings": 2,
+  "windows": "NOT_TESTED",
+  "nas_nfs_smb": "NOT_TESTED",
+  "effective_acls": "NOT_TESTED",
+  "power_loss": "NOT_TESTED",
+  "full_regression": "NOT_RUN",
+  "ui_snapshots": "NOT_CAPTURED"
+}

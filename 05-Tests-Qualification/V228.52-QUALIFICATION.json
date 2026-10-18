@@ -1,0 +1,10 @@
+{
+  "version": "V228.52",
+  "target": "Windows Compact",
+  "linux_static_tests_passed": 9,
+  "linux_static_tests_total": 9,
+  "native_windows_build": "not_run",
+  "native_windows_installer": "not_run",
+  "real_ui_screenshots": "not_available",
+  "author": "Abdelhalim Talbi"
+}

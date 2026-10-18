@@ -1,0 +1,11 @@
+{
+  "version": "V228.69",
+  "tests": {
+    "build_contract": {
+      "passed": 3,
+      "total": 3
+    }
+  },
+  "windows_native": "NOT_RUN",
+  "binary_present": false
+}

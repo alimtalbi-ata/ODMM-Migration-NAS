@@ -1,0 +1,11 @@
+{
+  "release": "V225.6 / Compact V7.6.6",
+  "environment": "Linux local",
+  "targeted_tests_passed": 31,
+  "warnings": 2,
+  "global_regression": "NOT_RUN",
+  "windows": "NOT_TESTED",
+  "nas_nfs_smb": "NOT_TESTED",
+  "real_power_loss": "NOT_TESTED",
+  "fix": "parent_fd preserves body OSError"
+}

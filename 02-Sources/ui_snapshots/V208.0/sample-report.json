@@ -1,0 +1,48 @@
+{
+  "schema": "odmm.netapp.mapping.v2080",
+  "status": "BLOCKED",
+  "cutover_authorized": false,
+  "source": [
+    {
+      "svm": "svm-prod",
+      "volume": "data01",
+      "junction": "/data",
+      "security_style": "mixed",
+      "shares": [
+        "finance"
+      ],
+      "export_policy": "default",
+      "lif_count": 1,
+      "acl_verified": false,
+      "snapshot_consistent": false
+    }
+  ],
+  "target": [
+    {
+      "svm": "svm-prod",
+      "volume": "data01",
+      "junction": "/data",
+      "security_style": "mixed",
+      "shares": [
+        "finance"
+      ],
+      "export_policy": "default",
+      "lif_count": 1,
+      "acl_verified": false,
+      "snapshot_consistent": false
+    }
+  ],
+  "blockers": [
+    "SOURCE_NETAPP_ACL_EFFECTIVE_ACCESS_UNVERIFIED",
+    "SOURCE_NETAPP_HA_FAILOVER_UNVERIFIED",
+    "SOURCE_NETAPP_PERFORMANCE_BASELINE_UNVERIFIED",
+    "SOURCE_NETAPP_SNAPSHOT_COHERENCE_UNVERIFIED",
+    "TARGET_NETAPP_ACL_EFFECTIVE_ACCESS_UNVERIFIED",
+    "TARGET_NETAPP_HA_FAILOVER_UNVERIFIED",
+    "TARGET_NETAPP_PERFORMANCE_BASELINE_UNVERIFIED",
+    "TARGET_NETAPP_SNAPSHOT_COHERENCE_UNVERIFIED"
+  ],
+  "warnings": [
+    "NETAPP_SECURITY_STYLE_EFFECTIVE_ACCESS_PROOF_REQUIRED"
+  ]
+}

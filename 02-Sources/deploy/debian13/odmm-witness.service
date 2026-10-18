@@ -1,0 +1,28 @@
+[Unit]
+Description=ODMM read-only remote witness
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=odmm-witness
+Group=odmm-witness
+WorkingDirectory=/opt/odmm-witness
+ExecStart=/usr/bin/python3 -B /opt/odmm-witness/ldaps_witness_daemon.py --config /etc/odmm-witness/config.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/odmm-witness
+ReadOnlyPaths=/etc/odmm-witness
+RestrictSUIDSGID=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

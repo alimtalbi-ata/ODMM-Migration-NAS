@@ -1,0 +1,23 @@
+.............................................................................................................................../mnt/data/odmm_v1807/effective_access_compare.py:21: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f5cbbaf9030>
+  if not all(isinstance(v, str) and v and len(v) <= 128 and not any(c in v for c in '/\\\r\n\x00') for v in (p,obj)):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1807/effective_access_compare.py:21: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f5cbbaf8b80>
+  if not all(isinstance(v, str) and v and len(v) <= 128 and not any(c in v for c in '/\\\r\n\x00') for v in (p,obj)):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1807/effective_access_compare.py:21: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f5cbbaf89a0>
+  if not all(isinstance(v, str) and v and len(v) <= 128 and not any(c in v for c in '/\\\r\n\x00') for v in (p,obj)):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1807/effective_access_compare.py:21: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f5cbbccfb50>
+  if not all(isinstance(v, str) and v and len(v) <= 128 and not any(c in v for c in '/\\\r\n\x00') for v in (p,obj)):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................................................................................................................................................................../mnt/data/odmm_v1807/identity_mapping_matrix.py:12: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f5cbb6e7100>
+  if not isinstance(item, dict) or set(item) != {'system', 'realm', 'kind', 'id_type', 'identifier'}:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1807/identity_mapping_matrix.py:12: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f5cbb6e6f20>
+  if not isinstance(item, dict) or set(item) != {'system', 'realm', 'kind', 'id_type', 'identifier'}:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................................................
+----------------------------------------------------------------------
+Ran 363 tests in 1.644s
+
+OK

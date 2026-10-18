@@ -1,0 +1,66 @@
+{
+  "author": "Abdelhalim Talbi",
+  "compact_version": "5.0.0",
+  "generated_utc": "2026-10-14T20:18:17.717861+00:00",
+  "keycloak_live_tested": false,
+  "native_engine_modified": false,
+  "outstanding": [
+    "Real Keycloak TLS/PKCE/JWT integration",
+    "JWKS rotation under live sessions",
+    "Provider outage and recovery",
+    "SQLite connection ResourceWarnings"
+  ],
+  "production_qualified": false,
+  "results": [
+    {
+      "output_sha256": "f02f390c8d5eef9bff50bcd04d7daf0791468f184f7a8e628e3fa842c918602d",
+      "output_tail": "ct at 0x7f13f9d69810>\n  self._waiters = _deque()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/opt/pyvenv/lib/python3.13/site-packages/pydantic/_internal/_schema_generation_shared.py:72: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f13f9d69010>\n  def __init__(\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n<string>:6: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f13f9f80f10>\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/usr/lib/python3.13/inspect.py:2754: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f13f9d69810>\n  def __init__(self, name, kind, *, default=_empty, annotation=_empty):\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/opt/pyvenv/lib/python3.13/site-packages/fastapi/routing.py:921: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f13f562cb10>\n  self.dependencies = list(dependencies or [])\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n----------------------------------------------------------------------\nRan 16 tests in 1.601s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_http_integration_v1989",
+      "test_count_line": "Ran 16 tests in 1.601s"
+    },
+    {
+      "output_sha256": "1ad345c27612f9b715805aba4a35afcae9926e155dd9345e6f8f3f8f52b05de4",
+      "output_tail": "\nSpreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 718, in _warm_feature_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 509, in _warm_drawing_and_image_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/generated/interface/models.py\", line 32861, in bring_to_front\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/remote.py\", line 764, in __call__\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/client.py\", line 175, in call\nartifact_tool.rpc.client.RemoteError: Element ordering requires an owning element collection.\n----------------------------------------------------------------------\nRan 9 tests in 0.001s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_live_probe_v1987",
+      "test_count_line": "Ran 9 tests in 0.001s"
+    },
+    {
+      "output_sha256": "4ee2926c0b8538bf4f1ecd0bcdb3de77a47d0ff59e1b526920981c674dc7b755",
+      "output_tail": "\nSpreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 718, in _warm_feature_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 509, in _warm_drawing_and_image_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/generated/interface/models.py\", line 32861, in bring_to_front\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/remote.py\", line 764, in __call__\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/client.py\", line 175, in call\nartifact_tool.rpc.client.RemoteError: Element ordering requires an owning element collection.\n----------------------------------------------------------------------\nRan 11 tests in 0.000s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_lab_v1988",
+      "test_count_line": "Ran 11 tests in 0.000s"
+    },
+    {
+      "output_sha256": "1a7432f6f709db0391df7cdfd85f20a38ef1c858065dbdfa450ae80bfc8675d4",
+      "output_tail": "\nSpreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 718, in _warm_feature_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 509, in _warm_drawing_and_image_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/generated/interface/models.py\", line 32861, in bring_to_front\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/remote.py\", line 764, in __call__\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/client.py\", line 175, in call\nartifact_tool.rpc.client.RemoteError: Element ordering requires an owning element collection.\n----------------------------------------------------------------------\nRan 3 tests in 0.080s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_concurrency_v1984",
+      "test_count_line": "Ran 3 tests in 0.080s"
+    },
+    {
+      "output_sha256": "d27819ded1558d296edd7a59eb396138d46a2d320392f0f7acdd47545cbef4c2",
+      "output_tail": "\nSpreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 718, in _warm_feature_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 509, in _warm_drawing_and_image_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/generated/interface/models.py\", line 32861, in bring_to_front\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/remote.py\", line 764, in __call__\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/client.py\", line 175, in call\nartifact_tool.rpc.client.RemoteError: Element ordering requires an owning element collection.\n----------------------------------------------------------------------\nRan 8 tests in 0.017s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_restart_fault_v1986",
+      "test_count_line": "Ran 8 tests in 0.017s"
+    },
+    {
+      "output_sha256": "1a7d96aa8abe8dde235c967badec2371ebfdc747cbd285aa06828c6f33a4032a",
+      "output_tail": "\nSpreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 718, in _warm_feature_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py\", line 509, in _warm_drawing_and_image_flows\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/generated/interface/models.py\", line 32861, in bring_to_front\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/remote.py\", line 764, in __call__\n  File \"/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/client.py\", line 175, in call\nartifact_tool.rpc.client.RemoteError: Element ordering requires an owning element collection.\n----------------------------------------------------------------------\nRan 2 tests in 0.012s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_csrf_binding_v1983",
+      "test_count_line": "Ran 2 tests in 0.012s"
+    }
+  ],
+  "status": "PASS_OFFLINE_ONLY",
+  "version": "199.0"
+}

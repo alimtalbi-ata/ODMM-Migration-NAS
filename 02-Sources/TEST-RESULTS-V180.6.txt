@@ -1,0 +1,23 @@
+................................................................................................................................/mnt/data/odmm_v1806/group_membership_compare.py:47: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f47695b1030>
+  observed={tuple(g) for g in right['groups']}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1806/group_membership_compare.py:47: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f47695b0b80>
+  observed={tuple(g) for g in right['groups']}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1806/group_membership_compare.py:47: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f47695b09a0>
+  observed={tuple(g) for g in right['groups']}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1806/group_membership_compare.py:47: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f476978fb50>
+  observed={tuple(g) for g in right['groups']}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.............................................................................................................................................................../mnt/data/odmm_v1806/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f47691a2d40>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1806/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f47691a2b60>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................................................................
+----------------------------------------------------------------------
+Ran 351 tests in 1.752s
+
+OK

@@ -1,0 +1,12 @@
+{
+  "release": "V228.60",
+  "application_version": "7.9.17",
+  "qualification": {
+    "linux_unit_tests_new": "6/6",
+    "windows_native": "NOT_TESTED"
+  },
+  "limitations": [
+    "API endpoint limit 200, no server pagination",
+    "Windows packaging not executed"
+  ]
+}

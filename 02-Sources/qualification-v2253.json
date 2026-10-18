@@ -1,0 +1,68 @@
+{
+  "version": "225.3",
+  "compact_version": "7.6.3",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "checks": [
+    {
+      "name": "mid-write-process-kill",
+      "status": "PASS",
+      "detail": "exit=-9; stderr="
+    },
+    {
+      "name": "no-partial-published-file",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "orphan-partial-temp-exists",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sqlite-not-committed",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "cleanup-requires-operator",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "explicit-orphan-cleanup",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "restart-copy-and-verify",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "cutover-blocked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "windows-native-portable",
+      "status": "NOT_TESTED",
+      "detail": "Outside local POSIX test scope"
+    },
+    {
+      "name": "real-nfs-smb",
+      "status": "NOT_TESTED",
+      "detail": "Outside local POSIX test scope"
+    },
+    {
+      "name": "effective-acl-preservation",
+      "status": "NOT_TESTED",
+      "detail": "Outside local POSIX test scope"
+    },
+    {
+      "name": "power-loss-fsync-durability",
+      "status": "NOT_TESTED",
+      "detail": "Outside local POSIX test scope"
+    }
+  ]
+}

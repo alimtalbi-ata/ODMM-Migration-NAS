@@ -1,0 +1,15 @@
+{
+  "version": "V228.38",
+  "feature": "opt-in engine timing",
+  "tests": "14/14",
+  "test_scope": "native incremental executor local Linux",
+  "windows_build_qualified": false,
+  "nas_qualified": false,
+  "stages": [
+    "verify.sqlite_lookup",
+    "verify.source_sha256",
+    "verify.target_sha256",
+    "commit.sqlite_transaction",
+    "rollback.sqlite_transaction"
+  ]
+}

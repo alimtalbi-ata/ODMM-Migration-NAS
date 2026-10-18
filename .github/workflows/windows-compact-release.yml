@@ -1,0 +1,68 @@
+name: ODMM Windows Compact native build
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '02-Sources/**'
+      - '03-Build-Installation/**'
+      - '.github/workflows/windows-compact-release.yml'
+jobs:
+  windows-build:
+    runs-on: windows-2022
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (!(Test-Path $iscc)) { throw 'ISCC.exe missing' }
+          "INNO_ISCC=$iscc" >> $env:GITHUB_ENV
+      - name: Compile portable and installer
+        shell: cmd
+        run: call 03-Build-Installation\BUILD-WINDOWS-COMPACT.cmd
+      - name: Verify published release
+        shell: pwsh
+        run: |
+          python 03-Build-Installation/VALIDATE-WINDOWS-RELEASE.py binary
+          if (!(Test-Path binary/portable/ODMM-Compact.exe)) { throw 'Portable missing' }
+          if (!(Test-Path binary/installer/ODMM-Compact-Setup-V7.9.27.exe)) { throw 'Installer missing' }
+      - name: Smoke test portable GUI startup
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path 'binary/portable/ODMM-Compact.exe').Path
+          $proc = Start-Process -FilePath $exe -PassThru
+          try {
+            Start-Sleep -Seconds 8
+            $proc.Refresh()
+            if ($proc.HasExited) { throw "Portable exited unexpectedly: $($proc.ExitCode)" }
+          } finally {
+            if (!$proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+          }
+      - name: Smoke test silent install and uninstall
+        shell: pwsh
+        run: |
+          ./03-Build-Installation/TEST-WINDOWS-INSTALL.ps1 -Version '7.9.27'
+      - name: Upload smoke report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ODMM-V228.71-Windows-failure-evidence
+          path: |
+            binary/WINDOWS-INSTALL-SMOKE.json
+            03-Build-Installation/WINDOWS-TOOLCHAIN-REPORT.json
+          if-no-files-found: warn
+      - name: Upload native Windows binaries and evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ODMM-V228.71-Windows-binary
+          path: |
+            binary/
+            03-Build-Installation/WINDOWS-TOOLCHAIN-REPORT.json
+          if-no-files-found: error

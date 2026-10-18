@@ -1,0 +1,69 @@
+{
+  "version": "225.0",
+  "compact_version": "7.6.0",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "checks": [
+    {
+      "name": "v2249-runtime-baseline",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "posix-first-copy",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "posix-mode-mtime",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "posix-sha256",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "posix-restart",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "posix-unsupported-symlink",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "posix-xattr-guard",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "full-auth-required",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scoped-auth-required",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "windows-portable-runtime",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "nas-nfs-smb-acl-e2e",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "real-idp",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "full-compact-ui-launch",
+      "status": "NOT_TESTED"
+    }
+  ]
+}

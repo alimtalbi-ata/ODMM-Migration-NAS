@@ -1,0 +1,10 @@
+{
+  "version": "V228.31",
+  "suite": "targeted_linux",
+  "tests_passed": 41,
+  "tests_failed": 0,
+  "new_tests": 2,
+  "real_nas_qualified": false,
+  "windows_native_qualified": false,
+  "author": "Abdelhalim Talbi"
+}

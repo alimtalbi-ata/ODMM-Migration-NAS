@@ -1,0 +1,8 @@
+{
+  "version": "226.3",
+  "compact": "7.7.3",
+  "targeted_tests_passed": 26,
+  "windows_build_executed": false,
+  "real_windows_snapshots": false,
+  "live_server_integration": false
+}

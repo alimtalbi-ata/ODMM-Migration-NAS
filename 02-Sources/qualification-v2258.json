@@ -1,0 +1,8 @@
+{
+  "platform": "Linux",
+  "tests_exit": 0,
+  "test_output": ".......                                                                  [100%]\n7 passed in 0.61s\n",
+  "windows_build": "NOT_RUN",
+  "windows_gui": "NOT_RUN",
+  "nas_e2e": "NOT_RUN"
+}

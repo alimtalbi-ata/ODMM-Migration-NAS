@@ -1,0 +1,71 @@
+{
+  "benchmark": "ODMM V228.41 statistical baseline",
+  "source": "ODMM V228.39 actual local executor path",
+  "cases": [
+    {
+      "size_bytes": 1048576,
+      "repetitions": 3,
+      "median_ms": 8.049,
+      "min_ms": 6.995,
+      "max_ms": 17.811,
+      "bootstrap_median_95pct_ms": [
+        6.995,
+        17.811
+      ],
+      "stage_medians_ms_overlapping": {
+        "commit.sqlite_transaction": 2.520591,
+        "copy.native_posix": 3.398368,
+        "verify.source_inventory": 0.112185,
+        "verify.source_sha256": 1.46989,
+        "verify.sqlite_lookup": 0.013731,
+        "verify.target_sha256": 1.505773
+      },
+      "additive_stage_costs": false
+    },
+    {
+      "size_bytes": 4194304,
+      "repetitions": 3,
+      "median_ms": 27.459,
+      "min_ms": 26.917,
+      "max_ms": 36.439,
+      "bootstrap_median_95pct_ms": [
+        26.917,
+        36.439
+      ],
+      "stage_medians_ms_overlapping": {
+        "commit.sqlite_transaction": 6.341843,
+        "copy.native_posix": 15.26086,
+        "verify.source_inventory": 0.058286,
+        "verify.source_sha256": 5.888614,
+        "verify.sqlite_lookup": 0.015773,
+        "verify.target_sha256": 5.451969
+      },
+      "additive_stage_costs": false
+    },
+    {
+      "size_bytes": 16777216,
+      "repetitions": 3,
+      "median_ms": 110.968,
+      "min_ms": 98.665,
+      "max_ms": 115.256,
+      "bootstrap_median_95pct_ms": [
+        98.665,
+        115.256
+      ],
+      "stage_medians_ms_overlapping": {
+        "commit.sqlite_transaction": 26.136046,
+        "copy.native_posix": 56.834028,
+        "verify.source_inventory": 0.08783,
+        "verify.source_sha256": 24.617124,
+        "verify.sqlite_lookup": 0.02038,
+        "verify.target_sha256": 24.459121
+      },
+      "additive_stage_costs": false
+    }
+  ],
+  "warnings": [
+    "stage timings may overlap; do not sum stage durations",
+    "bootstrap confidence intervals describe observed local runs, not NAS performance",
+    "small samples and warm cache effects limit inference"
+  ]
+}

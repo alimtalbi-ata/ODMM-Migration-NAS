@@ -1,0 +1,8 @@
+{
+  "version": "V228.34",
+  "tests_command": "python -m unittest -q test_native_incremental_final_gate_v22834 test_native_incremental_mutation_v22833 test_native_incremental_transactions_v22830 test_native_incremental_concurrency_v22829 test_native_incremental_crash_boundaries",
+  "result": "----------------------------------------------------------------------\nRan 66 tests in 5.854s\n\nOK",
+  "scope": "Linux local POSIX/SQLite",
+  "windows_native": "not_qualified",
+  "nas_physical": "not_qualified"
+}

@@ -1,0 +1,23 @@
+......................................................................................................................./usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f70d5d57b50>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f70d59f25c0>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f70d59f26b0>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/encoder.py:252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f70d59f2890>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.................................................................../mnt/data/odmm_v1798/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f70d5d57b50>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1798/identity_mapping_matrix.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7f70d5c10c70>
+  system, realm, kind, id_type, identifier = (item[k] for k in ('system','realm','kind','id_type','identifier'))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.............................................................
+----------------------------------------------------------------------
+Ran 247 tests in 1.744s
+
+OK

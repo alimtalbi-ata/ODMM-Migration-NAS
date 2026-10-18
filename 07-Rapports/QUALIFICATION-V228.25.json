@@ -1,0 +1,15 @@
+{
+  "version": "V228.25",
+  "author": "Abdelhalim Talbi",
+  "tests": 5,
+  "passed": 5,
+  "environment": "Linux container",
+  "native_windows_build": "NOT_TESTED",
+  "real_nas_migration": "NOT_TESTED",
+  "changes": [
+    "canonical Linux Compact launcher",
+    "portable preflight",
+    "end-to-end CLI smoke tests"
+  ],
+  "timestamp_utc": "2026-10-17T16:50:02.366441+00:00"
+}

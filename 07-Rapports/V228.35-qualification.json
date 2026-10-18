@@ -1,0 +1,12 @@
+{
+  "version": "228.35",
+  "scope": "Linux local POSIX + SQLite",
+  "tests_passed": 59,
+  "tests_failed": 0,
+  "change": "post-hash fstat validation",
+  "limitations": [
+    "no atomic filesystem snapshot",
+    "no real NAS validation",
+    "no native Windows build"
+  ]
+}

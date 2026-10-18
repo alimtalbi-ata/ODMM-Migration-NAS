@@ -1,0 +1,40 @@
+{
+  "schema": "odmm.runtime-surface.v1",
+  "release": "228.20",
+  "entries": [
+    {
+      "edition": "linux-full",
+      "role": "qualification-script",
+      "launcher": "03-Build-Installation/ODMM-LINUX-FULL-V22812.sh",
+      "references": []
+    },
+    {
+      "edition": "linux-compact",
+      "role": "cli-wrapper",
+      "launcher": "02-Sources/odmm_linux_compact_v22811.py",
+      "references": []
+    },
+    {
+      "edition": "windows-compact",
+      "role": "build-script",
+      "launcher": "03-Build-Installation/BUILD-WINDOWS-COMPACT-V22811.cmd",
+      "references": []
+    }
+  ],
+  "missing_launchers": [],
+  "unsafe_paths": [],
+  "static_python_reachable_count": 16,
+  "static_python_not_reached_count": 1062,
+  "dynamic_import_indicators_count": 19,
+  "disposition": {
+    "retain": "All current modules pending execution tests",
+    "replace": "Version-suffixed duplicate families require owner and behavior parity review",
+    "remove": "None approved by this read-only analysis"
+  },
+  "limitations": [
+    "Only explicit launcher scripts in the edition contract are scanned",
+    "Regex references may be comments, examples or build-time only",
+    "Indirect process launch, runtime plugins and external dependencies are not resolved",
+    "No code is executed or removed"
+  ]
+}

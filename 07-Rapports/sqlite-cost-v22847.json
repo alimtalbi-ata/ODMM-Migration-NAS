@@ -1,0 +1,28 @@
+{
+  "analysis": "ODMM V228.47 SQLite exclusive-cost characterization",
+  "scope": "instrumented SQLite substeps only, excludes uninstrumented SQLite operations",
+  "optimization_applied": false,
+  "cases": [
+    {
+      "size_bytes": 4096,
+      "runs": 5,
+      "median_sqlite_ms": 0.6002,
+      "median_sqlite_share_pct": 13.8,
+      "median_total_ms": 3.6126
+    },
+    {
+      "size_bytes": 65536,
+      "runs": 5,
+      "median_sqlite_ms": 0.5813,
+      "median_sqlite_share_pct": 14.97,
+      "median_total_ms": 3.8984
+    },
+    {
+      "size_bytes": 1048576,
+      "runs": 5,
+      "median_sqlite_ms": 0.5206,
+      "median_sqlite_share_pct": 7.44,
+      "median_total_ms": 7.0008
+    }
+  ]
+}

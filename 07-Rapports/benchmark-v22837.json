@@ -1,0 +1,20 @@
+{
+  "scope": "synthetic local file SHA256 only; no NAS, no SQLite or engine benchmark",
+  "rows": [
+    {
+      "bytes": 1048576,
+      "repeats": 5,
+      "single_pass_median_ms": 0.617,
+      "double_pass_median_ms": 1.28,
+      "observed_ratio": 2.076
+    },
+    {
+      "bytes": 8388608,
+      "repeats": 5,
+      "single_pass_median_ms": 5.124,
+      "double_pass_median_ms": 10.278,
+      "observed_ratio": 2.006
+    }
+  ],
+  "recommendation": "Retain final re-verification; no unsafe cache or skipped hash."
+}

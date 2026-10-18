@@ -1,0 +1,316 @@
+{
+  "schema": "odmm.local.workload.v22845",
+  "profile": "small",
+  "scope": "real local IncrementalExecutor; inventory/claim excluded from timing",
+  "limitations": [
+    "local filesystem only",
+    "warm caches possible",
+    "one worker",
+    "no NAS or ACL claims",
+    "small sample, descriptive only"
+  ],
+  "cases": [
+    {
+      "size_bytes": 262144,
+      "repetitions": 5,
+      "median_total_ms": 3.6198,
+      "median_throughput_mib_s": 69.064,
+      "median_exclusive_ms": {
+        "commit.sqlite_transaction": 0.5776,
+        "copy.native_posix": 2.1824,
+        "verify.source_inventory": 0.0583,
+        "verify.source_sha256": 0.3417,
+        "verify.sqlite_lookup": 0.0095,
+        "verify.target_sha256": 0.3437
+      },
+      "raw_runs": [
+        {
+          "total_ns": 4937379,
+          "stages_ns": {
+            "copy.native_posix": 3012033,
+            "verify.source_inventory": 61771,
+            "verify.sqlite_lookup": 66158,
+            "verify.source_sha256": 485838,
+            "verify.target_sha256": 411458,
+            "commit.sqlite_transaction": 974561
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 3012033,
+            "verify.source_inventory": 61771,
+            "verify.sqlite_lookup": 66158,
+            "verify.source_sha256": 485838,
+            "verify.target_sha256": 411458,
+            "commit.sqlite_transaction": 592076
+          }
+        },
+        {
+          "total_ns": 3303352,
+          "stages_ns": {
+            "copy.native_posix": 1897675,
+            "verify.source_inventory": 42412,
+            "verify.sqlite_lookup": 9474,
+            "verify.source_sha256": 344539,
+            "verify.target_sha256": 343677,
+            "commit.sqlite_transaction": 773904
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 1897675,
+            "verify.source_inventory": 42412,
+            "verify.sqlite_lookup": 9474,
+            "verify.source_sha256": 344539,
+            "verify.target_sha256": 343677,
+            "commit.sqlite_transaction": 436576
+          }
+        },
+        {
+          "total_ns": 3619830,
+          "stages_ns": {
+            "copy.native_posix": 2182426,
+            "verify.source_inventory": 41711,
+            "verify.sqlite_lookup": 8233,
+            "verify.source_sha256": 337279,
+            "verify.target_sha256": 349026,
+            "commit.sqlite_transaction": 821374
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 2182426,
+            "verify.source_inventory": 41711,
+            "verify.sqlite_lookup": 8233,
+            "verify.source_sha256": 337279,
+            "verify.target_sha256": 349026,
+            "commit.sqlite_transaction": 467090
+          }
+        },
+        {
+          "total_ns": 3818805,
+          "stages_ns": {
+            "copy.native_posix": 2241694,
+            "verify.source_inventory": 59568,
+            "verify.sqlite_lookup": 9464,
+            "verify.source_sha256": 341665,
+            "verify.target_sha256": 328596,
+            "commit.sqlite_transaction": 945898
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 2241694,
+            "verify.source_inventory": 59568,
+            "verify.sqlite_lookup": 9464,
+            "verify.source_sha256": 341665,
+            "verify.target_sha256": 328596,
+            "commit.sqlite_transaction": 611885
+          }
+        },
+        {
+          "total_ns": 3546752,
+          "stages_ns": {
+            "copy.native_posix": 2031203,
+            "verify.source_inventory": 58276,
+            "verify.sqlite_lookup": 9945,
+            "verify.source_sha256": 332121,
+            "verify.target_sha256": 318310,
+            "commit.sqlite_transaction": 896586
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 2031203,
+            "verify.source_inventory": 58276,
+            "verify.sqlite_lookup": 9945,
+            "verify.source_sha256": 332121,
+            "verify.target_sha256": 318310,
+            "commit.sqlite_transaction": 577625
+          }
+        }
+      ]
+    },
+    {
+      "size_bytes": 1048576,
+      "repetitions": 5,
+      "median_total_ms": 7.3196,
+      "median_throughput_mib_s": 136.62,
+      "median_exclusive_ms": {
+        "commit.sqlite_transaction": 0.5276,
+        "copy.native_posix": 3.5813,
+        "verify.source_inventory": 0.0425,
+        "verify.source_sha256": 1.476,
+        "verify.sqlite_lookup": 0.0092,
+        "verify.target_sha256": 1.4065
+      },
+      "raw_runs": [
+        {
+          "total_ns": 7950593,
+          "stages_ns": {
+            "copy.native_posix": 4235811,
+            "verify.source_inventory": 41782,
+            "verify.sqlite_lookup": 8793,
+            "verify.source_sha256": 1476012,
+            "verify.target_sha256": 1435562,
+            "commit.sqlite_transaction": 1806881
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 4235811,
+            "verify.source_inventory": 41782,
+            "verify.sqlite_lookup": 8793,
+            "verify.source_sha256": 1476012,
+            "verify.target_sha256": 1435562,
+            "commit.sqlite_transaction": 495463
+          }
+        },
+        {
+          "total_ns": 7319560,
+          "stages_ns": {
+            "copy.native_posix": 2925915,
+            "verify.source_inventory": 44746,
+            "verify.sqlite_lookup": 9082,
+            "verify.source_sha256": 1935000,
+            "verify.target_sha256": 1406540,
+            "commit.sqlite_transaction": 2361020
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 2925915,
+            "verify.source_inventory": 44746,
+            "verify.sqlite_lookup": 9082,
+            "verify.source_sha256": 1935000,
+            "verify.target_sha256": 1406540,
+            "commit.sqlite_transaction": 606967
+          }
+        },
+        {
+          "total_ns": 7658801,
+          "stages_ns": {
+            "copy.native_posix": 3581324,
+            "verify.source_inventory": 42523,
+            "verify.sqlite_lookup": 9234,
+            "verify.source_sha256": 1568778,
+            "verify.target_sha256": 1586555,
+            "commit.sqlite_transaction": 2134365
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 3581324,
+            "verify.source_inventory": 42523,
+            "verify.sqlite_lookup": 9234,
+            "verify.source_sha256": 1568778,
+            "verify.target_sha256": 1586555,
+            "commit.sqlite_transaction": 519648
+          }
+        },
+        {
+          "total_ns": 7168376,
+          "stages_ns": {
+            "copy.native_posix": 3589746,
+            "verify.source_inventory": 42423,
+            "verify.sqlite_lookup": 10035,
+            "verify.source_sha256": 1384496,
+            "verify.target_sha256": 1257499,
+            "commit.sqlite_transaction": 1856745
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 3589746,
+            "verify.source_inventory": 42423,
+            "verify.sqlite_lookup": 10035,
+            "verify.source_sha256": 1384496,
+            "verify.target_sha256": 1257499,
+            "commit.sqlite_transaction": 592056
+          }
+        },
+        {
+          "total_ns": 7068518,
+          "stages_ns": {
+            "copy.native_posix": 3437681,
+            "verify.source_inventory": 45197,
+            "verify.sqlite_lookup": 9525,
+            "verify.source_sha256": 1431676,
+            "verify.target_sha256": 1374723,
+            "commit.sqlite_transaction": 2017181
+          },
+          "stage_counts": {
+            "copy.native_posix": 1,
+            "verify.source_inventory": 1,
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          },
+          "exclusive_stages_ns": {
+            "copy.native_posix": 3437681,
+            "verify.source_inventory": 45197,
+            "verify.sqlite_lookup": 9525,
+            "verify.source_sha256": 1431676,
+            "verify.target_sha256": 1374723,
+            "commit.sqlite_transaction": 527578
+          }
+        }
+      ]
+    }
+  ]
+}

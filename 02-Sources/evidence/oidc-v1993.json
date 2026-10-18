@@ -1,0 +1,90 @@
+{
+  "author": "Abdelhalim Talbi",
+  "compact_version": "5.0.0",
+  "generated_utc": "2026-10-14T20:24:32.209018+00:00",
+  "keycloak_live_tested": false,
+  "native_engine_modified": false,
+  "outstanding": [
+    "Real Keycloak TLS/PKCE/JWT integration",
+    "JWKS rotation under live sessions",
+    "Provider outage and recovery",
+    "SQLite connection ResourceWarnings"
+  ],
+  "production_qualified": false,
+  "results": [
+    {
+      "output_sha256": "f63ab95e6e108a35dfb25d77eec0ac93f0bcce6198630c9aefd7120e2970cbc3",
+      "output_tail": "k\n/opt/pyvenv/lib/python3.13/site-packages/pydantic/_internal/_config.py:247: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd47cdebd30>\n  def __init__(self, config_wrapper: ConfigWrapper):\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/usr/lib/python3.13/contextlib.py:713: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd47e4d96c0>\n  async def __aenter__(self):\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n<string>:4: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd47cdeb970>\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n<string>:4: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd47cdeaa70>\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/opt/pyvenv/lib/python3.13/site-packages/fastapi/routing.py:1032: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd47cdeb3d0>\n  def api_route(\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n----------------------------------------------------------------------\nRan 16 tests in 1.343s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_http_integration_v1989",
+      "test_count_line": "Ran 16 tests in 1.343s"
+    },
+    {
+      "output_sha256": "d4bda3e8d987e82b7156df2690b52e32f54ca8579652db93238540fc91e460ce",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 9 tests in 0.001s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_live_probe_v1987",
+      "test_count_line": "Ran 9 tests in 0.001s"
+    },
+    {
+      "output_sha256": "914ee81195b31039535a4c3a068b67e056af5edd45aae3064a6fb3337fa8a0be",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 11 tests in 0.000s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_lab_v1988",
+      "test_count_line": "Ran 11 tests in 0.000s"
+    },
+    {
+      "output_sha256": "fc5450939a3957b1f87cc59b08c13fed664756d0d9eedde57d42134f47cbc577",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 3 tests in 0.049s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_concurrency_v1984",
+      "test_count_line": "Ran 3 tests in 0.049s"
+    },
+    {
+      "output_sha256": "babc7cbd51eddefec82c30e2b74bb94901e1f6eb9fedc7b6e3af55667e22d3ee",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 8 tests in 0.013s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_restart_fault_v1986",
+      "test_count_line": "Ran 8 tests in 0.013s"
+    },
+    {
+      "output_sha256": "5cb229947859af99258a9dc33dd037837ab6d09e17a07790ae6f4509dc9fb8d4",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 2 tests in 0.006s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_csrf_binding_v1983",
+      "test_count_line": "Ran 2 tests in 0.006s"
+    },
+    {
+      "output_sha256": "6e266ad1340c1f0e5e03c4d816ee160700a8db8fefb471e1e1ec1bf0f5a84247",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 6 tests in 1.149s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_rotation_outage_v1992",
+      "test_count_line": "Ran 6 tests in 1.149s"
+    },
+    {
+      "output_sha256": "ce8d4411dd8b64a514c483528284c034a4b751d71cfba971bac17488c56c31b6",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 6 tests in 0.632s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_jwks_health_v1993",
+      "test_count_line": "Ran 6 tests in 0.632s"
+    },
+    {
+      "output_sha256": "9c06e76e53b2da0f8de2f7ffbc16128e821d517f22da1649aebcf8513077d5f7",
+      "output_tail": "\n----------------------------------------------------------------------\nRan 5 tests in 0.023s\n\nOK\n",
+      "returncode": 0,
+      "status": "PASS",
+      "suite": "test_odmm_oidc_sqlite_fault_v1991",
+      "test_count_line": "Ran 5 tests in 0.023s"
+    }
+  ],
+  "status": "PASS_OFFLINE_ONLY",
+  "version": "199.0"
+}

@@ -1,0 +1,194 @@
+{
+  "benchmark": "ODMM V228.39 actual local executor path",
+  "environment": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "filesystem": "temporary local filesystem (not NAS)"
+  },
+  "scope": "inventory and claim excluded from timed section; copy, reverify, SQLite commit included",
+  "limitations": [
+    "single worker",
+    "warm filesystem caches possible",
+    "no network or NAS",
+    "no ACL fidelity claim"
+  ],
+  "cases": [
+    {
+      "size_bytes": 1048576,
+      "repetitions": 3,
+      "median_total_ms": 13.377,
+      "median_throughput_mib_s": 74.76,
+      "median_stage_ms": {
+        "commit.sqlite_transaction": 2.86,
+        "verify.source_sha256": 1.994,
+        "verify.sqlite_lookup": 0.017,
+        "verify.target_sha256": 1.555
+      },
+      "runs": [
+        {
+          "total_ns": 19537139,
+          "stages_ns": {
+            "verify.sqlite_lookup": 16754,
+            "verify.source_sha256": 5208097,
+            "verify.target_sha256": 1555228,
+            "commit.sqlite_transaction": 6323236
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        },
+        {
+          "total_ns": 13376841,
+          "stages_ns": {
+            "verify.sqlite_lookup": 44937,
+            "verify.source_sha256": 1994309,
+            "verify.target_sha256": 1828343,
+            "commit.sqlite_transaction": 2860128
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        },
+        {
+          "total_ns": 12043730,
+          "stages_ns": {
+            "verify.sqlite_lookup": 11367,
+            "verify.source_sha256": 1952295,
+            "verify.target_sha256": 1520216,
+            "commit.sqlite_transaction": 2710166
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        }
+      ]
+    },
+    {
+      "size_bytes": 4194304,
+      "repetitions": 3,
+      "median_total_ms": 34.697,
+      "median_throughput_mib_s": 115.28,
+      "median_stage_ms": {
+        "commit.sqlite_transaction": 7.287,
+        "verify.source_sha256": 6.215,
+        "verify.sqlite_lookup": 0.017,
+        "verify.target_sha256": 5.955
+      },
+      "runs": [
+        {
+          "total_ns": 35182503,
+          "stages_ns": {
+            "verify.sqlite_lookup": 17265,
+            "verify.source_sha256": 6226983,
+            "verify.target_sha256": 5954660,
+            "commit.sqlite_transaction": 7287276
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        },
+        {
+          "total_ns": 34696909,
+          "stages_ns": {
+            "verify.sqlite_lookup": 16555,
+            "verify.source_sha256": 6119754,
+            "verify.target_sha256": 5819209,
+            "commit.sqlite_transaction": 6806389
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        },
+        {
+          "total_ns": 33290491,
+          "stages_ns": {
+            "verify.sqlite_lookup": 14351,
+            "verify.source_sha256": 6215066,
+            "verify.target_sha256": 6612302,
+            "commit.sqlite_transaction": 7983018
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        }
+      ]
+    },
+    {
+      "size_bytes": 16777216,
+      "repetitions": 3,
+      "median_total_ms": 107.969,
+      "median_throughput_mib_s": 148.19,
+      "median_stage_ms": {
+        "commit.sqlite_transaction": 27.064,
+        "verify.source_sha256": 26.287,
+        "verify.sqlite_lookup": 0.018,
+        "verify.target_sha256": 26.064
+      },
+      "runs": [
+        {
+          "total_ns": 116531370,
+          "stages_ns": {
+            "verify.sqlite_lookup": 17244,
+            "verify.source_sha256": 25749485,
+            "verify.target_sha256": 26575388,
+            "commit.sqlite_transaction": 26914608
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        },
+        {
+          "total_ns": 107969336,
+          "stages_ns": {
+            "verify.sqlite_lookup": 18346,
+            "verify.source_sha256": 26287381,
+            "verify.target_sha256": 24514410,
+            "commit.sqlite_transaction": 27064073
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        },
+        {
+          "total_ns": 106420662,
+          "stages_ns": {
+            "verify.sqlite_lookup": 26078,
+            "verify.source_sha256": 27153479,
+            "verify.target_sha256": 26064403,
+            "commit.sqlite_transaction": 27747819
+          },
+          "stage_counts": {
+            "verify.sqlite_lookup": 2,
+            "verify.source_sha256": 2,
+            "verify.target_sha256": 2,
+            "commit.sqlite_transaction": 1
+          }
+        }
+      ]
+    }
+  ]
+}

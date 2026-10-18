@@ -1,0 +1,133 @@
+{
+  "schema": "odmm.benchmark.diagnosis.v22844",
+  "environment": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "filesystem": "temporary local filesystem (not NAS)"
+  },
+  "cases": [
+    {
+      "size_bytes": 1048576,
+      "repetitions": 7,
+      "median_wall_ms": 6.4445,
+      "median_unattributed_ms": 0.2826,
+      "ranked_exclusive_stages": [
+        {
+          "stage": "copy.native_posix",
+          "median_ms": 2.7602,
+          "median_fraction_of_total": 0.4283
+        },
+        {
+          "stage": "verify.source_sha256",
+          "median_ms": 1.5649,
+          "median_fraction_of_total": 0.2428
+        },
+        {
+          "stage": "verify.target_sha256",
+          "median_ms": 1.2573,
+          "median_fraction_of_total": 0.1951
+        },
+        {
+          "stage": "commit.sqlite_transaction",
+          "median_ms": 0.5187,
+          "median_fraction_of_total": 0.0805
+        },
+        {
+          "stage": "verify.source_inventory",
+          "median_ms": 0.0437,
+          "median_fraction_of_total": 0.0068
+        },
+        {
+          "stage": "verify.sqlite_lookup",
+          "median_ms": 0.0091,
+          "median_fraction_of_total": 0.0014
+        }
+      ],
+      "largest_instrumented_stage": "copy.native_posix"
+    },
+    {
+      "size_bytes": 4194304,
+      "repetitions": 7,
+      "median_wall_ms": 16.5253,
+      "median_unattributed_ms": 0.2544,
+      "ranked_exclusive_stages": [
+        {
+          "stage": "copy.native_posix",
+          "median_ms": 5.4571,
+          "median_fraction_of_total": 0.3302
+        },
+        {
+          "stage": "verify.source_sha256",
+          "median_ms": 5.162,
+          "median_fraction_of_total": 0.3124
+        },
+        {
+          "stage": "verify.target_sha256",
+          "median_ms": 5.0989,
+          "median_fraction_of_total": 0.3086
+        },
+        {
+          "stage": "commit.sqlite_transaction",
+          "median_ms": 0.543,
+          "median_fraction_of_total": 0.0329
+        },
+        {
+          "stage": "verify.source_inventory",
+          "median_ms": 0.0428,
+          "median_fraction_of_total": 0.0026
+        },
+        {
+          "stage": "verify.sqlite_lookup",
+          "median_ms": 0.0096,
+          "median_fraction_of_total": 0.0006
+        }
+      ],
+      "largest_instrumented_stage": "copy.native_posix"
+    },
+    {
+      "size_bytes": 16777216,
+      "repetitions": 7,
+      "median_wall_ms": 61.7327,
+      "median_unattributed_ms": 0.2959,
+      "ranked_exclusive_stages": [
+        {
+          "stage": "verify.source_sha256",
+          "median_ms": 20.7465,
+          "median_fraction_of_total": 0.3361
+        },
+        {
+          "stage": "verify.target_sha256",
+          "median_ms": 20.594,
+          "median_fraction_of_total": 0.3336
+        },
+        {
+          "stage": "copy.native_posix",
+          "median_ms": 19.2864,
+          "median_fraction_of_total": 0.3124
+        },
+        {
+          "stage": "commit.sqlite_transaction",
+          "median_ms": 0.6975,
+          "median_fraction_of_total": 0.0113
+        },
+        {
+          "stage": "verify.source_inventory",
+          "median_ms": 0.0469,
+          "median_fraction_of_total": 0.0008
+        },
+        {
+          "stage": "verify.sqlite_lookup",
+          "median_ms": 0.0129,
+          "median_fraction_of_total": 0.0002
+        }
+      ],
+      "largest_instrumented_stage": "verify.source_sha256"
+    }
+  ],
+  "limitations": [
+    "Local filesystem only; no NAS inference",
+    "Median per-stage costs do not sum to median wall time",
+    "Unattributed time includes instrumentation gaps and overhead",
+    "No change to transfer or safety decisions"
+  ]
+}

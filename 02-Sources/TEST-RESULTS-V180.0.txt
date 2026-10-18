@@ -1,0 +1,23 @@
+........................................................../usr/lib/python3.13/pathlib/_local.py:289: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd76467d4e0>
+  @property
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/pathlib/_local.py:289: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd76424a2f0>
+  @property
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................................................................................................................................../mnt/data/odmm_v1800/nested_group_review.py:49: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd76424a4d0>
+  for child in sorted(graph[node]): walk(child,stack+(node,),depth+1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1800/nested_group_review.py:49: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd76467c8b0>
+  for child in sorted(graph[node]): walk(child,stack+(node,),depth+1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1800/nested_group_review.py:49: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd764380310>
+  for child in sorted(graph[node]): walk(child,stack+(node,),depth+1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/mnt/data/odmm_v1800/nested_group_review.py:49: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7fd76467d5d0>
+  for child in sorted(graph[node]): walk(child,stack+(node,),depth+1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...............................................................
+----------------------------------------------------------------------
+Ran 269 tests in 1.667s
+
+OK

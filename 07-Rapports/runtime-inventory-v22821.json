@@ -1,0 +1,313 @@
+{
+  "schema": "odmm.runtime_inventory.v1",
+  "scope": "static heuristic only; dynamic imports, runtime services and external calls not proven",
+  "references": [
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2277.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2277.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2278.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2278.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2279.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2279.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2280.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2280.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2281.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2281.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V22810.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v22810.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V22811.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v22811.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2282.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2282.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2283.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2283.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2284.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2284.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2285.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2285.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2286.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2286.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2287.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2287.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2288.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2288.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-COMPACT-V2289.sh",
+      "line": 4,
+      "kind": "python-file",
+      "value": "odmm_linux_compact_v2289.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2277.sh",
+      "line": 5,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2278.sh",
+      "line": 5,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2279.sh",
+      "line": 5,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2280.sh",
+      "line": 5,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2281.sh",
+      "line": 5,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V22810.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V22811.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V22812.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "unittest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2282.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2283.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2284.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2285.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2286.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2287.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2288.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-LINUX-FULL-V2289.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "pytest",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/ODMM-PORTABLE-HTTP-CHECK.cmd",
+      "line": 6,
+      "kind": "python-file",
+      "value": "odmm_http_runtime_qualification_v2251.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/ODMM-PORTABLE-HTTP-CHECK.sh",
+      "line": 5,
+      "kind": "python-file",
+      "value": "odmm_http_runtime_qualification_v2251.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "02-Sources/deploy/debian13/odmm-witness.service",
+      "line": 11,
+      "kind": "python-file",
+      "value": "/opt/odmm-witness/ldaps_witness_daemon.py",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/deploy/debian13/odmm-witness.service",
+      "line": 11,
+      "kind": "systemd-exec",
+      "value": "/usr/bin/python3 -B /opt/odmm-witness/ldaps_witness_daemon.py --config /etc/odmm-witness/config.json",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/recette_navigateur_v2202.py",
+      "line": 3,
+      "kind": "python-module",
+      "value": "playwright",
+      "local_target_exists": null
+    },
+    {
+      "source": "02-Sources/recette_navigateur_v2202.py",
+      "line": 2,
+      "kind": "python-file",
+      "value": "recette_navigateur_v2202.py",
+      "local_target_exists": true
+    },
+    {
+      "source": "03-Build-Installation/ODMM-LINUX-FULL-V22812.sh",
+      "line": 4,
+      "kind": "python-module",
+      "value": "unittest",
+      "local_target_exists": null
+    },
+    {
+      "source": "05-Tests-Qualification/test_reference_scan_v22817.py",
+      "line": 9,
+      "kind": "python-file",
+      "value": "target.py",
+      "local_target_exists": false
+    },
+    {
+      "source": "05-Tests-Qualification/test_runtime_inventory_v22821.py",
+      "line": 6,
+      "kind": "python-file",
+      "value": "worker.py",
+      "local_target_exists": false
+    },
+    {
+      "source": "05-Tests-Qualification/test_runtime_inventory_v22821.py",
+      "line": 10,
+      "kind": "python-file",
+      "value": "absent.py",
+      "local_target_exists": false
+    },
+    {
+      "source": "05-Tests-Qualification/test_runtime_inventory_v22821.py",
+      "line": 17,
+      "kind": "python-file",
+      "value": "/opt/odmm/main.py",
+      "local_target_exists": null
+    },
+    {
+      "source": "05-Tests-Qualification/test_runtime_inventory_v22821.py",
+      "line": 14,
+      "kind": "shell-source",
+      "value": "missing.sh",
+      "local_target_exists": false
+    }
+  ],
+  "read_errors": [],
+  "summary": {
+    "references": 43,
+    "files_with_references": 38,
+    "missing_local_targets": 4
+  }
+}

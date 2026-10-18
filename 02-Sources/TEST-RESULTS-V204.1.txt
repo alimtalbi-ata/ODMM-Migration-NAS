@@ -1,0 +1,15 @@
+
+test_batch_verifies_copy (test_native_fidelity_batch_v2041.FidelityManifestTests.test_batch_verifies_copy) ... ok
+test_invalid_offset (test_native_fidelity_batch_v2041.FidelityManifestTests.test_invalid_offset) ... ok
+test_manifest_fingerprint (test_native_fidelity_batch_v2041.FidelityManifestTests.test_manifest_fingerprint) ... ok
+test_manifest_tamper (test_native_fidelity_batch_v2041.FidelityManifestTests.test_manifest_tamper) ... ok
+test_resume (test_native_fidelity_batch_v2041.FidelityManifestTests.test_resume) ... ok
+test_source_drift_blocks_before_copy (test_native_fidelity_batch_v2041.FidelityManifestTests.test_source_drift_blocks_before_copy) ... ok
+test_target_conflict_preserved (test_native_fidelity_batch_v2041.FidelityManifestTests.test_target_conflict_preserved) ... ok
+test_wrong_root_blocks (test_native_fidelity_batch_v2041.FidelityManifestTests.test_wrong_root_blocks) ... ok
+test_zero_limit (test_native_fidelity_batch_v2041.FidelityManifestTests.test_zero_limit) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.045s
+
+OK

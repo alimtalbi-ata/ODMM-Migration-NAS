@@ -1,0 +1,8 @@
+test_entrypoint_candidate (test_reference_scan_v22817.TestReferences.test_entrypoint_candidate) ... ok
+test_import_and_shell (test_reference_scan_v22817.TestReferences.test_import_and_shell) ... ok
+test_unreferenced_not_called_dead (test_reference_scan_v22817.TestReferences.test_unreferenced_not_called_dead) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+OK

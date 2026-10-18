@@ -1,0 +1,48 @@
+{
+  "version": "224.9",
+  "author": "Abdelhalim Talbi",
+  "status": "PASS_WITH_UNQUALIFIED_ITEMS",
+  "checks": [
+    {
+      "name": "native-copy-resume-subprocess",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sha256-integrity",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no-automatic-cutover-or-acl-claim",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "operations-cli-help",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scoped-cli-fail-closed",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "windows-native",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "real-nas-acl",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "real-nas-smb-nfs",
+      "status": "NOT_TESTED"
+    },
+    {
+      "name": "production-idp",
+      "status": "NOT_TESTED"
+    }
+  ]
+}

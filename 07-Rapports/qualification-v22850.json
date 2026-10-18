@@ -1,0 +1,13 @@
+{
+  "version": "V228.50",
+  "tests": "3/3",
+  "windows_native_compilation": "not performed",
+  "windows_native_installation": "not performed",
+  "fixes": [
+    "canonical Inno Setup definition aligned with build script",
+    "corrected version 7.9.12 and executable paths",
+    "per-user install path",
+    "streaming SHA256",
+    "removed two obsolete build-directory entrypoints"
+  ]
+}

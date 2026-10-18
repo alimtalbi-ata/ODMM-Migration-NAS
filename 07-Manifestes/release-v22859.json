@@ -1,0 +1,9 @@
+{
+  "release": "V228.59",
+  "product_version": "7.9.16",
+  "qualification": {
+    "pagination_tests": "7/7 Linux",
+    "windows_native": "not tested"
+  },
+  "author": "Abdelhalim Talbi"
+}
