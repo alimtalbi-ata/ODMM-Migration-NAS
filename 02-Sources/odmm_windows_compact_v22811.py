@@ -3,7 +3,7 @@ import queue
 import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from odmm_registry_client_v2267 import fetch_registry_jobs
+from odmm_refresh_service import fetch_into_queue
 from odmm_desktop_model_v2258 import read_report, report_summary
 from odmm_compact_dashboard_v2280 import dashboard
 from odmm_attention_v2281 import attention_summary
@@ -13,7 +13,6 @@ from odmm_supervision_v2287 import supervision, overview_lines
 from odmm_job_detail_v2279 import select_job as find_job_by_id
 from odmm_job_triage_v2280 import triage_job, triage_lines
 from odmm_ui_state_v22811 import resolve_refresh, selection_after_filter
-from odmm_connection_diagnostics_v22851 import explain_connection_failure
 from odmm_ui_diagnostics_v22858 import refresh_message, safe_count
 from odmm_pagination_v22859 import paginate, sort_jobs
 from odmm_refresh_guard_v22860 import server_limit_notice
@@ -101,13 +100,11 @@ def main():
         status.set("Connexion en cours…")
         detail.set("Actualisation en cours…")
         load_button.configure(state="disabled")
-        def worker():
-            try:
-                result = fetch_registry_jobs(endpoint, bearer)
-                inbox.put((request_id, result, None))
-            except Exception as exc:
-                inbox.put((request_id, None, explain_connection_failure(exc)))
-        threading.Thread(target=worker, daemon=True).start()
+        threading.Thread(
+            target=fetch_into_queue,
+            args=(request_id, endpoint, bearer, inbox),
+            daemon=True,
+        ).start()
     load_button = ttk.Button(connection, text="Actualiser les jobs", command=load)
     load_button.grid(row=2, column=1, sticky="e", pady=6)
     filters = ttk.Frame(jobs)
