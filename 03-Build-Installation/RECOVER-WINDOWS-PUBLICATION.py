@@ -12,8 +12,12 @@ def recover(destination):
     candidate=destination.with_name(destination.name+'.next')
     backup=destination.with_name(destination.name+'.previous')
     if destination.exists():
-        if (destination/'BUILD-STATUS.json').exists():
+        if (destination/'SHA256-WINDOWS.json').exists():
             _validate(destination)
+        elif (destination/'BUILD-STATUS.json').exists():
+            # An unbuilt source checkout may carry a status placeholder.
+            # It is not a qualified binary release and must not be restored as one.
+            pass
         if candidate.exists(): shutil.rmtree(candidate)
         return 'active release retained'
     if backup.exists():
