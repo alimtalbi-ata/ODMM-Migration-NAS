@@ -10,5 +10,5 @@ class DetailPanelTests(unittest.TestCase):
  def test_selection_accessibility(self):
   s=UI.read_text(encoding='utf-8');self.assertIn('tree.bind("<Return>", select_job)',s);self.assertIn('tree.bind("<Double-1>", select_job)',s)
  def test_packaging_version(self):
-  self.assertIn('7.9.14',(ROOT/'03-Build-Installation/ODMM-COMPACT-WINDOWS.iss').read_text());self.assertIn('Setup-V7.9.14.exe',(ROOT/'03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd').read_text())
+  self.assertIn('#define MyAppVersion ODMM_VERSION',(ROOT/'03-Build-Installation/ODMM-COMPACT-WINDOWS.iss').read_text());self.assertIn('Setup-V%ODMM_VERSION%.exe',(ROOT/'03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd').read_text())
 if __name__=='__main__': unittest.main()

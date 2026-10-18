@@ -15,12 +15,12 @@ def _sha_file(path):
         for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
     return h.hexdigest()
 
-def inspect(journal, operation, *, expected_destination=None, expected_sha256=None):
+def inspect(journal, operation, *, expected_destination=None, expected_sha256=None, _journal_locked=False):
     """Inspection only: a present destination is not proof of successful restoration."""
     if not isinstance(operation,str) or not operation: raise ValueError('INVALID_OPERATION')
     if expected_sha256 is not None and (not isinstance(expected_sha256,str) or len(expected_sha256)!=64 or any(c not in '0123456789abcdef' for c in expected_sha256)):
         raise ValueError('INVALID_DIGEST')
-    result=verify(journal)
+    result=verify(journal, lock=not _journal_locked)
     if not result['valid']: raise ValueError('JOURNAL_CORRUPT')
     with contextlib.closing(sqlite3.connect('file:'+str(Path(journal).resolve())+'?mode=ro',uri=True)) as con:
         rows=con.execute('SELECT phase,payload FROM restore_events WHERE operation=? ORDER BY seq',(operation,)).fetchall()

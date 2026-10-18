@@ -10,7 +10,7 @@ class TestEntryPoints(unittest.TestCase):
     def test_preflight(self):
         r=subprocess.run(['bash',str(CHECK)],cwd='/',capture_output=True,text=True)
         self.assertEqual(r.returncode,0,r.stderr)
-        self.assertEqual(r.stdout.count('PASS '),6)
+        self.assertEqual(r.stdout.count('PASS '),8)
     def test_linux_compact_help_from_other_cwd(self):
         r=subprocess.run(['bash',str(LAUNCH),'--help'],cwd='/',capture_output=True,text=True,timeout=20)
         self.assertEqual(r.returncode,0,r.stderr)

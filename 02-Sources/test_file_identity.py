@@ -7,7 +7,7 @@ from attested_acl_collector import collect_attested_acl, AttestedCollectionError
 class FileIdentityTests(unittest.TestCase):
     def setUp(self):
         self.t=TemporaryDirectory();self.addCleanup(self.t.cleanup)
-        self.root=Path(self.t.name);self.target=self.root/'file';self.target.write_text('data')
+        self.root=Path(self.t.name);self.target=self.root/'file';self.target.write_text('data');self.target.chmod(0o644)
         self.mi=lambda:f'20 1 0:42 / {self.root} rw,vers=4.1 - nfs4 nas:/vol rw\n'
     def collect(self, runner):
         return collect_attested_acl(self.root,'file','NFSv4','source','collector','test',runner=runner,mountinfo_reader=self.mi)

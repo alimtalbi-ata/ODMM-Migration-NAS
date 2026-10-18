@@ -66,14 +66,15 @@ def append(db,operation,phase,details=None):
             raise
         finally: con.close()
 
-def verify(db):
+def verify(db, *, lock=True):
     """Read-only verification: absent journals never get created or changed."""
     from contextlib import closing
     from urllib.parse import quote
     p=Path(db)
     if not p.is_file() or p.is_symlink():
         raise ValueError('JOURNAL_MISSING_OR_SYMLINK')
-    with advisory_lock(str(p)+'.lock'):
+    # A caller already holding this process lock must not acquire it again.
+    with (advisory_lock(str(p)+'.lock') if lock else contextlib.nullcontext()):
         uri='file:'+quote(str(p.resolve()),safe='/')+'?mode=ro'
         with closing(sqlite3.connect(uri,uri=True,timeout=10)) as con:
             if con.execute('PRAGMA integrity_check').fetchone()!=('ok',):

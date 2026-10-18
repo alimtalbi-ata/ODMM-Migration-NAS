@@ -7,8 +7,9 @@ class WindowsRelease(unittest.TestCase):
         cmd = (BASE / "BUILD-WINDOWS-COMPACT.cmd").read_text()
         iss = (BASE / "ODMM-COMPACT-WINDOWS.iss").read_text()
         self.assertIn("ODMM-COMPACT-WINDOWS.iss", cmd)
-        self.assertIn('MyAppVersion "7.9.12"', iss)
-        self.assertIn("ODMM-Compact-Setup-V7.9.12", iss)
+        self.assertIn('#define MyAppVersion ODMM_VERSION', iss)
+        self.assertIn('/DODMM_VERSION="%ODMM_VERSION%"', cmd)
+        self.assertIn("ODMM-Compact-Setup-V{#MyAppVersion}", iss)
         self.assertIn('Source: "{#ODMM_EXE}"', iss)
         self.assertIn("OutputDir={#ODMM_OUTPUT}", iss)
         self.assertIn("PrivilegesRequired=lowest", iss)
@@ -17,7 +18,7 @@ class WindowsRelease(unittest.TestCase):
         spec=importlib.util.spec_from_file_location("verify",BASE / "VERIFY-WINDOWS-ARTIFACTS.py")
         mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
         with tempfile.TemporaryDirectory() as temp:
-            with self.assertRaises(ValueError): mod.verify(temp)
+            with self.assertRaises(ValueError): mod.verify(temp,"7.9.27")
     def test_streaming_hash(self):
         spec=importlib.util.spec_from_file_location("verify",BASE / "VERIFY-WINDOWS-ARTIFACTS.py")
         mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)

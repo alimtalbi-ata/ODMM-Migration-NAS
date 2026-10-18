@@ -11,7 +11,13 @@ class ReconcileTests(unittest.TestCase):
         self.t=tempfile.TemporaryDirectory();self.addCleanup(self.t.cleanup)
         self.root=Path(self.t.name);self.j=self.root/'journal.sqlite';self.dst=self.root/'restored.sqlite'
     def intent(self):append(self.j,'op','INTENT',{'destination':str(self.dst)})
-    def test_unknown(self):self.assertEqual(inspect(self.j,'op')['status'],'UNKNOWN')
+    def test_missing_journal_is_not_created(self):
+        with self.assertRaisesRegex(ValueError,'JOURNAL_MISSING_OR_SYMLINK'):
+            inspect(self.j,'op')
+        self.assertFalse(self.j.exists())
+    def test_unknown(self):
+        self.intent()
+        self.assertEqual(inspect(self.j,'unknown')['status'],'UNKNOWN')
     def test_missing(self):self.intent();self.assertEqual(inspect(self.j,'op')['status'],'MISSING_DESTINATION')
     def test_present_not_verified(self):self.intent();self.dst.write_bytes(b'data');self.assertEqual(inspect(self.j,'op')['status'],'PRESENT_UNVERIFIED')
     def test_matching_digest_not_certification(self):

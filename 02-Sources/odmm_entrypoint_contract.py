@@ -4,7 +4,7 @@ import json
 EDITION_CONTRACT = {
  "linux-full": {"name":"Open Data Migration Manager — Linux Full", "mode":"server", "launcher":"03-Build-Installation/ODMM-LINUX-FULL-V22812.sh", "launcher_role":"qualification-script", "platform":"linux", "qualified_native_runtime":False},
  "linux-compact": {"name":"Open Data Migration Manager — Linux Compact", "mode":"read-only-supervision", "launcher":"02-Sources/odmm_linux_compact_v22811.py", "launcher_role":"cli-wrapper", "platform":"linux", "qualified_native_runtime":False},
- "windows-compact": {"name":"Open Data Migration Manager — Windows Compact", "mode":"read-only-supervision", "launcher":"03-Build-Installation/BUILD-WINDOWS-COMPACT-V22811.cmd", "launcher_role":"build-script", "platform":"windows", "qualified_native_runtime":False},
+ "windows-compact": {"name":"Open Data Migration Manager — Windows Compact", "mode":"read-only-supervision", "launcher":"03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd", "launcher_role":"build-script", "platform":"windows", "qualified_native_runtime":False},
 }
 def verify_contract(root):
  root=Path(root)

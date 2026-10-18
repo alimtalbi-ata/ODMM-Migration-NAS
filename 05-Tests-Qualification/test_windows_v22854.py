@@ -11,22 +11,23 @@ spec.loader.exec_module(mod)
 class ArtifactVerification(unittest.TestCase):
     def test_missing_files_rejected(self):
         with tempfile.TemporaryDirectory() as d:
-            with self.assertRaises(ValueError): mod.verify(d)
+            with self.assertRaises(ValueError): mod.verify(d,"7.9.27")
     def test_fake_mz_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             x = Path(d)/"portable/ODMM-Compact.exe"
             x.parent.mkdir()
             x.write_bytes(b"MZ" + bytes(2048))
-            with self.assertRaisesRegex(ValueError, "Invalid PE header offset"): mod.verify(d)
+            with self.assertRaisesRegex(ValueError, "Invalid PE header offset"): mod.verify(d,"7.9.27")
     def test_bad_pe_signature_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             x = Path(d)/"portable/ODMM-Compact.exe"
             x.parent.mkdir()
             b=bytearray(2048);b[:2]=b"MZ";b[0x3c:0x40]=(128).to_bytes(4,"little");x.write_bytes(b)
-            with self.assertRaisesRegex(ValueError, "Invalid PE signature"): mod.verify(d)
-    def test_build_removes_stale_artifacts(self):
+            with self.assertRaisesRegex(ValueError, "Invalid PE signature"): mod.verify(d,"7.9.27")
+    def test_build_stages_before_publication(self):
         s=(FILE.parent/"BUILD-WINDOWS-COMPACT.cmd").read_text()
-        self.assertIn('del /q "%OUT%\portable\ODMM-Compact.exe"',s)
-        self.assertIn('del /q "%OUT%\installer\ODMM-Compact-Setup-V7.9.14.exe"',s)
+        self.assertIn('rmdir /s /q "%STAGE%"',s)
+        self.assertNotIn('del /q "%OUT%',s)
+        self.assertLess(s.index('VERIFY-WINDOWS-ARTIFACTS.py'),s.index('PUBLISH-WINDOWS-ARTIFACTS.py'))
 
 if __name__ == "__main__": unittest.main()

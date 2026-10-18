@@ -14,7 +14,7 @@ SCHEMA='odmm.reconcile.guard.v2036'
 def inspect_locked(journal, operation, *, expected_destination=None, expected_sha256=None):
     """Cooperative writer lock avoids inspection while a journal append is in progress."""
     with advisory_lock(str(journal)+'.lock'):
-        result=inspect(journal,operation,expected_destination=expected_destination,expected_sha256=expected_sha256)
+        result=inspect(journal,operation,expected_destination=expected_destination,expected_sha256=expected_sha256,_journal_locked=True)
         result=dict(result)
         result['schema']=SCHEMA
         result['journal_locked']=True
@@ -29,7 +29,7 @@ def review_locked(journal, operation, *, reviewer, comment):
     if not isinstance(comment,str) or not comment.strip() or len(comment)>1000: raise ValueError('INVALID_COMMENT')
     with advisory_lock(str(journal)+'.review.lock'):
         with advisory_lock(str(journal)+'.lock'):
-            state=inspect(journal,operation)
+            state=inspect(journal,operation,_journal_locked=True)
         if state['status']=='UNKNOWN': raise ValueError('UNKNOWN_OPERATION')
         append(journal,operation,'VERIFIED',{'reviewer':reviewer,'comment':comment,'reconciliation_status':state['status']})
         return inspect_locked(journal,operation)
