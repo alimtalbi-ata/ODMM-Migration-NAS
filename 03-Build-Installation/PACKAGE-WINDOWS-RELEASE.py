@@ -3,6 +3,8 @@ import argparse
 from pathlib import Path
 import zipfile
 import sys
+import hashlib
+import json
 
 SKIP_DIRS={'.git','.windows-build-venv','.windows-build-stage','binary.previous','__pycache__'}
 
@@ -22,6 +24,12 @@ def package(root, output):
     report=json.loads((root/'binary/WINDOWS-INSTALL-SMOKE.json').read_text(encoding='utf-8'))
     if not all(report.get(k) is True for k in ('passed','installed','uninstalled')):
         raise ValueError('Native install/uninstall tests not passed')
+    provenance=root/'binary/WINDOWS-RUNNER-INFO.json'
+    if not provenance.is_file():
+        raise ValueError('Missing native Windows runner provenance')
+    runner=json.loads(provenance.read_text(encoding='utf-8'))
+    if not runner.get('run_id') or not runner.get('commit'):
+        raise ValueError('Incomplete native Windows runner provenance')
     output.parent.mkdir(parents=True,exist_ok=True)
     with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for f in sorted(root.rglob('*')):
@@ -31,7 +39,7 @@ def package(root, output):
             z.write(f,rel.as_posix())
     with zipfile.ZipFile(output) as z:
         if z.testzip() is not None:raise ValueError('ZIP CRC failed')
-        for path in ('binary/portable/ODMM-Compact.exe', 'binary/WINDOWS-INSTALL-SMOKE.json'):
+        for path in ('binary/portable/ODMM-Compact.exe', 'binary/WINDOWS-INSTALL-SMOKE.json', 'binary/WINDOWS-RUNNER-INFO.json', 'binary/SHA256-WINDOWS.json') :
             if path not in z.namelist():raise ValueError('Missing '+path)
     return output
 
