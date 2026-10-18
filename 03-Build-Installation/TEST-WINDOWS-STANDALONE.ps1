@@ -7,6 +7,9 @@ try {
   $target = Join-Path $isolated "ODMM-Compact.exe"
   Copy-Item $source $target
   # No source tree, Python interpreter or build virtualenv is copied.
+  $previousPath = $env:PATH
+  # Simulate a target workstation with no Python or build tools on PATH.
+  $env:PATH = @("$env:SystemRoot\\System32", "$env:SystemRoot", "$env:SystemRoot\\System32\\Wbem") -join ';'
   $previousPythonHome = $env:PYTHONHOME
   $previousPythonPath = $env:PYTHONPATH
   $env:PYTHONHOME = ""
@@ -30,6 +33,7 @@ try {
     if (!$proc.HasExited) { Stop-Process -Id $proc.Id -Force }
   }
 } finally {
+  $env:PATH = $previousPath
   $env:PYTHONHOME = $previousPythonHome
   $env:PYTHONPATH = $previousPythonPath
   Remove-Item $isolated -Recurse -Force -ErrorAction SilentlyContinue
