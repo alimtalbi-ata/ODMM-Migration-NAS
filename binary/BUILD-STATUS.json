@@ -1,5 +1,7 @@
 {
-  "build": "not_run",
-  "version": "7.9.29",
-  "reason": "Native Windows build not executed in this environment"
+  "release": "V228.75",
+  "packaging_version": "7.9.30",
+  "windows_binaries_compiled": false,
+  "windows_native_qualified": false,
+  "reason": "Windows runner not executed"
 }

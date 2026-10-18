@@ -11,19 +11,19 @@ spec.loader.exec_module(mod)
 class ArtifactVerification(unittest.TestCase):
     def test_missing_files_rejected(self):
         with tempfile.TemporaryDirectory() as d:
-            with self.assertRaises(ValueError): mod.verify(d,"7.9.29")
+            with self.assertRaises(ValueError): mod.verify(d,"7.9.31")
     def test_fake_mz_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             x = Path(d)/"portable/ODMM-Compact.exe"
             x.parent.mkdir()
             x.write_bytes(b"MZ" + bytes(2048))
-            with self.assertRaisesRegex(ValueError, "Invalid PE header offset"): mod.verify(d,"7.9.29")
+            with self.assertRaisesRegex(ValueError, "Invalid PE header offset"): mod.verify(d,"7.9.31")
     def test_bad_pe_signature_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             x = Path(d)/"portable/ODMM-Compact.exe"
             x.parent.mkdir()
             b=bytearray(2048);b[:2]=b"MZ";b[0x3c:0x40]=(128).to_bytes(4,"little");x.write_bytes(b)
-            with self.assertRaisesRegex(ValueError, "Invalid PE signature"): mod.verify(d,"7.9.29")
+            with self.assertRaisesRegex(ValueError, "Invalid PE signature"): mod.verify(d,"7.9.31")
     def test_build_stages_before_publication(self):
         s=(FILE.parent/"BUILD-WINDOWS-COMPACT.cmd").read_text()
         self.assertIn('rmdir /s /q "%STAGE%"',s)

@@ -26,5 +26,5 @@ class WindowsRelease(unittest.TestCase):
   spec=importlib.util.spec_from_file_location('verify_windows',p)
   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
   with TemporaryDirectory() as tmp:
-   with self.assertRaises(ValueError): module.verify(tmp,"7.9.29")
+   with self.assertRaises(ValueError): module.verify(tmp,"7.9.31")
 if __name__=='__main__':unittest.main()

@@ -10,5 +10,5 @@ class StatusDisplayTests(unittest.TestCase):
   s=UI.read_text(encoding='utf-8'); self.assertIn('else "UNKNOWN"',s)
  def test_read_only(self): self.assertIn('read-only supervisor',UI.read_text())
  def test_version_sync(self):
-  self.assertIn('7.9.29',UI.read_text());self.assertIn('#define MyAppVersion ODMM_VERSION',(ROOT/'03-Build-Installation/ODMM-COMPACT-WINDOWS.iss').read_text());self.assertIn('ODMM_VERSION=7.9.29',(ROOT/'03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd').read_text())
+  self.assertIn('7.9.31',UI.read_text());self.assertIn('#define MyAppVersion ODMM_VERSION',(ROOT/'03-Build-Installation/ODMM-COMPACT-WINDOWS.iss').read_text());self.assertIn('ODMM_VERSION=7.9.31',(ROOT/'03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd').read_text())
 if __name__=='__main__': unittest.main()

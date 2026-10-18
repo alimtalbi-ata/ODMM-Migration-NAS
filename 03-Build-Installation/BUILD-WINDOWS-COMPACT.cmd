@@ -1,12 +1,12 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
-rem ODMM V228.73 - single supported build entrypoint; Windows 10/11 x64
+rem ODMM V228.76 - single supported build entrypoint; Windows 10/11 x64
 set "ROOT=%~dp0.."
 set "SRC=%ROOT%\02-Sources"
 set "OUT=%ROOT%\binary"
 set "VENV=%ROOT%\.windows-build-venv"
 set "STAGE=%ROOT%\.windows-build-stage"
-set "ODMM_VERSION=7.9.29"
+set "ODMM_VERSION=7.9.31"
 set "ODMM_INSTALLER=ODMM-Compact-Setup-V%ODMM_VERSION%.exe"
 if not exist "%SRC%\odmm_pagination_v22859.py" (echo ERROR: Missing pagination module & exit /b 31)
 if not exist "%SRC%\odmm_ui_diagnostics_v22858.py" (echo ERROR: Missing UI diagnostics module & exit /b 30)

@@ -18,7 +18,7 @@ class WindowsRelease(unittest.TestCase):
         spec=importlib.util.spec_from_file_location("verify",BASE / "VERIFY-WINDOWS-ARTIFACTS.py")
         mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
         with tempfile.TemporaryDirectory() as temp:
-            with self.assertRaises(ValueError): mod.verify(temp,"7.9.29")
+            with self.assertRaises(ValueError): mod.verify(temp,"7.9.31")
     def test_streaming_hash(self):
         spec=importlib.util.spec_from_file_location("verify",BASE / "VERIFY-WINDOWS-ARTIFACTS.py")
         mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
