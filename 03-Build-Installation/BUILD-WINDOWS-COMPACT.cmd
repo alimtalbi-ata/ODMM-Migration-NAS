@@ -20,7 +20,9 @@ if defined INNO_ISCC if exist "%INNO_ISCC%" set "ISCC=%INNO_ISCC%"
 if not defined ISCC if exist "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" set "ISCC=%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if not defined ISCC if exist "%ProgramFiles%\Inno Setup 6\ISCC.exe" set "ISCC=%ProgramFiles%\Inno Setup 6\ISCC.exe"
 if not defined ISCC (echo ERROR: Inno Setup 6 is required; install it or set INNO_ISCC. & exit /b 16)
-"%ISCC%" /? >nul 2>&1 || (echo ERROR: Inno Setup compiler cannot be executed & exit /b 32)
+rem ISCC /? may return a nonzero exit code even when the compiler is healthy.
+rem The actual installer compilation below is the authoritative execution check.
+if not exist "%ISCC%" (echo ERROR: Inno Setup compiler not found & exit /b 32)
 rem Do not touch the published binary directory until validation and promotion.
 set "PY=py -3"
 where py >nul 2>&1 || set "PY=python"
