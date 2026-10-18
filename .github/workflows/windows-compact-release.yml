@@ -98,6 +98,11 @@ jobs:
         shell: pwsh
         run: |
           python 03-Build-Installation/PACKAGE-WINDOWS-RELEASE.py --root . --output ODMM-V228.77-Windows-Qualified-Cumulative.zip
+      - name: Verify cumulative ZIP manifest and source commit
+        shell: pwsh
+        run: |
+          python 09-Tools/VERIFY-DELIVERY-MANIFEST.py ODMM-V228.77-Windows-Qualified-Cumulative.zip
+          python -c "import json,os,zipfile; z=zipfile.ZipFile('ODMM-V228.77-Windows-Qualified-Cumulative.zip'); m=json.loads(z.read('DELIVERY-MANIFEST.json')); assert m['source_commit']==os.environ['GITHUB_SHA']; assert m['source_type']=='windows-qualified-git-checkout'; assert 'binary/portable/ODMM-Compact.exe' in m['files']; print('PASS|windows-binaries-commit-provenance')"
       - name: Upload qualified cumulative ZIP
         if: success()
         uses: actions/upload-artifact@v4
