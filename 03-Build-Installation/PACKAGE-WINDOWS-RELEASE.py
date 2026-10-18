@@ -58,7 +58,7 @@ def package(root, output):
             },
             'files': digests,
         }
-        z.writestr('DELIVERY-MANIFEST.json', json.dumps(manifest, indent=2, sort_keys=True) + '\\n')
+        z.writestr('DELIVERY-MANIFEST.json', json.dumps(manifest, indent=2, sort_keys=True) + '\n')
     with zipfile.ZipFile(output) as z:
         if z.testzip() is not None:raise ValueError('ZIP CRC failed')
         for path in ('binary/portable/ODMM-Compact.exe', 'binary/WINDOWS-INSTALL-SMOKE.json', 'binary/WINDOWS-RUNNER-INFO.json', 'binary/SHA256-WINDOWS.json') :
