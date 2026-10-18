@@ -5,6 +5,7 @@ on:
     paths:
       - '02-Sources/**'
       - '09-Tools/INVENTORY-DEPENDENCIES.py'
+      - '09-Tools/REPORT-RUNTIME-REACHABILITY.py'
       - '.github/workflows/architecture-inventory.yml'
 jobs:
   static-inventory:
@@ -19,6 +20,8 @@ jobs:
         run: |
           mkdir -p reports
           python 09-Tools/INVENTORY-DEPENDENCIES.py --output reports/ODMM-IMPORT-DEPENDENCIES.json
+      - name: Calculate conservative entrypoint reachability
+        run: python 09-Tools/REPORT-RUNTIME-REACHABILITY.py --inventory reports/ODMM-IMPORT-DEPENDENCIES.json --output reports/ODMM-RUNTIME-REACHABILITY.json
       - name: Summarize inventory
         run: |
           python - <<'PY'
@@ -33,5 +36,7 @@ jobs:
         if: always()
         with:
           name: ODMM-architecture-dependency-inventory
-          path: reports/ODMM-IMPORT-DEPENDENCIES.json
+          path: |
+            reports/ODMM-IMPORT-DEPENDENCIES.json
+            reports/ODMM-RUNTIME-REACHABILITY.json
           if-no-files-found: warn
