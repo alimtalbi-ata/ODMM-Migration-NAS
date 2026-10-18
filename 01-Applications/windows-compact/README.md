@@ -1,15 +1,20 @@
-# ODMM Windows Compact — livraison cumulative V228.55
+# ODMM Windows Compact — édition de supervision
 
-Client de supervision **en lecture seule**. Version interne du client : 7.9.12.
+Auteur : Abdelhalim Talbi
 
-## Démarrer
+## Fonction
+Client de supervision **en lecture seule**. L'interface n'exécute pas de migration NAS. Le client peut nécessiter l'accès au serveur ODMM pour afficher les jobs.
 
-Exécuter `03-Build-Installation\BUILD-WINDOWS-COMPACT.cmd` depuis Windows 10/11 x64 avec Python 3.10+ et Inno Setup 6. Ce script prépare un environnement virtuel, vérifie les dépendances, produit le portable puis l’installateur et contrôle les artefacts.
+## Installation
+Pour les utilisateurs Windows 10/11 x64, télécharger l'artefact `ODMM-V228.77-Windows-binary` depuis la [compilation Windows #17 qualifiée](https://github.com/alimtalbi-ata/ODMM-Migration-NAS/actions/runs/39144790119), ou depuis une exécution plus récente réussie. Choisir le portable ou l'installateur. Aucun Python ni source n'est requis pour exécuter l'EXE produit par le workflow.
 
-**Attention :** aucun exécutable Windows n'a été compilé ou testé nativement dans cette livraison.
+Pour les développeurs : `03-Build-Installation/BUILD-WINDOWS-COMPACT.cmd` nécessite Python 3.11 et Inno Setup 6. Le workflow installe les outils de compilation sur un runner Windows et qualifie Tcl/Tk, démarrage GUI isolé, installation/désinstallation.
 
-## Interface
+## Utilisation
+F5 ou Ctrl+R : actualiser. Ctrl+F : recherche. Échap : effacer le filtre. Ctrl+Tab : changer d'onglet. En-têtes du tableau : tri.
 
-F5 ou Ctrl+R : actualiser. Ctrl+F : ouvrir et sélectionner la recherche, même depuis un autre onglet. Échap : effacer le filtre de recherche. Ctrl+Tab : changer d'onglet. Cliquer sur les en-têtes pour trier.
+## Limites
+La compilation GitHub sur Windows Server 2022 ne remplace pas une validation sur un PC Windows propre. Le mode démonstration est fictif et ne déclenche pas de migration. Les tests réels doivent être documentés comme tels.
 
-Le jeton API reste en mémoire et est effacé à la fermeture. La démonstration est fictive et ne déclenche aucune migration.
+## Architecture et rationalisation
+Voir `06-Documentation/AUDIT-ARCHITECTURE-ROADMAP-V228.78.md`. Le point d'entrée actuel reste `02-Sources/odmm_windows_compact_v22811.py` ; la séparation UI/services est planifiée sans rupture.
