@@ -42,7 +42,7 @@ rem Build into a staging directory: failed builds must not erase prior deliverab
 if exist "%STAGE%" rmdir /s /q "%STAGE%" || exit /b 34
 mkdir "%STAGE%\portable" || exit /b 35
 mkdir "%STAGE%\installer" || exit /b 35
-"%VPY%" -m PyInstaller --noconfirm --clean --onefile --windowed --name "ODMM-Compact" --distpath "%STAGE%\portable" --workpath "%ROOT%\.windows-build-work" --specpath "%ROOT%\.windows-build-work" --paths "%SRC%" "%SRC%\odmm_windows_compact_v22811.py" || exit /b 13
+"%VPY%" "%ROOT%\03-Build-Installation\BUILD-TKINTER-PORTABLE.py" "%SRC%\odmm_windows_compact_v22811.py" "%SRC%" "%STAGE%\portable" "%ROOT%\.windows-build-work" || exit /b 13
 if not exist "%STAGE%\portable\ODMM-Compact.exe" exit /b 14
 copy /y "%ROOT%\01-Applications\windows-compact\README.md" "%STAGE%\portable\README.txt" >nul || exit /b 15
 "%ISCC%" /DODMM_VERSION="%ODMM_VERSION%" /DODMM_EXE="%STAGE%\portable\ODMM-Compact.exe" /DODMM_OUTPUT="%STAGE%\installer" "%ROOT%\03-Build-Installation\ODMM-COMPACT-WINDOWS.iss" || exit /b 17
