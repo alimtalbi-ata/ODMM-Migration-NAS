@@ -124,6 +124,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
+          $mainSha = (gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha').Trim()
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to verify main branch head' }
+          if ($mainSha -ne $env:GITHUB_SHA) { Write-Host 'Superseded build: skip release publication'; exit 0 }
           $tag = 'v228.87'
           $archive = 'ODMM-V228.87-Complete-Windows-Sources-Documentation.zip'
           if (gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null) {
