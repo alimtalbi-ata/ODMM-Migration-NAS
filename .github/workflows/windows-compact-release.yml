@@ -16,6 +16,10 @@ jobs:
         with:
           python-version: '3.11'
           architecture: x64
+      - name: Headless UI and presentation regression tests
+        shell: pwsh
+        run: |
+          python -m unittest discover -s 09-Tools -p "test_windows_*.py" -v
       - name: Verify version and release contract
         shell: pwsh
         run: python 03-Build-Installation/CHECK-WINDOWS-RELEASE-CONTRACT.py
