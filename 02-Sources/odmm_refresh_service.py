@@ -34,8 +34,11 @@ def _publish(inbox, result):
         if any(item[0] >= result[0] for item in queued):
             return False
         # Every queued response is older; retain only the newest completion.
+        discarded = len(queued)
         queued.clear()
+        inbox.unfinished_tasks -= discarded
         queued.append(result)
+        inbox.unfinished_tasks += 1
         inbox.not_empty.notify()
         return True
 
