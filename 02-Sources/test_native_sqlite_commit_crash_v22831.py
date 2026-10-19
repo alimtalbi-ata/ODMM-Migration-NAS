@@ -59,6 +59,11 @@ class SqliteCommitCrashTests(unittest.TestCase):
             self.assertEqual(recovery['tasks'][0]['decision'],
                              'CLAIM_ELIGIBLE' if boundary == 'BEFORE_COMMIT'
                              else 'OPERATOR_RESET_ELIGIBLE')
+            self.assertEqual(
+                recovery['tasks'][0]['recommended_next_step'],
+                'RECHECK_THEN_CLAIM' if boundary == 'BEFORE_COMMIT'
+                else 'RECHECK_THEN_EXPLICIT_OPERATOR_RESET'
+            )
             self.assertFalse(recovery['tasks'][0]['native_intent'])
             self.assertFalse(recovery['tasks'][0]['native_file_record'])
             if boundary == 'BEFORE_COMMIT':
