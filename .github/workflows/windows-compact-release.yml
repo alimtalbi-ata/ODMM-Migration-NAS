@@ -1,4 +1,4 @@
-name: ODMM Windows Compact native build V228.85
+name: ODMM Windows Compact native build V228.86
 on:
   workflow_dispatch:
   push:
@@ -102,24 +102,24 @@ jobs:
       - name: Package qualified Windows cumulative ZIP
         shell: pwsh
         run: |
-          python 03-Build-Installation/PACKAGE-WINDOWS-RELEASE.py --root . --output ODMM-V228.85-Windows-Qualified-Cumulative.zip
+          python 03-Build-Installation/PACKAGE-WINDOWS-RELEASE.py --root . --output ODMM-V228.86-Windows-Qualified-Cumulative.zip
       - name: Verify cumulative ZIP manifest and source commit
         shell: pwsh
         run: |
-          python 09-Tools/VERIFY-DELIVERY-MANIFEST.py ODMM-V228.85-Windows-Qualified-Cumulative.zip
-          python -c "import json,os,zipfile; z=zipfile.ZipFile('ODMM-V228.85-Windows-Qualified-Cumulative.zip'); m=json.loads(z.read('DELIVERY-MANIFEST.json')); assert m['source_commit']==os.environ['GITHUB_SHA']; assert m['source_type']=='windows-qualified-git-checkout'; assert 'binary/portable/ODMM-Compact.exe' in m['files']; print('PASS|windows-binaries-commit-provenance')"
+          python 09-Tools/VERIFY-DELIVERY-MANIFEST.py ODMM-V228.86-Windows-Qualified-Cumulative.zip
+          python -c "import json,os,zipfile; z=zipfile.ZipFile('ODMM-V228.86-Windows-Qualified-Cumulative.zip'); m=json.loads(z.read('DELIVERY-MANIFEST.json')); assert m['source_commit']==os.environ['GITHUB_SHA']; assert m['source_type']=='windows-qualified-git-checkout'; assert 'binary/portable/ODMM-Compact.exe' in m['files']; print('PASS|windows-binaries-commit-provenance')"
       - name: Upload qualified cumulative ZIP
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ODMM-V228.85-Windows-qualified-cumulative
-          path: ODMM-V228.85-Windows-Qualified-Cumulative.zip
+          name: ODMM-V228.86-Windows-qualified-cumulative
+          path: ODMM-V228.86-Windows-Qualified-Cumulative.zip
           if-no-files-found: error
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ODMM-V228.85-Windows-failure-evidence
+          name: ODMM-V228.86-Windows-failure-evidence
           path: |
             binary/WINDOWS-INSTALL-SMOKE.json
             binary/WINDOWS-RUNNER-INFO.json
@@ -129,7 +129,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: ODMM-V228.85-Windows-binary
+          name: ODMM-V228.86-Windows-binary
           path: |
             binary/
             03-Build-Installation/WINDOWS-TOOLCHAIN-REPORT.json
