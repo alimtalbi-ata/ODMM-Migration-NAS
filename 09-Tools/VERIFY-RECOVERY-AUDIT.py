@@ -13,12 +13,21 @@ sys.path.insert(0, str(ROOT / '02-Sources'))
 from native_incremental_planner import IncrementalPlanner
 
 
+def _reject_duplicate_keys(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError('Duplicate JSON key')
+        obj[key] = value
+    return obj
+
+
 def verify_file(path):
     try:
         raw = Path(path).read_bytes()
         if len(raw) > 8 * 1024 * 1024:
             return False
-        evidence = json.loads(raw)
+        evidence = json.loads(raw, object_pairs_hook=_reject_duplicate_keys,\n                              parse_constant=lambda value: (_ for _ in ()).throw(ValueError('Non-finite JSON number')))
     except (OSError, UnicodeError, ValueError):
         return False
     return IncrementalPlanner.verify_recovery_audit(evidence)
