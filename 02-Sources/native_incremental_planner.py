@@ -98,6 +98,48 @@ class IncrementalPlanner:
         with self.engine._exclusive():
             return self._summary_locked(plan_id)
 
+    def recovery_report(self, plan_id):
+        """Classify interrupted tasks without resetting claims or touching files.
+
+        This is an advisory snapshot under the native engine lock. A later
+        operator action must recheck current state independently.
+        """
+        with self.engine._exclusive():
+            self._verify_locked(plan_id)
+            rows = self.db.execute(
+                'SELECT path,action,status,claim_token FROM incremental_tasks '
+                'WHERE plan_id=? ORDER BY path', (plan_id,)
+            ).fetchall()
+            result = []
+            for path, action, status, token in rows:
+                native_intent = self.db.execute(
+                    'SELECT 1 FROM intents WHERE path=?', (path,)
+                ).fetchone() is not None
+                native_file = self.db.execute(
+                    'SELECT 1 FROM files WHERE path=?', (path,)
+                ).fetchone() is not None
+                if action != 'COPY':
+                    decision = 'HUMAN_REVIEW'
+                elif native_intent or native_file:
+                    decision = 'NATIVE_RECONCILIATION_REQUIRED'
+                elif status == 'CLAIMED':
+                    decision = 'OPERATOR_RESET_ELIGIBLE' if token else 'BLOCKED_MISSING_CLAIM_TOKEN'
+                elif status == 'PENDING':
+                    decision = 'CLAIM_ELIGIBLE'
+                else:
+                    decision = 'HUMAN_REVIEW'
+                result.append({
+                    'path': path, 'action': action, 'status': status,
+                    'decision': decision, 'native_intent': native_intent,
+                    'native_file_record': native_file,
+                })
+            return {
+                'plan_id': plan_id, 'tasks': result,
+                'read_only': True, 'automatic_reset': False,
+                'cutover_authorized': False,
+                'snapshot_consistent': False,
+            }
+
     def claim_copy(self, plan_id, path):
         """Lease-free durable claim: interrupted work remains blocked until explicit review."""
         with self.engine._exclusive():
