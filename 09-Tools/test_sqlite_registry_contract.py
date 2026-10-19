@@ -1,5 +1,6 @@
 """Headless regression checks for read-only SQLite registry auditing."""
 import importlib.util
+from contextlib import closing
 import sqlite3
 import tempfile
 import unittest
@@ -22,7 +23,7 @@ class RegistryAuditTests(unittest.TestCase):
     def test_wal_registry_integrity(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "registry.sqlite"
-            with sqlite3.connect(path) as db:
+            with closing(sqlite3.connect(path)) as db:
                 db.execute("PRAGMA journal_mode=WAL")
                 db.execute("PRAGMA synchronous=FULL")
                 db.execute("CREATE TABLE jobs (id TEXT PRIMARY KEY)")
