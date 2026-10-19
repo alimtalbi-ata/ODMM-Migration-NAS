@@ -20,6 +20,13 @@ def inspect_registry(path):
         journal = conn.execute("PRAGMA journal_mode").fetchone()[0]
         synchronous = conn.execute("PRAGMA synchronous").fetchone()[0]
         quick = conn.execute("PRAGMA quick_check").fetchone()[0]
+        tables = {row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+        pending_intents = (conn.execute("SELECT COUNT(*) FROM intents").fetchone()[0]
+                           if "intents" in tables else None)
+        verified_files = (conn.execute("SELECT COUNT(*) FROM files").fetchone()[0]
+                          if "files" in tables else None)
     return {
         "schema": "odmm.sqlite.registry.audit.v1",
         "registry": db.name,
@@ -27,8 +34,13 @@ def inspect_registry(path):
         "quick_check": quick,
         "journal_mode": journal,
         "synchronous": synchronous,
-        "passed": integrity == "ok" and quick == "ok" and journal.lower() == "wal" and synchronous == 2,
-        "scope": "read-only local SQLite checks; no NAS ACL or cutover qualification",
+        "synchronous_scope": "audit_connection_only_not_writer_durability_proof",
+        "pending_intents": pending_intents,
+        "verified_files": verified_files,
+        "reconciliation_required": bool(pending_intents),
+        "native_schema_detected": "files" in tables and "intents" in tables,
+        "passed": integrity == "ok" and quick == "ok" and journal.lower() == "wal",
+        "scope": "read-only local SQLite checks; writer synchronous setting not provable; no NAS ACL or cutover qualification",
     }
 
 
