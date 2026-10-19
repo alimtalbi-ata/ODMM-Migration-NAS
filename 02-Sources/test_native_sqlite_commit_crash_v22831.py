@@ -1,4 +1,5 @@
 """V228.31: real process termination on either side of SQLite COMMIT."""
+import hashlib
 import multiprocessing as mp
 import os
 import tempfile
@@ -6,7 +7,7 @@ import unittest
 from pathlib import Path
 from native_posix_migration import NativePosixMigration, MigrationBlocked
 from native_incremental_inventory import IncrementalInventory
-from native_incremental_planner import IncrementalPlanner
+from native_incremental_planner import IncrementalPlanner, canonical
 
 
 def crash_worker(src, dst, database, plan, boundary):
@@ -52,6 +53,15 @@ class SqliteCommitCrashTests(unittest.TestCase):
             self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM files').fetchone()[0], 0)
             self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM intents').fetchone()[0], 0)
             self.assertEqual(engine.db.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
+            audit = planner.recovery_audit(self.plan)
+            digest = audit['sha256']
+            self.assertEqual(
+                digest,
+                hashlib.sha256(canonical({k: v for k, v in audit.items() if k != 'sha256'})).hexdigest()
+            )
+            self.assertEqual(audit['evidence_scope'], 'sqlite_registry_observation_only')
+            self.assertFalse(audit['cutover_authorized'])
+            self.assertFalse(audit['automatic_reset'])
             recovery = planner.recovery_report(self.plan)
             self.assertTrue(recovery['read_only'])
             self.assertFalse(recovery['automatic_reset'])
