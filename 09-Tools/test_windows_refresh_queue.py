@@ -38,6 +38,15 @@ class RefreshWorkerTests(unittest.TestCase):
         q.task_done()
         q.join()
 
+    def test_out_of_order_completion_keeps_newest(self):
+        q = queue.Queue(maxsize=1)
+        self.assertTrue(fetch_into_queue(12, "endpoint", "token", q, fetcher=lambda a,b: []))
+        self.assertFalse(fetch_into_queue(11, "endpoint", "token", q, fetcher=lambda a,b: []))
+        self.assertTrue(fetch_into_queue(13, "endpoint", "token", q, fetcher=lambda a,b: []))
+        self.assertEqual(q.get_nowait()[0], 13)
+        q.task_done()
+        q.join()
+
     def test_multiple_stale_results_are_coalesced(self):
         q = queue.Queue(maxsize=3)
         for rid in (1, 2, 3):
