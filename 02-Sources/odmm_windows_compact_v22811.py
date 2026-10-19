@@ -141,12 +141,15 @@ def main():
         from odmm_sample_report_v2289 import sample_rows
         generation[0] += 1  # invalidate outstanding network responses
         while not inbox.empty():
-            try: inbox.get_nowait()
+            try:
+                inbox.get_nowait()
+                inbox.task_done()
             except queue.Empty: break
         load_button.configure(state="normal")
         rows.clear()
         rows.extend(sample_rows())
         display_mode[0] = "DEMO"
+        detail.set("DÉMONSTRATION FICTIVE — sélectionnez un job pour consulter sa fiche.")
         search.set("")
         state.set("ALL")
         refresh_table()
@@ -257,17 +260,20 @@ def main():
                 if error:
                     display_mode[0] = "STALE" if rows else "EMPTY"
                     status.set("DONNÉES PRÉCÉDENTES — Échec de consultation : " + error + " | " + refresh_message("NETWORK", len(rows)))
+                    overview.set("DONNÉES PÉRIMÉES — " + " | ".join(overview_lines(supervision(rows))) if rows else "Aucune donnée serveur disponible")
                     detail.set("Données précédentes conservées ; vérifier la connexion et le jeton.")
                 else:
                     if not isinstance(data, list) or len(data) > 100000 or any(not isinstance(r, dict) for r in data):
                         display_mode[0] = "STALE" if rows else "EMPTY"
                         status.set(refresh_message("PAYLOAD", len(rows)))
+                        overview.set("DONNÉES PÉRIMÉES — réponse invalide" if rows else "Aucune donnée serveur disponible")
                         detail.set("Données précédentes conservées ; aucune modification distante.")
                         continue
                     accepted, outcome = resolve_refresh(rows, rid, generation[0], data, None, validate_jobs)
                     if outcome != "OK":
                         display_mode[0] = "STALE" if rows else "EMPTY"
                         status.set(refresh_message("VALIDATION", len(rows)))
+                        overview.set("DONNÉES PÉRIMÉES — validation impossible" if rows else "Aucune donnée serveur disponible")
                         detail.set("Données précédentes conservées ; contacter l’administrateur du serveur.")
                         continue
                     rows.clear()
