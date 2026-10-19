@@ -8,7 +8,17 @@ import argparse
 import hashlib
 import json
 import zipfile
+import re
 from pathlib import PurePosixPath
+
+
+def _unique_object(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError("duplicate JSON key")
+        obj[key] = value
+    return obj
 
 
 def verify(archive):
@@ -21,11 +31,15 @@ def verify(archive):
             p = PurePosixPath(name)
             if p.is_absolute() or ".." in p.parts or "\\" in name:
                 raise ValueError("unsafe ZIP path: " + name)
-        manifest = json.loads(z.read("DELIVERY-MANIFEST.json"))
+        manifest = json.loads(z.read("DELIVERY-MANIFEST.json"), object_pairs_hook=_unique_object)
+        if manifest.get("schema_version") != 1 or not isinstance(manifest.get("files"), dict):
+            raise ValueError("unsupported or invalid manifest")
         expected = manifest["files"]
         if set(expected) != set(names) - {"DELIVERY-MANIFEST.json"}:
             raise ValueError("manifest file set does not match ZIP")
         for name, digest in expected.items():
+            if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+                raise ValueError("invalid SHA-256 digest: " + name)
             if hashlib.sha256(z.read(name)).hexdigest() != digest:
                 raise ValueError("hash mismatch: " + name)
         return {"status": "PASS", "files": len(expected), "source_commit": manifest.get("source_commit"), "source_type": manifest.get("source_type")}
