@@ -11,6 +11,8 @@ def explain_connection_failure(exc):
             return "Authentification refusée (HTTP %s). Vérifiez le jeton et les autorisations." % exc.code
         if exc.code == 404:
             return "API de supervision introuvable (HTTP 404). Vérifiez la version du serveur."
+        if exc.code in (408, 504):
+            return "Délai de réponse du serveur dépassé (HTTP %s). Réessayez plus tard." % exc.code
         if exc.code == 429:
             return "Trop de requêtes (HTTP 429). Réessayez plus tard."
         if 500 <= exc.code <= 599:
@@ -26,6 +28,11 @@ def explain_connection_failure(exc):
         return "Réponse JSON invalide. Vérifiez la compatibilité du serveur."
     if isinstance(exc, ValueError):
         known = {
+            "INVALID_ORIGIN": "Adresse du serveur invalide. Utilisez une origine HTTP(S) sans chemin ni identifiants.",
+            "TLS_REQUIRED": "Connexion HTTPS obligatoire pour un serveur distant.",
+            "INVALID_TIMEOUT": "Délai de connexion invalide.",
+            "REDIRECT_REFUSED": "Redirection du serveur refusée pour protéger le jeton API.",
+            "INVALID_PORT": "Port du serveur invalide.",
             "INVALID_TOKEN": "Jeton invalide : format ou longueur incorrects.",
             "INVALID_REGISTRY_CONTRACT": "Contrat API du registre non conforme.",
             "INVALID_REGISTRY_ITEMS": "Liste des jobs invalide ou trop volumineuse.",
