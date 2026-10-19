@@ -4,6 +4,7 @@ Checks database integrity and durability configuration without mutating the
 registry or authorizing migration/cutover. Author: Abdelhalim Talbi.
 """
 import argparse
+from contextlib import closing
 import json
 import sqlite3
 from pathlib import Path
@@ -14,7 +15,7 @@ def inspect_registry(path):
     if not db.is_file():
         raise ValueError("REGISTRY_NOT_FOUND")
     # Open read-only: never initialize a missing registry.
-    with sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True, timeout=3) as conn:
+    with closing(sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True, timeout=3)) as conn:
         integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
         journal = conn.execute("PRAGMA journal_mode").fetchone()[0]
         synchronous = conn.execute("PRAGMA synchronous").fetchone()[0]
