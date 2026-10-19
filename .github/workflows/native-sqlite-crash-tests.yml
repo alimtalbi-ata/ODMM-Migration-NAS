@@ -16,3 +16,5 @@ jobs:
         env:
           PYTHONPATH: 02-Sources
         run: python -m unittest discover -s 02-Sources -p 'test_native_sqlite_commit_crash_v22831.py' -v
+      - name: Independently verify audit CLI and adversarial JSON fixtures
+        run: python -m unittest discover -s 09-Tools -p 'test_windows_recovery_audit_cli.py' -v
