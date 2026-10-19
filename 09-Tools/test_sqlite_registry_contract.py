@@ -35,6 +35,23 @@ class RegistryAuditTests(unittest.TestCase):
             self.assertEqual(result["journal_mode"], "wal")
             self.assertTrue(result["passed"])
 
+    def test_pending_intent_is_reported_without_reconciliation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "registry.sqlite"
+            with closing(sqlite3.connect(path)) as db:
+                db.execute("PRAGMA journal_mode=WAL")
+                db.execute("CREATE TABLE files (path TEXT PRIMARY KEY)")
+                db.execute("CREATE TABLE intents (path TEXT PRIMARY KEY)")
+                db.execute("INSERT INTO intents VALUES ('unfinished')")
+                db.commit()
+            result = module.inspect_registry(path)
+            self.assertEqual(result["pending_intents"], 1)
+            self.assertEqual(result["verified_files"], 0)
+            self.assertTrue(result["reconciliation_required"])
+            self.assertTrue(result["native_schema_detected"])
+            with closing(sqlite3.connect(path)) as db:
+                self.assertEqual(db.execute("SELECT COUNT(*) FROM intents").fetchone()[0], 1)
+
     def test_corrupt_registry_not_reported_as_valid(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "registry.sqlite"
