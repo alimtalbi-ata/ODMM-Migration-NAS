@@ -22,6 +22,13 @@ def crash_worker(src, dst, database, plan, boundary):
     os._exit(92)
 
 
+def publish_crash_worker(src, dst, database):
+    """Hard-exit after target publication and durable intent, before ledger commit."""
+    engine = NativePosixMigration(src, dst, database)
+    engine.copy('file', after_publish=lambda: os._exit(93))
+    os._exit(94)
+
+
 class SqliteCommitCrashTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -94,6 +101,35 @@ class SqliteCommitCrashTests(unittest.TestCase):
                     (self.plan, 'file')
                 ).fetchone()
                 self.assertEqual(persisted, ('CLAIMED', 'worker-token'))
+        finally:
+            engine.close()
+
+
+    def test_kill_after_publish_requires_explicit_reconciliation(self):
+        process = mp.get_context('spawn').Process(
+            target=publish_crash_worker, args=(self.src, self.dst, self.database))
+        process.start()
+        process.join(15)
+        if process.is_alive():
+            process.kill()
+            process.join()
+            self.fail('publish crash worker timed out')
+        self.assertEqual(process.exitcode, 93)
+        self.assertEqual((self.dst / 'file').read_bytes(), b'content')
+        engine = NativePosixMigration(self.src, self.dst, self.database)
+        try:
+            self.assertEqual(engine.db.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
+            self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM intents').fetchone()[0], 1)
+            self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM files').fetchone()[0], 0)
+            with self.assertRaises(MigrationBlocked):
+                engine.copy('file')
+            with self.assertRaises(MigrationBlocked):
+                engine.reconcile('file')
+            result = engine.reconcile('file', operator_confirmed=True)
+            self.assertEqual(result['status'], 'RECONCILED_VERIFIED')
+            self.assertFalse(result['cutover_authorized'])
+            self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM intents').fetchone()[0], 0)
+            self.assertEqual(engine.verify('file')['status'], 'VERIFIED_POSIX_SUBSET_ONLY')
         finally:
             engine.close()
 
