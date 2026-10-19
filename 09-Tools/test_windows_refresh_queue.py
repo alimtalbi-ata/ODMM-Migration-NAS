@@ -70,6 +70,25 @@ class RefreshWorkerTests(unittest.TestCase):
         q.task_done()
         q.join()
 
+    def test_nonfull_queue_still_rejects_late_stale_completion(self):
+        q = queue.Queue(maxsize=8)
+        self.assertTrue(fetch_into_queue(20, "endpoint", "token", q, fetcher=lambda a,b: []))
+        self.assertFalse(fetch_into_queue(19, "endpoint", "token", q, fetcher=lambda a,b: []))
+        self.assertEqual(q.qsize(), 1)
+        self.assertEqual(q.get_nowait()[0], 20)
+        q.task_done()
+        q.join()
+
+    def test_nonfull_queue_discards_old_pending_results(self):
+        q = queue.Queue(maxsize=8)
+        for rid in (1, 2, 3):
+            q.put_nowait((rid, [], None))
+        self.assertTrue(fetch_into_queue(4, "endpoint", "token", q, fetcher=lambda a,b: []))
+        self.assertEqual(q.qsize(), 1)
+        self.assertEqual(q.get_nowait()[0], 4)
+        q.task_done()
+        q.join()
+
     def test_multiple_stale_results_are_coalesced(self):
         q = queue.Queue(maxsize=3)
         for rid in (1, 2, 3):
