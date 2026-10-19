@@ -29,6 +29,12 @@ class WindowsUiContractTests(unittest.TestCase):
         self.assertIn("build_jobs_view(", self.source)
         self.assertIn("target=fetch_into_queue", self.source)
 
+    def test_live_demo_and_stale_states_are_explicit(self):
+        for marker in ('display_mode[0] = "DEMO"', 'display_mode[0] = "LIVE"',
+                       'display_mode[0] = "STALE" if rows else "EMPTY"',
+                       'DONNÉES SERVEUR ACTUALISÉES', 'DÉMONSTRATION FICTIVE'):
+            self.assertIn(marker, self.source)
+
     def test_no_mutating_migration_controls(self):
         for forbidden in ('text="Lancer migration"', 'text="Exécuter migration"', 'text="Supprimer job"'):
             self.assertNotIn(forbidden, self.source)
