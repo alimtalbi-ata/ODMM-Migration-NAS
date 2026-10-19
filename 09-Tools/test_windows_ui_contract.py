@@ -19,8 +19,10 @@ class WindowsUiContractTests(unittest.TestCase):
         self.assertIsInstance(self.tree, ast.Module)
 
     def test_escape_filter_reset_matches_help(self):
-        self.assertIn('root.bind("<Escape>"', self.source)
-        self.assertIn('search.set(""), state.set("ALL")', self.source)
+        self.assertEqual(self.source.count('root.bind("<Escape>"'), 1)
+        self.assertIn('state.set("ALL")', self.source)
+        self.assertIn('search.set("")', self.source)
+        self.assertIn('state.get() != "ALL"', self.source)
         self.assertIn('text="Effacer les filtres"', self.source)
 
     def test_view_model_and_worker_used(self):
