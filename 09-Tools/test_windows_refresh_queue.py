@@ -1,4 +1,5 @@
 import queue
+import threading
 import sys
 import unittest
 from pathlib import Path
@@ -44,6 +45,28 @@ class RefreshWorkerTests(unittest.TestCase):
         self.assertFalse(fetch_into_queue(11, "endpoint", "token", q, fetcher=lambda a,b: []))
         self.assertTrue(fetch_into_queue(13, "endpoint", "token", q, fetcher=lambda a,b: []))
         self.assertEqual(q.get_nowait()[0], 13)
+        q.task_done()
+        q.join()
+
+    def test_concurrent_producers_never_lose_highest_request(self):
+        q = queue.Queue(maxsize=1)
+        q.put_nowait((0, [], None))
+        barrier = threading.Barrier(9)
+        workers = []
+        for rid in range(1, 9):
+            def run(request_id=rid):
+                barrier.wait()
+                fetch_into_queue(request_id, "endpoint", "token", q,
+                                 fetcher=lambda a, b: [])
+            thread = threading.Thread(target=run)
+            workers.append(thread)
+            thread.start()
+        barrier.wait()
+        for thread in workers:
+            thread.join(timeout=5)
+            self.assertFalse(thread.is_alive(), "Refresh producer deadlocked")
+        self.assertEqual(q.qsize(), 1)
+        self.assertEqual(q.get_nowait()[0], 8)
         q.task_done()
         q.join()
 
