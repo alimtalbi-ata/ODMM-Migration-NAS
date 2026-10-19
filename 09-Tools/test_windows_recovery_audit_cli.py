@@ -57,6 +57,18 @@ class RecoveryAuditCliTests(unittest.TestCase):
         self.path.write_text('{broken', encoding='utf-8')
         self.assertEqual(self.run_cli().returncode, 2)
 
+    def test_duplicate_keys_rejected(self):
+        self.path.write_text('{"schema":"a","schema":"b"}', encoding='utf-8')
+        self.assertEqual(self.run_cli().returncode, 2)
+
+    def test_nonfinite_number_rejected(self):
+        self.path.write_text('{"value":NaN}', encoding='utf-8')
+        self.assertEqual(self.run_cli().returncode, 2)
+
+    def test_nested_duplicate_keys_rejected(self):
+        self.path.write_text('{"tasks":[{"path":"a","path":"b"}]}', encoding='utf-8')
+        self.assertEqual(self.run_cli().returncode, 2)
+
     def test_oversized_input_rejected(self):
         self.path.write_bytes(b'x' * (8 * 1024 * 1024 + 1))
         self.assertFalse(module.verify_file(self.path))
