@@ -52,6 +52,15 @@ class SqliteCommitCrashTests(unittest.TestCase):
             self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM files').fetchone()[0], 0)
             self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM intents').fetchone()[0], 0)
             self.assertEqual(engine.db.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
+            recovery = planner.recovery_report(self.plan)
+            self.assertTrue(recovery['read_only'])
+            self.assertFalse(recovery['automatic_reset'])
+            self.assertFalse(recovery['cutover_authorized'])
+            self.assertEqual(recovery['tasks'][0]['decision'],
+                             'CLAIM_ELIGIBLE' if boundary == 'BEFORE_COMMIT'
+                             else 'OPERATOR_RESET_ELIGIBLE')
+            self.assertFalse(recovery['tasks'][0]['native_intent'])
+            self.assertFalse(recovery['tasks'][0]['native_file_record'])
             if boundary == 'BEFORE_COMMIT':
                 self.assertEqual(planner.claim_copy(self.plan,'file')['status'],'CLAIMED_NOT_EXECUTED')
             else:
