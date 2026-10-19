@@ -39,6 +39,10 @@ class WindowsUiContractTests(unittest.TestCase):
         self.assertGreaterEqual(self.source.count("inbox.task_done()"), 3)
         self.assertIn("if closed[0]: return", self.source)
 
+    def test_stale_status_visible(self):
+        self.assertIn("DONNÉES PÉRIMÉES", self.source)
+        self.assertIn("Aucune donnée serveur disponible", self.source)
+
     def test_no_mutating_migration_controls(self):
         for forbidden in ('text="Lancer migration"', 'text="Exécuter migration"', 'text="Supprimer job"'):
             self.assertNotIn(forbidden, self.source)
