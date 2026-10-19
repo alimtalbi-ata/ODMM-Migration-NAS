@@ -20,6 +20,7 @@ jobs:
         shell: pwsh
         run: |
           python -m unittest discover -s 09-Tools -p "test_windows_*.py" -v
+          python -m unittest discover -s 09-Tools -p "test_sqlite_registry_contract.py" -v
       - name: Verify version and release contract
         shell: pwsh
         run: python 03-Build-Installation/CHECK-WINDOWS-RELEASE-CONTRACT.py
