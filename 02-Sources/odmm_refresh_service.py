@@ -1,21 +1,36 @@
-"""Windows Compact refresh service: no Tk dependency, no secret logging.
+"""Read-only registry refresh worker with bounded, credential-safe diagnostics.
 
-This module only reads registry jobs and puts results on a queue. UI state
-updates remain on the Tk main thread. It never executes migrations.
+Author: Abdelhalim Talbi.
+UI state is updated only on the Tk main thread. No migration operations.
 """
+from queue import Full
+
 from odmm_connection_diagnostics_v22851 import explain_connection_failure
 from odmm_registry_client_v2267 import fetch_registry_jobs
 
 
-def fetch_into_queue(request_id, endpoint, token, inbox, fetcher=None):
-    """Fetch a registry snapshot and publish one result to the UI queue.
+def _publish(inbox, result):
+    """Never block a worker indefinitely if a bounded queue is saturated.
 
-    Errors are converted to credential-safe diagnostics. A caller may inject a
-    fetcher in tests; production defaults to the existing registry client.
+    The UI identifies stale results by request ID; dropping a full-queue result
+    is safer than blocking an abandoned refresh worker.
+    """
+    try:
+        inbox.put_nowait(result)
+        return True
+    except Full:
+        return False
+
+
+def fetch_into_queue(request_id, endpoint, token, inbox, fetcher=None):
+    """Fetch registry data once and publish an outcome without leaking secrets.
+
+    A fetcher may be injected for deterministic tests. The API token is never
+    included in the published error or success tuple.
     """
     fetch = fetch_registry_jobs if fetcher is None else fetcher
     try:
         data = fetch(endpoint, token)
-        inbox.put((request_id, data, None))
     except Exception as exc:
-        inbox.put((request_id, None, explain_connection_failure(exc)))
+        return _publish(inbox, (request_id, None, explain_connection_failure(exc)))
+    return _publish(inbox, (request_id, data, None))
