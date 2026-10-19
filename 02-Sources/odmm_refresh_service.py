@@ -21,19 +21,18 @@ def _publish(inbox, result):
         return True
     except Full:
         pass
-    # queue.Queue exposes mutex/queue for a bounded, atomic coalescing
-    # operation. GUI consumers still receive ordinary queue tuples.
+    # Queue's mutex protects coalescing against concurrent producers/consumers.
+    # Never manipulate unfinished_tasks: discarded items were not taken by
+    # consumers, and the GUI does not use join/task_done semantics.
     with inbox.mutex:
         queued = inbox.queue
         if not queued:
-            # Consumer drained it while we waited for the mutex.
             queued.append(result)
             inbox.unfinished_tasks += 1
             inbox.not_empty.notify()
             return True
         if any(item[0] >= result[0] for item in queued):
             return False
-        # Every queued response is older; retain only the newest completion.
         discarded = len(queued)
         queued.clear()
         inbox.unfinished_tasks -= discarded
