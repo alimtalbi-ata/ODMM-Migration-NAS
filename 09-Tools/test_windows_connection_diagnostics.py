@@ -17,6 +17,12 @@ class ConnectionDiagnosticsTests(unittest.TestCase):
     def test_local_http_allowed(self):
         self.assertEqual(validate_origin("http://127.0.0.1:8090/"), "http://127.0.0.1:8090")
 
+    def test_ambiguous_origins_rejected(self):
+        for origin in ("", "https://example.com:", "https://example.com\\\\evil", "https://example.com\\n", "https://example.com:443\\t", " https://example.com", "https://example.com/path"):
+            with self.subTest(origin=repr(origin)):
+                with self.assertRaisesRegex(ValueError, "INVALID_ORIGIN"):
+                    validate_origin(origin)
+
     def test_redirect_diagnostic_never_exposes_credentials(self):
         self.assertNotIn("secret", explain_connection_failure(ValueError("REDIRECT_REFUSED secret")).lower())
         self.assertIn("Redirection", explain_connection_failure(ValueError("REDIRECT_REFUSED")))
