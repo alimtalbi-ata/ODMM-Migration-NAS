@@ -84,10 +84,13 @@ def main():
         else:
             select_job()
     def load():
+        if closed[0]: return
         generation[0] += 1
         request_id = generation[0]
         while not inbox.empty():
-            try: inbox.get_nowait()
+            try:
+                inbox.get_nowait()
+                inbox.task_done()
             except queue.Empty: break
         endpoint, bearer = origin.get(), token.get()
         status.set("Connexion en cours… — données précédentes conservées jusqu’à validation")
@@ -248,6 +251,7 @@ def main():
         try:
             while True:
                 rid, data, error = inbox.get_nowait()
+                inbox.task_done()
                 if rid != generation[0]: continue
                 load_button.configure(state="normal")
                 if error:
