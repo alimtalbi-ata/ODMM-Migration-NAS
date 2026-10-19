@@ -17,6 +17,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Adversarial delivery manifest tests
+        run: python -m unittest discover -s 09-Tools -p 'test_delivery_manifest_security.py' -v
       - name: Package tracked files from this exact commit
         run: |
           mkdir -p dist
