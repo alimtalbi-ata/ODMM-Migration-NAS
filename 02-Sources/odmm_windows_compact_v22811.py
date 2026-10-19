@@ -60,6 +60,7 @@ def main():
     inbox = queue.Queue(maxsize=8)  # bounded; workers never block on publication
     generation = [0]
     closed = [False]
+    display_mode = ["EMPTY"]  # EMPTY, LIVE, DEMO, STALE
     page_index = [0]
     page_size = 200
     def refresh_table(*_):
@@ -89,7 +90,7 @@ def main():
             try: inbox.get_nowait()
             except queue.Empty: break
         endpoint, bearer = origin.get(), token.get()
-        status.set("Connexion en cours…")
+        status.set("Connexion en cours… — données précédentes conservées jusqu’à validation")
         detail.set("Actualisation en cours…")
         load_button.configure(state="disabled")
         threading.Thread(
@@ -142,6 +143,7 @@ def main():
         load_button.configure(state="normal")
         rows.clear()
         rows.extend(sample_rows())
+        display_mode[0] = "DEMO"
         search.set("")
         state.set("ALL")
         refresh_table()
@@ -249,23 +251,27 @@ def main():
                 if rid != generation[0]: continue
                 load_button.configure(state="normal")
                 if error:
-                    status.set("Échec de consultation : " + error + " | " + refresh_message("NETWORK", len(rows)))
+                    display_mode[0] = "STALE" if rows else "EMPTY"
+                    status.set("DONNÉES PRÉCÉDENTES — Échec de consultation : " + error + " | " + refresh_message("NETWORK", len(rows)))
                     detail.set("Données précédentes conservées ; vérifier la connexion et le jeton.")
                 else:
                     if not isinstance(data, list) or len(data) > 100000 or any(not isinstance(r, dict) for r in data):
+                        display_mode[0] = "STALE" if rows else "EMPTY"
                         status.set(refresh_message("PAYLOAD", len(rows)))
                         detail.set("Données précédentes conservées ; aucune modification distante.")
                         continue
                     accepted, outcome = resolve_refresh(rows, rid, generation[0], data, None, validate_jobs)
                     if outcome != "OK":
+                        display_mode[0] = "STALE" if rows else "EMPTY"
                         status.set(refresh_message("VALIDATION", len(rows)))
                         detail.set("Données précédentes conservées ; contacter l’administrateur du serveur.")
                         continue
                     rows.clear()
                     rows.extend(accepted)
+                    display_mode[0] = "LIVE"
                     refresh_table()
                     overview.set(" | ".join(overview_lines(supervision(rows))))
-                    status.set("Consultation terminée — lecture seule · " + server_limit_notice(len(rows)))
+                    status.set("DONNÉES SERVEUR ACTUALISÉES — lecture seule · " + server_limit_notice(len(rows)))
         except queue.Empty: pass
         root.after(80, drain)
     def close():
