@@ -31,3 +31,15 @@ compatibility.
 Keep application internal version distinct from cumulative release train when
 needed, but identify both in the documentation. Preserve main history and
 prefer a feature branch/PR for major refactoring.
+
+## V228.87 — Direct GitHub Release download
+The Windows qualification workflow now publishes the qualified cumulative ZIP
+as a GitHub Release asset under tag `v228.87`, using the exact checked-out
+commit. Publication refuses to overwrite an existing tag. The release is
+marked prerelease because NAS migration/ACL fidelity is not production qualified.
+
+Download URL after successful publication:
+https://github.com/alimtalbi-ata/ODMM-Migration-NAS/releases/download/v228.87/ODMM-V228.87-Complete-Windows-Sources-Documentation.zip
+
+GitHub Actions artifacts remain a secondary traceability channel. This direct
+release URL avoids depending on ChatGPT sandbox download links.
