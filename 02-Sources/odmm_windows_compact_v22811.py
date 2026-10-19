@@ -57,7 +57,7 @@ def main():
     status = tk.StringVar(value="Prêt — aucune action de migration n'est déclenchée")
     detail = tk.StringVar(value="Sélectionnez un job pour afficher sa fiche de migration.")
     rows = []
-    inbox = queue.Queue(maxsize=0)  # no blocking worker on completed/stale requests
+    inbox = queue.Queue(maxsize=8)  # bounded; workers never block on publication
     generation = [0]
     closed = [False]
     page_index = [0]
