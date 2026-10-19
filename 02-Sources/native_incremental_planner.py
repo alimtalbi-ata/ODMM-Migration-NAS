@@ -148,6 +148,26 @@ class IncrementalPlanner:
                 'snapshot_consistent': False,
             }
 
+    def recovery_audit(self, plan_id):
+        """Deterministic, integrity-addressed read-only recovery evidence.
+
+        The digest covers the canonical report, not an authorization or a
+        cryptographic attestation of source/target filesystem contents.
+        """
+        report = self.recovery_report(plan_id)
+        evidence = {
+            'schema': 'odmm.native.recovery.audit.v1',
+            'plan_id': report['plan_id'],
+            'tasks': report['tasks'],
+            'read_only': True,
+            'automatic_reset': False,
+            'cutover_authorized': False,
+            'snapshot_consistent': False,
+            'evidence_scope': 'sqlite_registry_observation_only',
+        }
+        evidence['sha256'] = hashlib.sha256(canonical(evidence)).hexdigest()
+        return evidence
+
     def claim_copy(self, plan_id, path):
         """Lease-free durable claim: interrupted work remains blocked until explicit review."""
         with self.engine._exclusive():
