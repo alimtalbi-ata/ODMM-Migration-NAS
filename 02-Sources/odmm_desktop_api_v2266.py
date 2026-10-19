@@ -12,11 +12,11 @@ class NoRedirect(HTTPRedirectHandler):
         raise ValueError('REDIRECT_REFUSED')
 
 def validate_origin(origin):
-    if not isinstance(origin, str) or origin != origin.strip():
+    if not isinstance(origin, str) or origin != origin.strip() or not origin or any(ord(c) < 33 or ord(c) == 127 for c in origin):
         raise ValueError('INVALID_ORIGIN')
     try:
         p = urlsplit(origin)
-        if p.scheme not in ('http','https') or not p.hostname or p.username or p.password or p.path not in ('','/') or p.query or p.fragment:
+        if p.scheme not in ('http','https') or not p.hostname or p.username or p.password or p.path not in ('','/') or p.query or p.fragment or p.netloc.endswith(':') or '\\' in origin:
             raise ValueError('INVALID_ORIGIN')
         if p.scheme == 'http' and p.hostname not in ('localhost','127.0.0.1','::1'):
             raise ValueError('TLS_REQUIRED')
