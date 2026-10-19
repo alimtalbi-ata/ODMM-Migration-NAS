@@ -49,11 +49,18 @@ class SqliteCommitCrashTests(unittest.TestCase):
             row = engine.db.execute('SELECT status,claim_token FROM incremental_tasks WHERE plan_id=? AND path=?',(self.plan,'file')).fetchone()
             self.assertEqual(row, (expected_status, expected_token))
             self.assertFalse((self.dst/'file').exists())
+            self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM files').fetchone()[0], 0)
+            self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM intents').fetchone()[0], 0)
             self.assertEqual(engine.db.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
             if boundary == 'BEFORE_COMMIT':
                 self.assertEqual(planner.claim_copy(self.plan,'file')['status'],'CLAIMED_NOT_EXECUTED')
             else:
                 with self.assertRaises(MigrationBlocked): planner.claim_copy(self.plan,'file')
+                persisted = engine.db.execute(
+                    'SELECT status,claim_token FROM incremental_tasks WHERE plan_id=? AND path=?',
+                    (self.plan, 'file')
+                ).fetchone()
+                self.assertEqual(persisted, ('CLAIMED', 'worker-token'))
         finally:
             engine.close()
 
