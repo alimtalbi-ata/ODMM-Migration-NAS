@@ -23,6 +23,8 @@ def validate_origin(origin):
         if not 0 < (p.port or (443 if p.scheme == 'https' else 80)) < 65536:
             raise ValueError('INVALID_PORT')
     except ValueError as exc:
+        if str(exc) == "TLS_REQUIRED":
+            raise
         raise ValueError('INVALID_ORIGIN') from exc
     return origin.rstrip('/')
 
