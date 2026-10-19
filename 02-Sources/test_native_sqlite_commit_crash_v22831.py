@@ -1,4 +1,5 @@
 """V228.31: real process termination on either side of SQLite COMMIT."""
+import copy
 import hashlib
 import multiprocessing as mp
 import os
@@ -54,6 +55,14 @@ class SqliteCommitCrashTests(unittest.TestCase):
             self.assertEqual(engine.db.execute('SELECT COUNT(*) FROM intents').fetchone()[0], 0)
             self.assertEqual(engine.db.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
             audit = planner.recovery_audit(self.plan)
+            self.assertTrue(planner.verify_recovery_audit(audit))
+            tampered = copy.deepcopy(audit)
+            tampered['tasks'][0]['status'] = 'FORGED'
+            self.assertFalse(planner.verify_recovery_audit(tampered))
+            tampered = copy.deepcopy(audit)
+            tampered['cutover_authorized'] = True
+            self.assertFalse(planner.verify_recovery_audit(tampered))
+            self.assertFalse(planner.verify_recovery_audit({'sha256': audit['sha256']}))
             digest = audit['sha256']
             self.assertEqual(
                 digest,
