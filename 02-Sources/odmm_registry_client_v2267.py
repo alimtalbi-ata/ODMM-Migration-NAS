@@ -30,6 +30,16 @@ def normalize_registry_jobs(data):
                        'throughput_bytes_per_sec': None, 'errors_count': None})
     return result
 
+def _unique_json_object(pairs):
+    """Reject ambiguous duplicate JSON members at every nesting level."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('INVALID_JSON')
+        result[key] = value
+    return result
+
+
 def fetch_registry_jobs(origin, token, *, timeout=6, opener=None):
     base = validate_origin(origin)
     if not isinstance(token, str) or not 8 <= len(token) <= 8192 or any(ord(c) < 33 or ord(c) > 126 for c in token):
@@ -49,7 +59,7 @@ def fetch_registry_jobs(origin, token, *, timeout=6, opener=None):
     if len(raw) > MAX_BYTES:
         raise ValueError('REPORT_TOO_LARGE')
     try:
-        data = json.loads(raw.decode('utf-8'))
+        data = json.loads(raw.decode('utf-8'), object_pairs_hook=_unique_json_object, parse_constant=lambda _: (_ for _ in ()).throw(ValueError('INVALID_JSON')))
     except (UnicodeError, ValueError) as exc:
         raise ValueError('INVALID_JSON') from exc
     return normalize_registry_jobs(data)
