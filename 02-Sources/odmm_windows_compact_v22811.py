@@ -14,7 +14,7 @@ from odmm_ui_state_v22811 import resolve_refresh
 from odmm_ui_diagnostics_v22858 import refresh_message
 from odmm_refresh_guard_v22860 import server_limit_notice
 
-VERSION = "7.9.31"  # Product version for cumulative delivery V228.76
+VERSION = "7.9.31"  # Windows Compact product version; release train V228.79
 AUTHOR = "Abdelhalim Talbi"
 
 def main():
@@ -226,7 +226,6 @@ def main():
         search_entry.selection_range(0, "end")
         return "break"
     root.bind("<Control-f>", focus_search)
-    root.bind("<Escape>", lambda _e: (search.set(""), state.set("ALL")) if tabs.select() == str(jobs) else None)
     root.bind("<F5>", lambda _e: load() if str(load_button.cget("state")) != "disabled" else None)
     report_status = tk.StringVar(value="Ouvrir un rapport JSON existant ; aucune modification du fichier")
     ttk.Label(reports, textvariable=report_status, wraplength=750).grid(row=0, column=0, sticky="w")
@@ -276,8 +275,9 @@ def main():
         root.destroy()
     root.protocol("WM_DELETE_WINDOW", close)
     def clear_search(_event=None):
-        if tabs.select() == str(jobs) and search.get():
+        if tabs.select() == str(jobs) and (search.get() or state.get() != "ALL"):
             search.set("")
+            state.set("ALL")
             search_entry.focus_set()
             return "break"
     root.bind("<Escape>", clear_search)
