@@ -168,6 +168,43 @@ class IncrementalPlanner:
         evidence['sha256'] = hashlib.sha256(canonical(evidence)).hexdigest()
         return evidence
 
+    @staticmethod
+    def verify_recovery_audit(evidence):
+        """Verify schema, canonical digest and safety flags of an exported audit.
+
+        This detects accidental or deliberate edits without a trusted signature;
+        it does not authenticate who created the evidence.
+        """
+        if not isinstance(evidence, dict):
+            return False
+        if set(evidence) != {
+            'schema', 'plan_id', 'tasks', 'read_only', 'automatic_reset',
+            'cutover_authorized', 'snapshot_consistent', 'evidence_scope', 'sha256'
+        }:
+            return False
+        if evidence['schema'] != 'odmm.native.recovery.audit.v1':
+            return False
+        if evidence['read_only'] is not True or evidence['automatic_reset'] is not False:
+            return False
+        if evidence['cutover_authorized'] is not False or evidence['snapshot_consistent'] is not False:
+            return False
+        if evidence['evidence_scope'] != 'sqlite_registry_observation_only':
+            return False
+        if not isinstance(evidence['plan_id'], str) or not evidence['plan_id']:
+            return False
+        if not isinstance(evidence['tasks'], list):
+            return False
+        if not isinstance(evidence['sha256'], str) or len(evidence['sha256']) != 64:
+            return False
+        import hmac
+        try:
+            actual = hashlib.sha256(canonical({
+                k: v for k, v in evidence.items() if k != 'sha256'
+            })).hexdigest()
+        except (TypeError, ValueError):
+            return False
+        return hmac.compare_digest(actual, evidence['sha256'])
+
     def claim_copy(self, plan_id, path):
         """Lease-free durable claim: interrupted work remains blocked until explicit review."""
         with self.engine._exclusive():
