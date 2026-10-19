@@ -6,16 +6,12 @@ from tkinter import ttk, filedialog, messagebox
 from odmm_refresh_service import fetch_into_queue
 from odmm_windows_view_model import build_jobs_view
 from odmm_desktop_model_v2258 import read_report, report_summary
-from odmm_compact_dashboard_v2280 import dashboard
-from odmm_attention_v2281 import attention_summary
-from odmm_health_v2283 import assess
 from odmm_payload_gate_v2285 import validate_jobs
 from odmm_supervision_v2287 import supervision, overview_lines
 from odmm_job_detail_v2279 import select_job as find_job_by_id
 from odmm_job_triage_v2280 import triage_job, triage_lines
-from odmm_ui_state_v22811 import resolve_refresh, selection_after_filter
-from odmm_ui_diagnostics_v22858 import refresh_message, safe_count
-from odmm_pagination_v22859 import paginate, sort_jobs
+from odmm_ui_state_v22811 import resolve_refresh
+from odmm_ui_diagnostics_v22858 import refresh_message
 from odmm_refresh_guard_v22860 import server_limit_notice
 
 VERSION = "7.9.31"  # Product version for cumulative delivery V228.76
@@ -123,7 +119,7 @@ def main():
     ttk.Label(jobs, textvariable=summary, font=("Segoe UI", 11, "bold")).grid(row=2, column=0, sticky="w")
     ttk.Button(filters, text="Voir les échecs", command=lambda: (search.set(""), state.set("FAILED"))).pack(side="left", padx=6)
     ttk.Button(filters, text="Voir les états inconnus", command=lambda: (search.set(""), state.set("UNKNOWN"))).pack(side="left", padx=6)
-    ttk.Button(filters, text="Tous les jobs", command=lambda: (search.set(""), state.set("ALL"))).pack(side="left")
+    ttk.Button(filters, text="Effacer les filtres", command=lambda: (search.set(""), state.set("ALL"))).pack(side="left")
     def export_summary():
         if not rows:
             messagebox.showinfo("Export de supervision", "Aucune donnée chargée à exporter.")
@@ -230,6 +226,7 @@ def main():
         search_entry.selection_range(0, "end")
         return "break"
     root.bind("<Control-f>", focus_search)
+    root.bind("<Escape>", lambda _e: (search.set(""), state.set("ALL")) if tabs.select() == str(jobs) else None)
     root.bind("<F5>", lambda _e: load() if str(load_button.cget("state")) != "disabled" else None)
     report_status = tk.StringVar(value="Ouvrir un rapport JSON existant ; aucune modification du fichier")
     ttk.Label(reports, textvariable=report_status, wraplength=750).grid(row=0, column=0, sticky="w")
