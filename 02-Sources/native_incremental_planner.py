@@ -128,9 +128,17 @@ class IncrementalPlanner:
                     decision = 'CLAIM_ELIGIBLE'
                 else:
                     decision = 'HUMAN_REVIEW'
+                guidance = {
+                    'HUMAN_REVIEW': 'REVIEW_TASK_AND_PLAN',
+                    'NATIVE_RECONCILIATION_REQUIRED': 'VERIFY_NATIVE_SOURCE_TARGET_AND_INTENT',
+                    'OPERATOR_RESET_ELIGIBLE': 'RECHECK_THEN_EXPLICIT_OPERATOR_RESET',
+                    'BLOCKED_MISSING_CLAIM_TOKEN': 'INVESTIGATE_REGISTRY_INCONSISTENCY',
+                    'CLAIM_ELIGIBLE': 'RECHECK_THEN_CLAIM',
+                }[decision]
                 result.append({
                     'path': path, 'action': action, 'status': status,
-                    'decision': decision, 'native_intent': native_intent,
+                    'decision': decision, 'recommended_next_step': guidance,
+                    'native_intent': native_intent,
                     'native_file_record': native_file,
                 })
             return {
