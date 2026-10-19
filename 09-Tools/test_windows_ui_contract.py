@@ -35,6 +35,10 @@ class WindowsUiContractTests(unittest.TestCase):
                        'DONNÉES SERVEUR ACTUALISÉES', 'DÉMONSTRATION FICTIVE'):
             self.assertIn(marker, self.source)
 
+    def test_refresh_queue_consumers_acknowledge_tasks(self):
+        self.assertGreaterEqual(self.source.count("inbox.task_done()"), 3)
+        self.assertIn("if closed[0]: return", self.source)
+
     def test_no_mutating_migration_controls(self):
         for forbidden in ('text="Lancer migration"', 'text="Exécuter migration"', 'text="Supprimer job"'):
             self.assertNotIn(forbidden, self.source)
