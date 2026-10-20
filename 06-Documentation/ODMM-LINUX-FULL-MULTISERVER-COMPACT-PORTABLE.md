@@ -87,3 +87,9 @@ Le module `02-Sources/odmm_linux_lease_registry.py` utilise SQLite et `BEGIN IMM
 **Limite critique** : la validité du jeton doit être imposée **sur chaque opération d'écriture du datamover** et, idéalement, par le service propriétaire de la ressource cible. Un ancien agent qui conserve un accès NAS peut encore écrire après expiration si ce contrôle n'est pas intégré. Ce module ne doit donc pas être utilisé comme garantie de fencing distribué, ni comme preuve de sécurité HA. Aucun datamover réel n'est branché sur ce registre.
 
 La qualification future doit inclure plusieurs processus concurrents, interruption pendant transaction, pertes de réseau, dérive des horloges, changement de propriétaire et validation de l'absence d'écriture avec jeton obsolète. Le temps d'expiration dépend pour l'instant de l'horloge fournie : une autorité temporelle et un contrat d'expiration centralisés restent à concevoir.
+
+## Contrôle atomique des effets sur le registre
+
+Le module `odmm_linux_lease_registry.py` expose maintenant `assert_current()` et `guarded_registry_effect()`. La seconde fonction verrouille la transaction SQLite avec `BEGIN IMMEDIATE`, vérifie le propriétaire, le jeton et l'expiration, puis exécute une mutation SQL dans **la même transaction**. Si le callback échoue, les écritures SQL sont annulées. Les tests couvrent l'expiration, un propriétaire incorrect et le rollback.
+
+**Ne jamais exécuter d'écriture NAS, de commande shell, d'accès réseau ou de copie de fichiers dans le callback** : la transaction ne peut annuler ces effets externes. Pour l'exécution distribuée, un protocole supplémentaire est requis : journal d'intentions avant effet, contrôle du fencing au niveau du service cible ou proxy, confirmation durable après effet, état INCERTAIN en cas de crash, et réconciliation humaine avant reprise. Les protections du registre ne valent pas qualification du datamover.
