@@ -79,3 +79,11 @@ python3 03-Build-Installation/ODMM-LINUX-PREFLIGHT.py --edition full --topology 
 ```
 
 La validation refuse les rôles requis manquants, les doublons d'adresse, les nœuds malformés, les JSON ambigus et les datamovers sans réseau NAS. Elle ne vérifie pas l'accessibilité réseau ni le fencing distribué ; `ready_for_live_migration` reste toujours `false`.
+
+## Registre transactionnel de réservation des datamovers — prototype
+
+Le module `02-Sources/odmm_linux_lease_registry.py` utilise SQLite et `BEGIN IMMEDIATE` pour sérialiser l'attribution de tâches. Chaque réservation comporte un identifiant de tâche, un propriétaire, une échéance et un **jeton de fencing croissant**. Les opérations `claim`, `renew` et `release` refusent les propriétaires ou jetons périmés ; l'expiration permet un nouveau claim avec un nouveau jeton. Le registre est persistant après réouverture de la base.
+
+**Limite critique** : la validité du jeton doit être imposée **sur chaque opération d'écriture du datamover** et, idéalement, par le service propriétaire de la ressource cible. Un ancien agent qui conserve un accès NAS peut encore écrire après expiration si ce contrôle n'est pas intégré. Ce module ne doit donc pas être utilisé comme garantie de fencing distribué, ni comme preuve de sécurité HA. Aucun datamover réel n'est branché sur ce registre.
+
+La qualification future doit inclure plusieurs processus concurrents, interruption pendant transaction, pertes de réseau, dérive des horloges, changement de propriétaire et validation de l'absence d'écriture avec jeton obsolète. Le temps d'expiration dépend pour l'instant de l'horloge fournie : une autorité temporelle et un contrat d'expiration centralisés restent à concevoir.
