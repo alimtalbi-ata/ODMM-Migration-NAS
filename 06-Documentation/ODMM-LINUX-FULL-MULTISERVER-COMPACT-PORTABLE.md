@@ -121,3 +121,11 @@ assert result["verified"] and not result["nas_acl_qualified"]
 ```
 
 Cette vérification **n'atteste pas** des propriétaires, groupes, ACL NFSv4/SMB, attributs étendus, ADS, horodatages ou accès effectifs. Elle ne remplace pas une vérification d'intégrité liée au journal transactionnel. Les chemins sont supposés situés dans un environnement de test maîtrisé ; un attaquant contrôlant les répertoires parents pourrait exploiter des courses de résolution de chemin, et les modifications concurrentes à granularité identique ne sont pas toutes détectables. Le module ne doit pas être utilisé comme vérificateur de sécurité NAS de production.
+
+## Pipeline Linux local de laboratoire — première intégration bout en bout
+
+Le module `02-Sources/odmm_linux_lab_pipeline.py` relie le bail SQLite, l'intention `PREPARED → IN_FLIGHT`, une copie locale exclusive `O_EXCL`, un `fsync` du fichier et du répertoire, une vérification indépendante SHA-256 + mode POSIX et la transition `VERIFIED`. Il refuse les cibles existantes et ne supprime pas une copie partielle après échec ; l'intention reste `IN_FLIGHT` et sera placée `UNCERTAIN` au redémarrage. Une répétition de la même cible ne peut pas écraser le résultat existant.
+
+**Limites majeures** : prototype sur répertoire local isolé uniquement ; pas de montage NFS/SMB, ACL, propriétaire, xattr, ADS, contrôle de capacité, snapshots, vérification d'accès effectif, réplication HA ou coordination inter-hôtes. Les protections contre les liens symboliques et les modifications concurrentes ne sont pas complètes : l'ouverture de la source et la résolution des répertoires parents nécessitent un durcissement avant tout usage sur un système de fichiers non fiable. L'écriture de fichier n'est pas atomique avec la transaction SQLite ; le journal marque donc toute interruption en cours comme incertaine. Ce code **ne doit pas être utilisé pour migrer des données de production**.
+
+La CI `linux-deployment-preflight.yml` inclut les tests `test_linux_lab_pipeline.py` (copie vérifiée, refus d'écrasement, refus de répétition).
