@@ -43,6 +43,10 @@ class WindowsUiContractTests(unittest.TestCase):
         self.assertIn("DONNÉES PÉRIMÉES", self.source)
         self.assertIn("Aucune donnée serveur disponible", self.source)
 
+    def test_invalid_origin_blocked_before_worker(self):
+        self.assertLess(self.source.index("validate_origin(endpoint)"), self.source.index("threading.Thread("))
+        self.assertIn("CONNEXION NON LANCÉE", self.source)
+
     def test_no_mutating_migration_controls(self):
         for forbidden in ('text="Lancer migration"', 'text="Exécuter migration"', 'text="Supprimer job"'):
             self.assertNotIn(forbidden, self.source)
