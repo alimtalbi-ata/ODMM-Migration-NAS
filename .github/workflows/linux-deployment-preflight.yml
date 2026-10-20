@@ -20,6 +20,8 @@ jobs:
           python-version: '3.11'
       - name: Test deployment preflight
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_deployment_preflight.py' -v
+      - name: Test multi-node topology contract
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_node_inventory.py' -v
       - name: Verify Linux edition readiness
         run: python3 03-Build-Installation/ODMM-LINUX-PREFLIGHT.py --edition "${{ matrix.edition }}" > "preflight-${{ matrix.edition }}.json"
       - name: Verify declared non-qualification of NAS migrations
