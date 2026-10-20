@@ -143,3 +143,9 @@ Dans les deux scénarios, `quarantine_unfinished()` convertit `IN_FLIGHT` en `UN
 La copie de laboratoire ouvre désormais la source avec `O_NOFOLLOW` et `O_NONBLOCK`, valide par `fstat` qu'il s'agit d'un fichier régulier, et copie à partir d'un descripteur déjà ouvert. Elle compare les informations `device/inode/taille/mtime_ns` avant et après lecture afin de rejeter une modification observée pendant la copie. Les permissions de la cible proviennent du descripteur source initial, et non d'un nouveau `stat` sur le chemin. Des tests supplémentaires rejettent les sources symboliques et les points d'injection inconnus.
 
 **Limite** : ces contrôles réduisent les courses sur le chemin source mais ne constituent pas une protection complète contre les répertoires parents malveillants, les modifications invisibles dans les métadonnées observées ou les opérations NAS distantes. Une isolation par descripteurs de répertoire et `openat2` ainsi qu'une vérification des ACL restent nécessaires.
+
+## Essai d'arrêt brutal de processus Linux
+
+Le test `09-Tools/test_linux_lab_process_crash.py` démarre un sous-processus Python avec une base SQLite WAL et `synchronous=FULL`, persiste une intention `IN_FLIGHT`, puis termine ce sous-processus par `SIGKILL`. Le processus de test rouvre ensuite le registre, constate la présence de l'intention et la place en `UNCERTAIN` via `quarantine_unfinished()`.
+
+**Périmètre exact** : arrêt brutal d'un processus applicatif, et non panne électrique, arrêt du noyau, corruption disque, perte d'accès NAS ou bascule multiserveur. Le test se déclenche avant la création du fichier cible ; les scénarios de `SIGKILL` pendant une copie partielle et après `fsync` du fichier restent à qualifier. L'exécution est désormais requise dans le workflow Linux.
