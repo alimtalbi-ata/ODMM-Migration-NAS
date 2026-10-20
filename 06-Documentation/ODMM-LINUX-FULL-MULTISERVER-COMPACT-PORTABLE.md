@@ -57,3 +57,25 @@ Le workflow `.github/workflows/linux-deployment-preflight.yml` exécute les test
 ## Feuille de route
 
 P0 : sécuriser le contrat API/agent et les invariants d'écriture. P1 : datamover POSIX/NFS qualifié, reprise et audit. P2 : fidélité SMB/ACL multi-vendeur et bascule contrôlée. P3 : packaging portable autonome et orchestration HA multi-sites. La compatibilité NAS dépend des versions firmware/API et doit être documentée par couples source/cible.
+
+## Validation de topologie Linux Full (inventaire hors ligne)
+
+Créer un fichier JSON local, par exemple :
+
+```json
+{
+  "schema_version": 1,
+  "nodes": [
+    {"name": "control-1", "address": "10.1.0.1", "roles": ["control", "registry"], "site": "paris", "networks": []},
+    {"name": "mover-1", "address": "10.1.0.2", "roles": ["datamover"], "site": "paris", "networks": ["nas-a"]}
+  ]
+}
+```
+
+Cet exemple est **fictif** et ne représente pas une installation testée. Commande :
+
+```bash
+python3 03-Build-Installation/ODMM-LINUX-PREFLIGHT.py --edition full --topology topology.json
+```
+
+La validation refuse les rôles requis manquants, les doublons d'adresse, les nœuds malformés, les JSON ambigus et les datamovers sans réseau NAS. Elle ne vérifie pas l'accessibilité réseau ni le fencing distribué ; `ready_for_live_migration` reste toujours `false`.
