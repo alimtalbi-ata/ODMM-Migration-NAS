@@ -19,7 +19,7 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
     Never overwrites. On failure after IN_FLIGHT, recovery must quarantine the
     intent; caller must not automatically retry. Not a distributed NAS fence.
     """
-    if fault_at not in (None, "after_intent", "after_copy_fsync"):
+    if fault_at not in (None, "after_intent", "after_copy_fsync", "during_copy"):
         raise ValueError("INVALID_FAULT_POINT")
     source, target = Path(source), Path(target)
     if source.is_symlink() or not source.is_file() or target.is_symlink():
@@ -44,6 +44,13 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
         with os.fdopen(fd, "wb", closefd=True) as out:
             fd = None
             with os.fdopen(os.dup(source_fd), "rb") as inp:
+                if fault_at == "during_copy":
+                    block = inp.read(4096)
+                    if block:
+                        out.write(block)
+                        out.flush()
+                        os.fsync(out.fileno())
+                    raise LabPipelineError("INJECTED_DURING_COPY")
                 shutil.copyfileobj(inp, out, length=1024 * 1024)
             source_after = os.fstat(source_fd)
             if (source_before.st_dev, source_before.st_ino, source_before.st_size, source_before.st_mtime_ns) != (source_after.st_dev, source_after.st_ino, source_after.st_size, source_after.st_mtime_ns):
