@@ -93,6 +93,15 @@ def main():
                 inbox.task_done()
             except queue.Empty: break
         endpoint, bearer = origin.get(), token.get()
+        from odmm_desktop_api_v2266 import validate_origin
+        from odmm_connection_diagnostics_v22851 import explain_connection_failure
+        try:
+            validate_origin(endpoint)
+        except ValueError as exc:
+            display_mode[0] = "STALE" if rows else "EMPTY"
+            status.set("CONNEXION NON LANCÉE — " + explain_connection_failure(exc))
+            overview.set("DONNÉES PÉRIMÉES — adresse de connexion invalide" if rows else "Aucune donnée serveur disponible")
+            return
         status.set("Connexion en cours… — données précédentes conservées jusqu’à validation")
         detail.set("Actualisation en cours…")
         load_button.configure(state="disabled")
