@@ -55,12 +55,23 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="ODMM Linux non-destructive deployment preflight")
     parser.add_argument("--edition", choices=("compact", "full"), required=True)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--topology", type=Path, help="Optional Linux Full multiserver topology JSON (offline validation)")
     args = parser.parse_args(argv)
     try:
         result = inspect(args.root, args.edition)
     except OSError:
         print(json.dumps({"passed": False, "error": "PREFLIGHT_IO_FAILURE"}))
         return 2
+    if args.topology:
+        if args.edition != "full":
+            parser.error("--topology requires --edition full")
+        sys.path.insert(0, str(args.root.resolve() / "02-Sources"))
+        try:
+            from odmm_linux_node_inventory import load_topology
+            result["topology"] = load_topology(args.topology)
+        except (ImportError, OSError, ValueError) as exc:
+            result["passed"] = False
+            result["topology_error"] = str(exc) if isinstance(exc, ValueError) else "TOPOLOGY_READ_FAILURE"
     print(json.dumps(result, sort_keys=True, indent=2))
     return 0 if result["passed"] else 1
 
