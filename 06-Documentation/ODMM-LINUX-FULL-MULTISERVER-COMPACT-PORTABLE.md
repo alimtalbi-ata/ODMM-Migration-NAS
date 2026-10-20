@@ -1,0 +1,59 @@
+# ODMM Linux — Full multiserveur et Compact portable
+
+Auteur : Abdelhalim Talbi. Document d'architecture et d'exploitation. État : développement/qualification partielle, **pas une validation de migration NAS de production**.
+
+## Éditions
+
+**Linux Full** est destiné à l'orchestration et aux datamovers séparés sur plusieurs hôtes. L'infrastructure cible recommande quatre rôles logiques : control plane/API, registre/audit transactionnel, datamovers proches des réseaux NAS, et observabilité. Les rôles peuvent être regroupés en environnement de laboratoire ; les séparer en production évite de concentrer les accès réseau et les écritures. **La topologie décrite est une architecture cible, pas un cluster HA livré et testé.**
+
+**Linux Compact** est un utilitaire Python portable de **supervision en lecture seule**, exploitable depuis un répertoire copié, avec fichier de rapport JSON ou connexion API. Ce n'est pas un moteur de copie autonome.
+
+## Démarrage portable et préqualification
+
+À la racine de l'archive, sur un hôte Linux disposant de Python 3.10+ :
+
+```bash
+bash 03-Build-Installation/RUN-LINUX-COMPACT.sh --preflight
+bash 03-Build-Installation/RUN-LINUX-COMPACT.sh --demo-overview
+bash 03-Build-Installation/RUN-LINUX-COMPACT.sh --report /chemin/rapport.json --overview
+bash 03-Build-Installation/RUN-LINUX-FULL.sh --preflight
+bash 03-Build-Installation/RUN-LINUX-FULL.sh --check
+```
+
+Le préflight est **non destructif**, ne monte aucun NAS et ne démarre aucune migration. Il retourne un JSON avec `passed`, `checks`, `edition`, `hostname` et `nas_migration_qualified=false`. Code retour 0 : prérequis locaux vérifiés ; 1 : prérequis manquant ; 2 : erreur d'E/S. Le seuil d'espace libre est de 1 Gio, uniquement pour le poste de contrôle : il ne dimensionne pas le stockage de migration.
+
+## Architecture multiserveur cible
+
+```text
+Console/CLI Linux Compact -- HTTPS/mTLS cible --> Control plane / API
+                                                    |
+                                                Scheduler
+                                                    |
+                                        Registre/audit SQLite ou DB HA cible
+                                                    |
+                        +---------------------------+---------------------------+
+                        |                           |                           |
+                   Datamover A                 Datamover B                 Datamover N
+                 VLAN NAS source             VLAN NAS cible             Site distant
+                        +------------ inventaire, copie, vérification ------------+
+```
+
+**Invariants avant exécution réelle** : authentification forte des agents, séparation lecture/écriture, identité canonique SID/UID/GID, préservation ACL/xattr/ADS selon protocole, journal d'intentions durable, fencing d'ownership, idempotence, reprise explicite des écritures incertaines, contrôles d'accès effectifs et preuve d'intégrité. Aucun de ces invariants ne doit être supposé satisfait par le seul préflight.
+
+## Parcours de qualification requis
+
+1. Déploiement isolé sur au moins trois VM Linux avec segmentation réseau et secrets hors dépôt.
+2. Vérification des ports et de la connectivité contrôlée ; ne pas ouvrir SMB/NFS globalement.
+3. Qualification fonctionnelle source/cible NetApp ↔ FlashBlade, puis PowerScale ↔ NetApp/FlashBlade.
+4. Jeux de données représentatifs NFS et SMB : liens, verrouillages, caractères Unicode, fichiers volumineux, ACL imbriquées, UID/GID/SID, xattr/ADS.
+5. Reprise après kill -9, coupure réseau, redémarrage datamover et divergence de registre ; aucun retry silencieux après état incertain.
+6. Vérification indépendante des fichiers, métadonnées et droits effectifs ; simulation de cutover et rollback.
+7. Mesure sur millions de fichiers et charges progressives avant toute affirmation de performance à 150–500 To.
+
+## Preuves CI
+
+Le workflow `.github/workflows/linux-deployment-preflight.yml` exécute les tests et la vérification des prérequis séparément pour les éditions full et compact sur Ubuntu 24.04. Il conserve un rapport JSON par édition. Une CI verte prouve les contrôles locaux, **pas le fonctionnement multiserveur, ni l'HA, ni la migration NAS réelle**.
+
+## Feuille de route
+
+P0 : sécuriser le contrat API/agent et les invariants d'écriture. P1 : datamover POSIX/NFS qualifié, reprise et audit. P2 : fidélité SMB/ACL multi-vendeur et bascule contrôlée. P3 : packaging portable autonome et orchestration HA multi-sites. La compatibilité NAS dépend des versions firmware/API et doit être documentée par couples source/cible.
