@@ -149,3 +149,9 @@ La copie de laboratoire ouvre désormais la source avec `O_NOFOLLOW` et `O_NONBL
 Le test `09-Tools/test_linux_lab_process_crash.py` démarre un sous-processus Python avec une base SQLite WAL et `synchronous=FULL`, persiste une intention `IN_FLIGHT`, puis termine ce sous-processus par `SIGKILL`. Le processus de test rouvre ensuite le registre, constate la présence de l'intention et la place en `UNCERTAIN` via `quarantine_unfinished()`.
 
 **Périmètre exact** : arrêt brutal d'un processus applicatif, et non panne électrique, arrêt du noyau, corruption disque, perte d'accès NAS ou bascule multiserveur. Le test se déclenche avant la création du fichier cible ; les scénarios de `SIGKILL` pendant une copie partielle et après `fsync` du fichier restent à qualifier. L'exécution est désormais requise dans le workflow Linux.
+
+## SIGKILL aux trois frontières d'écriture
+
+La suite `test_linux_lab_process_crash.py` couvre désormais trois scénarios de sous-processus terminés par `SIGKILL` : `after_intent` (cible absente), `during_copy` (cible partielle avec premier bloc synchronisé), `after_copy_fsync` (cible complète mais non confirmée). Chaque scénario rouvre SQLite et exige `IN_FLIGHT → UNCERTAIN`. Aucun scénario ne doit marquer la tâche `VERIFIED` ni écraser une cible existante pendant une reprise automatique.
+
+Les points d'injection sont des arrêts déterministes après exception et `SIGKILL` du processus ; ils ne reproduisent pas toutes les fenêtres d'interruption possibles à l'instruction près. Un test de coupure de courant et un test NAS distant restent hors périmètre.
