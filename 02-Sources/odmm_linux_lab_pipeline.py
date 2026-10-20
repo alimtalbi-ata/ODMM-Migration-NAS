@@ -13,13 +13,13 @@ from odmm_linux_lab_verifier import verify_pair, VerificationError
 class LabPipelineError(RuntimeError):
     pass
 
-def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=None):
+def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=None, fault_at=None):
     """Copy one regular local file to an exclusive new target.
 
     Never overwrites. On failure after IN_FLIGHT, recovery must quarantine the
     intent; caller must not automatically retry. Not a distributed NAS fence.
     """
-    source, target = Path(source), Path(target)
+    if fault_at not in (None, "after_intent", "after_copy_fsync"):\n        raise ValueError("INVALID_FAULT_POINT")\n    source, target = Path(source), Path(target)
     if source.is_symlink() or not source.is_file() or target.is_symlink():
         raise LabPipelineError("INVALID_SOURCE_OR_TARGET")
     if target.exists():
@@ -27,7 +27,7 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
     payload = {"kind": "local-lab-copy-v1", "source": str(source.resolve()),
                "target": str(target.absolute())}
     digest = prepare(db, intent_id, task_id, owner, token, payload, now=now)
-    mark_in_flight(db, intent_id, task_id, owner, token, now=now)
+    mark_in_flight(db, intent_id, task_id, owner, token, now=now)\n    if fault_at == "after_intent":\n        raise LabPipelineError("INJECTED_AFTER_INTENT")
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
     fd = None
     try:
@@ -40,7 +40,7 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
                 shutil.copyfileobj(inp, out, length=1024 * 1024)
             out.flush()
             os.fsync(out.fileno())
-        os.chmod(target, stat.S_IMODE(source.stat().st_mode))
+        if fault_at == "after_copy_fsync":\n            raise LabPipelineError("INJECTED_AFTER_COPY_FSYNC")\n        os.chmod(target, stat.S_IMODE(source.stat().st_mode))
         dirfd = os.open(target.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
         try:
             os.fsync(dirfd)
