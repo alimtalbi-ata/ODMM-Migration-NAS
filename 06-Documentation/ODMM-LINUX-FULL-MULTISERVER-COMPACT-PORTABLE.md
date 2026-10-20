@@ -129,3 +129,11 @@ Le module `02-Sources/odmm_linux_lab_pipeline.py` relie le bail SQLite, l'intent
 **Limites majeures** : prototype sur répertoire local isolé uniquement ; pas de montage NFS/SMB, ACL, propriétaire, xattr, ADS, contrôle de capacité, snapshots, vérification d'accès effectif, réplication HA ou coordination inter-hôtes. Les protections contre les liens symboliques et les modifications concurrentes ne sont pas complètes : l'ouverture de la source et la résolution des répertoires parents nécessitent un durcissement avant tout usage sur un système de fichiers non fiable. L'écriture de fichier n'est pas atomique avec la transaction SQLite ; le journal marque donc toute interruption en cours comme incertaine. Ce code **ne doit pas être utilisé pour migrer des données de production**.
 
 La CI `linux-deployment-preflight.yml` inclut les tests `test_linux_lab_pipeline.py` (copie vérifiée, refus d'écrasement, refus de répétition).
+
+## Injection de pannes et quarantaine de reprise
+
+Le pipeline local accepte le paramètre de laboratoire `fault_at="after_intent"` ou `fault_at="after_copy_fsync"`. Le premier déclenche une exception après persistance de `IN_FLIGHT` et avant ouverture de la cible. Le second déclenche une exception après copie et `fsync` du fichier, avant mise à jour des permissions et vérification.
+
+Dans les deux scénarios, `quarantine_unfinished()` convertit `IN_FLIGHT` en `UNCERTAIN`. Le fichier cible éventuellement présent n'est ni écrasé ni effacé automatiquement. Les tests `test_linux_lab_pipeline.py` vérifient ces invariants.
+
+**Qualification limitée** : injections d'exceptions déterministes dans le même processus. Aucun `SIGKILL`, redémarrage de machine, perte de disque, défaut NFS/SMB, panne réseau ou bascule HA n'a été qualifié. L'état `UNCERTAIN` exige une réconciliation explicite avant toute reprise.
