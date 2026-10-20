@@ -94,3 +94,38 @@ def unresolved(db):
     return db.execute("""SELECT intent_id,task_id,owner,fence_token,state
       FROM odmm_datamover_intents WHERE state IN ('IN_FLIGHT','UNCERTAIN')
       ORDER BY created_at,intent_id""").fetchall()
+
+def record_verification(db, intent_id, task_id, owner, token, observed_payload_sha256, *, now=None):
+    """Record independent verification of the expected intent fingerprint.
+
+    Caller MUST independently verify target data/metadata; this function does
+    not read NAS contents or establish that verification was actually performed.
+    """
+    from odmm_linux_lease_registry import assert_current
+    intent_id, task_id, owner = _id(intent_id), _id(task_id), _id(owner)
+    if not isinstance(observed_payload_sha256, str) or len(observed_payload_sha256) != 64 or any(c not in "0123456789abcdef" for c in observed_payload_sha256):
+        raise ValueError("INVALID_DIGEST")
+    now = _clock(now)
+    def work():
+        assert_current(db, task_id, owner, token, now=now)
+        row = db.execute("""UPDATE odmm_datamover_intents SET state='VERIFIED',updated_at=?
+            WHERE intent_id=? AND task_id=? AND owner=? AND fence_token=?
+              AND payload_sha256=? AND state='IN_FLIGHT'""",
+            (now, intent_id, task_id, owner, token, observed_payload_sha256))
+        if row.rowcount != 1:
+            raise IntentConflict("VERIFICATION_NOT_ALLOWED")
+    _transaction(db, work)
+
+def abort_prepared(db, intent_id, task_id, owner, token, *, now=None):
+    """Abort only a PREPARED intent, before any external effect could start."""
+    from odmm_linux_lease_registry import assert_current
+    intent_id, task_id, owner = _id(intent_id), _id(task_id), _id(owner)
+    now = _clock(now)
+    def work():
+        assert_current(db, task_id, owner, token, now=now)
+        row = db.execute("""UPDATE odmm_datamover_intents SET state='ABORTED',updated_at=?
+            WHERE intent_id=? AND task_id=? AND owner=? AND fence_token=? AND state='PREPARED'""",
+            (now, intent_id, task_id, owner, token))
+        if row.rowcount != 1:
+            raise IntentConflict("ABORT_NOT_ALLOWED")
+    _transaction(db, work)
