@@ -155,3 +155,9 @@ Le test `09-Tools/test_linux_lab_process_crash.py` démarre un sous-processus Py
 La suite `test_linux_lab_process_crash.py` couvre désormais trois scénarios de sous-processus terminés par `SIGKILL` : `after_intent` (cible absente), `during_copy` (cible partielle avec premier bloc synchronisé), `after_copy_fsync` (cible complète mais non confirmée). Chaque scénario rouvre SQLite et exige `IN_FLIGHT → UNCERTAIN`. Aucun scénario ne doit marquer la tâche `VERIFIED` ni écraser une cible existante pendant une reprise automatique.
 
 Les points d'injection sont des arrêts déterministes après exception et `SIGKILL` du processus ; ils ne reproduisent pas toutes les fenêtres d'interruption possibles à l'instruction près. Un test de coupure de courant et un test NAS distant restent hors périmètre.
+
+## Réconciliation en lecture seule des intentions UNCERTAIN
+
+Le module `odmm_linux_lab_reconciliation.py` propose `inspect_uncertain(db, intent_id, source, target)`. Il exige un état `UNCERTAIN` et produit un rapport en lecture seule : `TARGET_ABSENT`, `CONTENT_MISMATCH`, `POSIX_MODE_MISMATCH`, ou `LOCAL_CONTENT_AND_MODE_MATCH` (avec SHA-256 de la cible). La décision reste **MANUAL_REVIEW_REQUIRED** dans tous les cas ; aucune transition automatique `UNCERTAIN → VERIFIED`, aucune suppression, ni relance de copie n'est autorisée.
+
+Les tests reproduisent les trois scénarios de laboratoire (absence, copie partielle, copie complète non confirmée) et contrôlent que l'état SQLite reste `UNCERTAIN`. Le rapport ne prouve pas la conformité des ACL NFSv4/SMB, xattr, propriétaires ou permissions effectives et ne constitue pas une attestation NAS de production.
