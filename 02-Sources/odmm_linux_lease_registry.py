@@ -85,3 +85,32 @@ def release(connection, task_id, owner, token, *, now=None):
         if cursor.rowcount != 1:
             raise LeaseConflict("STALE_OR_EXPIRED_LEASE")
     _transaction(connection, work)
+
+def assert_current(connection, task_id, owner, token, *, now=None):
+    """Fail closed before a guarded operation; not a NAS-side atomic fence."""
+    task_id, owner = _identity(task_id), _identity(owner)
+    if type(token) is not int or token < 1:
+        raise ValueError("INVALID_TOKEN")
+    now = int(time.time()) if now is None else now
+    if type(now) is not int or now < 0:
+        raise ValueError("INVALID_TIME")
+    row = connection.execute(
+        "SELECT 1 FROM odmm_leases WHERE task_id=? AND owner=? AND token=? AND state='CLAIMED' AND expires_at>?",
+        (task_id, owner, token, now),
+    ).fetchone()
+    if row is None:
+        raise LeaseConflict("STALE_OR_EXPIRED_LEASE")
+    return True
+
+def guarded_registry_effect(connection, task_id, owner, token, operation, *, now=None):
+    """Atomic lease check plus SQL registry mutation in one BEGIN IMMEDIATE transaction.
+
+    The callback receives the active SQLite connection. It MUST perform only
+    SQL writes to this registry, not filesystem/network/NAS effects.
+    """
+    if not callable(operation):
+        raise TypeError("INVALID_REGISTRY_OPERATION")
+    def work():
+        assert_current(connection, task_id, owner, token, now=now)
+        return operation(connection)
+    return _transaction(connection, work)
