@@ -1,0 +1,32 @@
+name: ODMM Linux Full and Compact deployment preflight
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux-editions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        edition: [compact, full]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test deployment preflight
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_deployment_preflight.py' -v
+      - name: Verify Linux edition readiness
+        run: python3 03-Build-Installation/ODMM-LINUX-PREFLIGHT.py --edition "${{ matrix.edition }}" > "preflight-${{ matrix.edition }}.json"
+      - name: Verify declared non-qualification of NAS migrations
+        run: python3 -c 'import json; d=json.load(open("preflight-${{ matrix.edition }}.json")); assert d["passed"] and d["nas_migration_qualified"] is False'
+      - name: Publish preflight evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: odmm-linux-${{ matrix.edition }}-preflight
+          path: preflight-${{ matrix.edition }}.json
+          if-no-files-found: error
