@@ -19,7 +19,7 @@ from odmm_linux_datamover_intents import unresolved, quarantine_unfinished
 
 class ProcessCrashTests(unittest.TestCase):
     @unittest.skipUnless(sys.platform.startswith("linux"), "Linux only")
-    def test_sigkill_after_durable_intent(self):
+    def _crash_scenario(self, fault_point, expect_target):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             db_path = root / "registry.db"
@@ -40,18 +40,23 @@ class ProcessCrashTests(unittest.TestCase):
                 try:
                     run_lab_copy(db, intent_id="crash", task_id="task", owner="worker",
                                  token=token, source=sys.argv[2], target=sys.argv[3],
-                                 fault_at="after_intent")
+                                 fault_at=sys.argv[4])
                 except Exception:
                     print("INTENT_DURABLE", flush=True)
                     os.kill(os.getpid(), 9)
                 """)
             proc = subprocess.run(
-                [sys.executable, "-c", child, str(db_path), str(source), str(target)],
+                [sys.executable, "-c", child, str(db_path), str(source), str(target), fault_point],
                 cwd=root, env={**os.environ, "PYTHONPATH": str(ROOT / "02-Sources")},
                 capture_output=True, text=True, timeout=20, check=False)
             self.assertEqual(proc.returncode, -signal.SIGKILL, proc.stderr)
             self.assertIn("INTENT_DURABLE", proc.stdout)
-            self.assertFalse(target.exists())
+            self.assertEqual(target.exists(), expect_target)
+            if fault_point == "during_copy":
+                self.assertLess(target.stat().st_size, source.stat().st_size)
+                self.assertGreater(target.stat().st_size, 0)
+            elif fault_point == "after_copy_fsync":
+                self.assertEqual(target.read_bytes(), source.read_bytes())
             db = sqlite3.connect(db_path, isolation_level=None)
             try:
                 self.assertEqual(unresolved(db)[0][-1], "IN_FLIGHT")
@@ -59,6 +64,15 @@ class ProcessCrashTests(unittest.TestCase):
                 self.assertEqual(unresolved(db)[0][-1], "UNCERTAIN")
             finally:
                 db.close()
+
+    def test_sigkill_after_durable_intent(self):
+        self._crash_scenario("after_intent", False)
+
+    def test_sigkill_during_partial_copy(self):
+        self._crash_scenario("during_copy", True)
+
+    def test_sigkill_after_copy_fsync(self):
+        self._crash_scenario("after_copy_fsync", True)
 
 if __name__ == "__main__":
     unittest.main()
