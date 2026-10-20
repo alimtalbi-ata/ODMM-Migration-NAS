@@ -96,8 +96,14 @@ Le module `odmm_linux_lease_registry.py` expose maintenant `assert_current()` et
 
 ## Journal durable des intentions de migration (prototype)
 
-`02-Sources/odmm_linux_datamover_intents.py` enregistre chaque intention avant tout effet externe, sous un identifiant unique, avec l'identifiant de tâche, le propriétaire, le jeton de fencing et l'empreinte SHA-256 canonique du contenu. Les états sont `PREPARED`, `IN_FLIGHT`, `UNCERTAIN`, `VERIFIED` et `ABORTED`. **Les transitions vers VERIFIED et ABORTED ne sont pas encore exposées** : aucune opération NAS ne peut être considérée vérifiée par ce composant.
+`02-Sources/odmm_linux_datamover_intents.py` enregistre chaque intention avant tout effet externe, sous un identifiant unique, avec l'identifiant de tâche, le propriétaire, le jeton de fencing et l'empreinte SHA-256 canonique du contenu. Les états sont `PREPARED`, `IN_FLIGHT`, `UNCERTAIN`, `VERIFIED` et `ABORTED`. Les transitions vers VERIFIED et ABORTED sont exposées avec contrôles de propriétaire, de jeton et d'état, mais **aucune opération NAS ne peut être considérée indépendamment vérifiée par ce composant**.
 
 Le contrat impose de persister `PREPARED`, puis `IN_FLIGHT` **avant** d'autoriser un éventuel effet externe. Au redémarrage, `quarantine_unfinished()` transforme les opérations `IN_FLIGHT` en `UNCERTAIN` ; elles nécessitent une inspection des données et métadonnées cibles avant toute décision de reprise. Le journal refuse la réutilisation d'un identifiant d'intention avec une autre empreinte et contrôle le jeton de réservation lors des transitions.
 
 **Limites** : SQLite `synchronous=FULL` et le journal WAL doivent être configurés par l'installeur/exploitant ; les tests de réouverture ne sont pas des essais de coupure électrique. L'empreinte SHA-256 protège l'identité de l'intention, pas l'intégrité d'un fichier NAS. Aucun protocole d'acknowledgment distant, fencing cible, moteur de copie ni vérification d'accès effectif n'est intégré à ce stade. Une validation humaine doit précéder la sortie de `UNCERTAIN`.
+
+## Transitions de confirmation et d'annulation
+
+`record_verification()` autorise `IN_FLIGHT → VERIFIED` uniquement avec un propriétaire, un jeton et une empreinte de l'intention valides. **Attention** : l'empreinte vérifiée est celle de la description d'intention ; elle n'est pas une preuve de checksum du contenu NAS, ni une validation des ACL. Une couche d'attestation indépendante doit être ajoutée avant l'exploitation réelle.
+
+`abort_prepared()` autorise uniquement `PREPARED → ABORTED`. Toute tentative d'annuler `IN_FLIGHT` ou `UNCERTAIN` est rejetée, car l'effet externe pourrait déjà s'être produit. Les tests de transitions couvrent les états et empreintes incompatibles.
