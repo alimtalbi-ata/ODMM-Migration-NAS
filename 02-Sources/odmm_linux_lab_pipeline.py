@@ -34,19 +34,25 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
         raise LabPipelineError("INJECTED_AFTER_INTENT")
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
     fd = None
+    source_fd = None
     try:
+        source_fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        source_before = os.fstat(source_fd)
+        if not stat.S_ISREG(source_before.st_mode):
+            raise LabPipelineError("SOURCE_NOT_REGULAR")
         fd = os.open(target, flags, 0o600)
         with os.fdopen(fd, "wb", closefd=True) as out:
             fd = None
-            with open(source, "rb") as inp:
-                if not stat.S_ISREG(os.fstat(inp.fileno()).st_mode):
-                    raise LabPipelineError("SOURCE_NOT_REGULAR")
+            with os.fdopen(os.dup(source_fd), "rb") as inp:
                 shutil.copyfileobj(inp, out, length=1024 * 1024)
+            source_after = os.fstat(source_fd)
+            if (source_before.st_dev, source_before.st_ino, source_before.st_size, source_before.st_mtime_ns) != (source_after.st_dev, source_after.st_ino, source_after.st_size, source_after.st_mtime_ns):
+                raise LabPipelineError("SOURCE_CHANGED_DURING_COPY")
             out.flush()
             os.fsync(out.fileno())
         if fault_at == "after_copy_fsync":
             raise LabPipelineError("INJECTED_AFTER_COPY_FSYNC")
-        os.chmod(target, stat.S_IMODE(source.stat().st_mode))
+        os.chmod(target, stat.S_IMODE(source_before.st_mode))
         dirfd = os.open(target.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
         try:
             os.fsync(dirfd)
@@ -63,3 +69,5 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
     finally:
         if fd is not None:
             os.close(fd)
+        if source_fd is not None:
+            os.close(source_fd)
