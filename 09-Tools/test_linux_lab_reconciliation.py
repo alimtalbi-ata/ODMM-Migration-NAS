@@ -41,10 +41,12 @@ class ReconciliationTests(unittest.TestCase):
         self.assertEqual(result["decision"], "MANUAL_REVIEW_REQUIRED")
         self.assertEqual(unresolved(self.db)[0][-1], "UNCERTAIN")
 
-    def test_complete_target_matches_but_stays_uncertain(self):
+    def test_complete_bytes_without_mode_restore_stays_uncertain(self):
         self._crash("after_copy_fsync")
         result = inspect_uncertain(self.db, "i", self.src, self.dst)
-        self.assertTrue(result["content_verified"])
+        self.assertFalse(result["content_verified"])
+        self.assertEqual(result["reason"], "POSIX_MODE_MISMATCH")
+        self.assertEqual(self.dst.read_bytes(), self.src.read_bytes())
         self.assertFalse(result["nas_acl_qualified"])
         self.assertEqual(unresolved(self.db)[0][-1], "UNCERTAIN")
 
