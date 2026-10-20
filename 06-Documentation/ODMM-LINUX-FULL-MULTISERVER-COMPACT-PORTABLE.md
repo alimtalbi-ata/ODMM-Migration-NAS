@@ -137,3 +137,9 @@ Le pipeline local accepte le paramètre de laboratoire `fault_at="after_intent"`
 Dans les deux scénarios, `quarantine_unfinished()` convertit `IN_FLIGHT` en `UNCERTAIN`. Le fichier cible éventuellement présent n'est ni écrasé ni effacé automatiquement. Les tests `test_linux_lab_pipeline.py` vérifient ces invariants.
 
 **Qualification limitée** : injections d'exceptions déterministes dans le même processus. Aucun `SIGKILL`, redémarrage de machine, perte de disque, défaut NFS/SMB, panne réseau ou bascule HA n'a été qualifié. L'état `UNCERTAIN` exige une réconciliation explicite avant toute reprise.
+
+## Durcissement du descripteur source
+
+La copie de laboratoire ouvre désormais la source avec `O_NOFOLLOW` et `O_NONBLOCK`, valide par `fstat` qu'il s'agit d'un fichier régulier, et copie à partir d'un descripteur déjà ouvert. Elle compare les informations `device/inode/taille/mtime_ns` avant et après lecture afin de rejeter une modification observée pendant la copie. Les permissions de la cible proviennent du descripteur source initial, et non d'un nouveau `stat` sur le chemin. Des tests supplémentaires rejettent les sources symboliques et les points d'injection inconnus.
+
+**Limite** : ces contrôles réduisent les courses sur le chemin source mais ne constituent pas une protection complète contre les répertoires parents malveillants, les modifications invisibles dans les métadonnées observées ou les opérations NAS distantes. Une isolation par descripteurs de répertoire et `openat2` ainsi qu'une vérification des ACL restent nécessaires.
