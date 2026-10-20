@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "02-Sources"))
-from odmm_linux_lease_registry import initialize, claim, renew, release, LeaseConflict
+from odmm_linux_lease_registry import initialize, claim, renew, release, assert_current, guarded_registry_effect, LeaseConflict
 
 class LeaseTests(unittest.TestCase):
     def setUp(self):
@@ -44,6 +44,32 @@ class LeaseTests(unittest.TestCase):
         self.db = sqlite3.connect(self.path, isolation_level=None)
         initialize(self.db)
         self.assertGreater(claim(self.db, "task", "b", 2, now=103), token)
+
+    def test_guarded_effect_commits_only_current_owner(self):
+        self.db.execute("CREATE TABLE audit(value TEXT NOT NULL)")
+        token = claim(self.db, "task", "a", 10, now=100)
+        guarded_registry_effect(self.db, "task", "a", token,
+                                lambda db: db.execute("INSERT INTO audit VALUES('accepted')"), now=101)
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM audit").fetchone()[0], 1)
+        with self.assertRaises(LeaseConflict):
+            guarded_registry_effect(self.db, "task", "b", token,
+                                    lambda db: db.execute("INSERT INTO audit VALUES('wrong')"), now=101)
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM audit").fetchone()[0], 1)
+
+    def test_guarded_effect_rollback_on_failure(self):
+        self.db.execute("CREATE TABLE audit(value TEXT NOT NULL)")
+        token = claim(self.db, "task", "a", 10, now=100)
+        def failing(db):
+            db.execute("INSERT INTO audit VALUES('rollback')")
+            raise RuntimeError("intentional")
+        with self.assertRaises(RuntimeError):
+            guarded_registry_effect(self.db, "task", "a", token, failing, now=101)
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM audit").fetchone()[0], 0)
+
+    def test_guard_rejects_expired_token(self):
+        token = claim(self.db, "task", "a", 10, now=100)
+        with self.assertRaises(LeaseConflict):
+            assert_current(self.db, "task", "a", token, now=110)
 
     def test_invalid_ttl_rejected(self):
         with self.assertRaises(ValueError):
