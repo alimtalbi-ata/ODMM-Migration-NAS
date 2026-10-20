@@ -65,6 +65,21 @@ class LabPipelineTests(unittest.TestCase):
             run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
                          token=self.token, source=self.src, target=self.dst, now=103)
 
+    def test_symlink_source_refused_without_target(self):
+        link = self.root / "source-link"
+        link.symlink_to(self.src)
+        with self.assertRaisesRegex(LabPipelineError, "INVALID_SOURCE_OR_TARGET"):
+            run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
+                         token=self.token, source=link, target=self.dst, now=101)
+        self.assertFalse(self.dst.exists())
+
+    def test_invalid_fault_point_refused(self):
+        with self.assertRaisesRegex(ValueError, "INVALID_FAULT_POINT"):
+            run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
+                         token=self.token, source=self.src, target=self.dst,
+                         now=101, fault_at="after_verify")
+        self.assertFalse(self.dst.exists())
+
     def test_retry_refused_after_success(self):
         run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
                      token=self.token, source=self.src, target=self.dst, now=101)
