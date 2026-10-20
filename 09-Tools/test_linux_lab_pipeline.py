@@ -43,6 +43,28 @@ class LabPipelineTests(unittest.TestCase):
         self.assertEqual(self.dst.read_bytes(), b"keep")
         self.assertEqual(unresolved(self.db), [])
 
+    def test_fault_after_intent_quarantines_without_target(self):
+        with self.assertRaisesRegex(LabPipelineError, "INJECTED_AFTER_INTENT"):
+            run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
+                         token=self.token, source=self.src, target=self.dst, now=101,
+                         fault_at="after_intent")
+        self.assertFalse(self.dst.exists())
+        self.assertEqual(quarantine_unfinished(self.db, now=102), 1)
+        self.assertEqual(unresolved(self.db)[0][-1], "UNCERTAIN")
+
+    def test_fault_after_fsync_preserves_partial_result_and_quarantines(self):
+        with self.assertRaisesRegex(LabPipelineError, "INJECTED_AFTER_COPY_FSYNC"):
+            run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
+                         token=self.token, source=self.src, target=self.dst, now=101,
+                         fault_at="after_copy_fsync")
+        self.assertTrue(self.dst.exists())
+        self.assertEqual(self.dst.read_bytes(), self.src.read_bytes())
+        self.assertEqual(quarantine_unfinished(self.db, now=102), 1)
+        self.assertEqual(unresolved(self.db)[0][-1], "UNCERTAIN")
+        with self.assertRaisesRegex(LabPipelineError, "TARGET_ALREADY_EXISTS"):
+            run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
+                         token=self.token, source=self.src, target=self.dst, now=103)
+
     def test_retry_refused_after_success(self):
         run_lab_copy(self.db, intent_id="i1", task_id="task", owner="mover",
                      token=self.token, source=self.src, target=self.dst, now=101)
