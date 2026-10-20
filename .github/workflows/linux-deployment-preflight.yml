@@ -26,6 +26,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lease_registry.py' -v
       - name: Test durable datamover intent recovery
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_datamover_intents.py' -v
+      - name: Test independent laboratory file verification
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier.py' -v
       - name: Verify Linux edition readiness
         run: python3 03-Build-Installation/ODMM-LINUX-PREFLIGHT.py --edition "${{ matrix.edition }}" > "preflight-${{ matrix.edition }}.json"
       - name: Verify declared non-qualification of NAS migrations
