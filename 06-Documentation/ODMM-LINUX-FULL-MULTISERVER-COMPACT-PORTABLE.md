@@ -107,3 +107,17 @@ Le contrat impose de persister `PREPARED`, puis `IN_FLIGHT` **avant** d'autorise
 `record_verification()` autorise `IN_FLIGHT → VERIFIED` uniquement avec un propriétaire, un jeton et une empreinte de l'intention valides. **Attention** : l'empreinte vérifiée est celle de la description d'intention ; elle n'est pas une preuve de checksum du contenu NAS, ni une validation des ACL. Une couche d'attestation indépendante doit être ajoutée avant l'exploitation réelle.
 
 `abort_prepared()` autorise uniquement `PREPARED → ABORTED`. Toute tentative d'annuler `IN_FLIGHT` ou `UNCERTAIN` est rejetée, car l'effet externe pourrait déjà s'être produit. Les tests de transitions couvrent les états et empreintes incompatibles.
+
+## Vérification indépendante des fichiers en laboratoire
+
+Le module `02-Sources/odmm_linux_lab_verifier.py` fournit `verify_pair(source, target)` pour des fichiers réguliers locaux. Il ouvre les fichiers en lecture seule, refuse les liens symboliques, compare SHA-256, taille et mode POSIX, et signale un changement de fichier observé durant la lecture.
+
+Exemple **fictif**, sans NAS :
+
+```python
+from odmm_linux_lab_verifier import verify_pair
+result = verify_pair("/tmp/odmm-lab/source.bin", "/tmp/odmm-lab/target.bin")
+assert result["verified"] and not result["nas_acl_qualified"]
+```
+
+Cette vérification **n'atteste pas** des propriétaires, groupes, ACL NFSv4/SMB, attributs étendus, ADS, horodatages ou accès effectifs. Elle ne remplace pas une vérification d'intégrité liée au journal transactionnel. Les chemins sont supposés situés dans un environnement de test maîtrisé ; un attaquant contrôlant les répertoires parents pourrait exploiter des courses de résolution de chemin, et les modifications concurrentes à granularité identique ne sont pas toutes détectables. Le module ne doit pas être utilisé comme vérificateur de sécurité NAS de production.
