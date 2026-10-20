@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "02-Sources"))
 from odmm_linux_lease_registry import initialize as init_leases, claim, LeaseConflict
-from odmm_linux_datamover_intents import initialize, prepare, mark_in_flight, quarantine_unfinished, unresolved, IntentConflict
+from odmm_linux_datamover_intents import initialize, prepare, mark_in_flight, quarantine_unfinished, unresolved, record_verification, abort_prepared, IntentConflict
 
 class IntentTests(unittest.TestCase):
     def setUp(self):
@@ -43,6 +43,28 @@ class IntentTests(unittest.TestCase):
         with self.assertRaises(LeaseConflict):
             prepare(self.db, "intent", "task", "mover", self.token + 1, {"a": 1}, now=101)
         self.assertEqual(unresolved(self.db), [])
+
+    def test_verification_requires_matching_digest_and_active_lease(self):
+        digest = prepare(self.db, "intent", "task", "mover", self.token, {"a": 1}, now=101)
+        mark_in_flight(self.db, "intent", "task", "mover", self.token, now=102)
+        with self.assertRaises(IntentConflict):
+            record_verification(self.db, "intent", "task", "mover", self.token, "0" * 64, now=103)
+        record_verification(self.db, "intent", "task", "mover", self.token, digest, now=104)
+        self.assertEqual(unresolved(self.db), [])
+        with self.assertRaises(IntentConflict):
+            record_verification(self.db, "intent", "task", "mover", self.token, digest, now=105)
+
+    def test_abort_prepared_only(self):
+        prepare(self.db, "intent", "task", "mover", self.token, {}, now=101)
+        abort_prepared(self.db, "intent", "task", "mover", self.token, now=102)
+        with self.assertRaises(IntentConflict):
+            mark_in_flight(self.db, "intent", "task", "mover", self.token, now=103)
+
+    def test_cannot_abort_in_flight(self):
+        prepare(self.db, "intent", "task", "mover", self.token, {}, now=101)
+        mark_in_flight(self.db, "intent", "task", "mover", self.token, now=102)
+        with self.assertRaises(IntentConflict):
+            abort_prepared(self.db, "intent", "task", "mover", self.token, now=103)
 
     def test_prepared_not_quarantined(self):
         prepare(self.db, "intent", "task", "mover", self.token, {}, now=101)
