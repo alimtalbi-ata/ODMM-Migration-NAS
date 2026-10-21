@@ -173,3 +173,9 @@ Le journal SQLite `odmm_linux_lab_reconciliation_audit.py` conserve l'identifian
 Le module `odmm_linux_lab_review_policy.py` définit trois rôles : `observer` (aucune écriture), `reviewer` (`HOLD`, `REQUEST_RECHECK`) et `incident_lead` (ces deux décisions et `ESCALATE`). `record_review()` applique désormais cette politique avant toute insertion SQLite et refuse par défaut une identité non attestée (`identity_verified=False`). La décision `APPROVE_RESUME` reste interdite. Les tests couvrent les droits minimaux, le refus d'identité non vérifiée et le maintien de `UNCERTAIN`.
 
 **Limitation importante** : `identity_verified=True` est une assertion fournie par l'appelant et ne constitue pas une authentification réelle. Aucun OIDC, certificat mTLS, signature d'identité, preuve RBAC distante ni protection contre un appelant compromis n'est intégré. L'API doit être confinée au laboratoire jusqu'à intégration d'un fournisseur d'identité et d'un contexte d'authentification non falsifiable.
+
+## Assertions cryptographiques d'identité (laboratoire)
+
+`odmm_linux_lab_review_identity.py` fournit des assertions HMAC-SHA256 à durée de vie limitée (1 à 900 secondes), liant l'identifiant opérateur, le rôle et les horodatages. `record_review()` exige désormais une assertion valide et une clé de vérification externe ; le booléen `identity_verified=True` seul n'autorise plus l'enregistrement. Les signatures sont comparées en temps constant et les assertions expirées ou futures sont rejetées.
+
+**Restriction essentielle** : l'émetteur et le vérificateur partagent un secret. Toute entité possédant ce secret peut fabriquer une assertion ; aucune authentification OIDC, distribution de clé, rotation, anti-rejeu à usage unique ni attestation de l'émetteur n'est fournie. Les clés doivent rester hors du dépôt et hors des requêtes non fiables. Ce composant reste réservé au laboratoire isolé et ne certifie pas l'identité en production.
