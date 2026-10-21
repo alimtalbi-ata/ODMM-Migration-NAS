@@ -167,3 +167,9 @@ Les tests reproduisent les trois scénarios de laboratoire (absence, copie parti
 Le journal SQLite `odmm_linux_lab_reconciliation_audit.py` conserve l'identifiant de revue, l'identité déclarée de l'opérateur, une décision parmi `HOLD`, `REQUEST_RECHECK` et `ESCALATE`, l'horodatage et l'empreinte SHA-256 du rapport de réconciliation canonique. La fonction `verify_review()` recalcule cette empreinte et signale les divergences de preuves sans jamais autoriser une reprise (`authorizes_resume: false`). Les identifiants de revue dupliqués sont refusés et les intentions demeurent `UNCERTAIN`.
 
 **Limites de sécurité** : le journal n'authentifie pas l'identité déclarée, n'applique pas de RBAC, n'est pas signé et n'est pas inviolable face à un administrateur SQLite. Une vérification de l'empreinte ne prouve pas la véracité de la mesure d'origine. Ce mécanisme reste un contrôle de laboratoire, non une approbation de migration NAS en production.
+
+## Politique RBAC du journal de revue (laboratoire)
+
+Le module `odmm_linux_lab_review_policy.py` définit trois rôles : `observer` (aucune écriture), `reviewer` (`HOLD`, `REQUEST_RECHECK`) et `incident_lead` (ces deux décisions et `ESCALATE`). `record_review()` applique désormais cette politique avant toute insertion SQLite et refuse par défaut une identité non attestée (`identity_verified=False`). La décision `APPROVE_RESUME` reste interdite. Les tests couvrent les droits minimaux, le refus d'identité non vérifiée et le maintien de `UNCERTAIN`.
+
+**Limitation importante** : `identity_verified=True` est une assertion fournie par l'appelant et ne constitue pas une authentification réelle. Aucun OIDC, certificat mTLS, signature d'identité, preuve RBAC distante ni protection contre un appelant compromis n'est intégré. L'API doit être confinée au laboratoire jusqu'à intégration d'un fournisseur d'identité et d'un contexte d'authentification non falsifiable.
