@@ -23,14 +23,14 @@ class ReviewTests(unittest.TestCase):
 
     def test_review_preserves_uncertain_and_fingerprint(self):
         result = record_review(self.db, review_id="r1", intent_id="i",
-            operator_id="operator", decision="HOLD", evidence=self.evidence, now=10)
+            operator_id="operator", decision="HOLD", role="reviewer", identity_verified=True, evidence=self.evidence, now=10)
         self.assertEqual(len(result["evidence_sha256"]), 64)
         self.assertEqual(result["state_after"], "UNCERTAIN")
         self.assertEqual(self.db.execute("SELECT state FROM odmm_datamover_intents").fetchone()[0], "UNCERTAIN")
 
     def test_evidence_fingerprint_detects_tampering(self):
         record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
-                      decision="REQUEST_RECHECK", evidence=self.evidence, now=10)
+                      decision="REQUEST_RECHECK", role="reviewer", identity_verified=True, evidence=self.evidence, now=10)
         valid = verify_review(self.db, "r1", self.evidence)
         self.assertTrue(valid["evidence_matches"])
         self.assertFalse(valid["authorizes_resume"])
@@ -41,16 +41,28 @@ class ReviewTests(unittest.TestCase):
 
     def test_duplicate_review_rejected(self):
         args = dict(review_id="r1", intent_id="i", operator_id="operator",
-                    decision="ESCALATE", evidence=self.evidence, now=10)
+                    decision="ESCALATE", role="incident_lead", identity_verified=True, evidence=self.evidence, now=10)
         record_review(self.db, **args)
         with self.assertRaisesRegex(ReviewConflict, "DUPLICATE_REVIEW_ID"):
             record_review(self.db, **args)
         self.assertEqual(self.db.execute("SELECT count(*) FROM odmm_reconciliation_reviews").fetchone()[0], 1)
 
-    def test_approval_decision_refused(self):
-        with self.assertRaisesRegex(ValueError, "INVALID_REVIEW_DECISION"):
+    def test_unverified_identity_refused(self):
+        with self.assertRaisesRegex(PermissionError, "IDENTITY_NOT_VERIFIED"):
             record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
-                          decision="APPROVE_RESUME", evidence=self.evidence, now=10)
+                          decision="HOLD", role="reviewer", evidence=self.evidence, now=10)
+        self.assertEqual(self.db.execute("SELECT count(*) FROM odmm_reconciliation_reviews").fetchone()[0], 0)
+
+    def test_observer_cannot_write_review(self):
+        with self.assertRaisesRegex(PermissionError, "DECISION_NOT_AUTHORIZED"):
+            record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
+                          decision="HOLD", role="observer", identity_verified=True,
+                          evidence=self.evidence, now=10)
+
+    def test_approval_decision_refused(self):
+        with self.assertRaisesRegex(PermissionError, "DECISION_NOT_AUTHORIZED"):
+            record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
+                          decision="APPROVE_RESUME", role="incident_lead", identity_verified=True, evidence=self.evidence, now=10)
 
 if __name__ == "__main__":
     unittest.main()
