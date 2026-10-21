@@ -21,9 +21,13 @@ def initialize(db):
         evidence_sha256 TEXT NOT NULL, created_at INTEGER NOT NULL)""")
     db.commit()
 
-def record_review(db, *, review_id, intent_id, operator_id, decision, evidence, role=None, identity_verified=False, now=None):
+def record_review(db, *, review_id, intent_id, operator_id, decision, evidence, role=None, identity_verified=False, identity_assertion=None, signing_secret=None, now=None):
     from odmm_linux_lab_review_policy import authorize_review
-    authorize_review(operator_id=operator_id, role=role, decision=decision, identity_verified=identity_verified)
+    from odmm_linux_lab_review_identity import verify_assertion
+    verified = verify_assertion(signing_secret, identity_assertion, now=now)
+    if verified["operator_id"] != operator_id or verified["role"] != role:
+        raise PermissionError("IDENTITY_ROLE_MISMATCH")
+    authorize_review(operator_id=operator_id, role=role, decision=decision, identity_verified=True)
     review_id, intent_id, operator_id = _id(review_id), _id(intent_id), _id(operator_id)
     if decision not in DECISIONS:
         raise ValueError("INVALID_REVIEW_DECISION")
