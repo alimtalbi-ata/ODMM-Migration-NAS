@@ -179,3 +179,9 @@ Le module `odmm_linux_lab_review_policy.py` définit trois rôles : `observer` (
 `odmm_linux_lab_review_identity.py` fournit des assertions HMAC-SHA256 à durée de vie limitée (1 à 900 secondes), liant l'identifiant opérateur, le rôle et les horodatages. `record_review()` exige désormais une assertion valide et une clé de vérification externe ; le booléen `identity_verified=True` seul n'autorise plus l'enregistrement. Les signatures sont comparées en temps constant et les assertions expirées ou futures sont rejetées.
 
 **Restriction essentielle** : l'émetteur et le vérificateur partagent un secret. Toute entité possédant ce secret peut fabriquer une assertion ; aucune authentification OIDC, distribution de clé, rotation, anti-rejeu à usage unique ni attestation de l'émetteur n'est fournie. Les clés doivent rester hors du dépôt et hors des requêtes non fiables. Ce composant reste réservé au laboratoire isolé et ne certifie pas l'identité en production.
+
+## Linux Compact — premier binaire portable autonome
+
+Le workflow GitHub Actions `linux-compact-portable.yml` compile le point d'entrée de supervision `odmm_linux_compact_v22811.py` avec PyInstaller sous Ubuntu 24.04, puis assemble un ZIP `ODMM-Linux-Compact-Portable-v228.93.zip` comprenant l'exécutable, le source, cette documentation et des SHA-256. La première compilation a réussi dans le run 39668861592. Le smoke test vérifie le démarrage sans `python3` dans le PATH ; la qualification est désormais étendue au parcours `--demo-overview` avec données explicitement synthétiques. Le binaire n'est pas testé sur toutes les distributions ou versions de glibc et n'est pas un datamover NAS.
+
+Pour utiliser le ZIP : extraire, vérifier `sha256sum -c 04-Manifests/SHA256SUMS` depuis le dossier `ODMM-Linux-Compact-Portable`, puis lancer `./01-Application/odmm-linux-compact --help` ou `--demo-overview`. La commande de démonstration ne réalise aucune connexion NAS.
