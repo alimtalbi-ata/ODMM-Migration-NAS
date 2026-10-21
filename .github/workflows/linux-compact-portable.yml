@@ -28,6 +28,9 @@ jobs:
           mkdir -p /tmp/odmm-compact-empty-path
           env -i PATH=/tmp/odmm-compact-empty-path HOME=/tmp ./dist/odmm-linux-compact --help >/tmp/odmm-compact-help.txt
           test -s /tmp/odmm-compact-help.txt
+          env -i PATH=/tmp/odmm-compact-empty-path HOME=/tmp ./dist/odmm-linux-compact --demo-overview >/tmp/odmm-compact-demo.txt
+          grep -q "SYNTHETIC DEMONSTRATION" /tmp/odmm-compact-demo.txt
+          ! grep -q "Traceback" /tmp/odmm-compact-demo.txt
       - name: Assemble versioned portable archive and checksums
         run: |
           mkdir -p ODMM-Linux-Compact-Portable/01-Application ODMM-Linux-Compact-Portable/02-Sources ODMM-Linux-Compact-Portable/03-Documentation ODMM-Linux-Compact-Portable/04-Manifests
