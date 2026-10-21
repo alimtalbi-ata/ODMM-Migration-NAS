@@ -35,7 +35,7 @@ class ReviewTests(unittest.TestCase):
 
     def test_evidence_fingerprint_detects_tampering(self):
         record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
-                      decision="REQUEST_RECHECK", role="reviewer", identity_verified=True, evidence=self.evidence, now=10)
+                      decision="REQUEST_RECHECK", role="reviewer", identity_assertion=self._assertion("reviewer"), signing_secret=self.secret, evidence=self.evidence, now=10)
         valid = verify_review(self.db, "r1", self.evidence)
         self.assertTrue(valid["evidence_matches"])
         self.assertFalse(valid["authorizes_resume"])
@@ -67,7 +67,7 @@ class ReviewTests(unittest.TestCase):
     def test_approval_decision_refused(self):
         with self.assertRaisesRegex(PermissionError, "DECISION_NOT_AUTHORIZED"):
             record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
-                          decision="APPROVE_RESUME", role="incident_lead", identity_verified=True, evidence=self.evidence, now=10)
+                          decision="APPROVE_RESUME", role="incident_lead", identity_assertion=self._assertion("incident_lead"), signing_secret=self.secret, evidence=self.evidence, now=10)
 
 if __name__ == "__main__":
     unittest.main()
