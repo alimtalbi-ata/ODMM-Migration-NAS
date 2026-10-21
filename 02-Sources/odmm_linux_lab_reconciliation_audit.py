@@ -21,7 +21,9 @@ def initialize(db):
         evidence_sha256 TEXT NOT NULL, created_at INTEGER NOT NULL)""")
     db.commit()
 
-def record_review(db, *, review_id, intent_id, operator_id, decision, evidence, now=None):
+def record_review(db, *, review_id, intent_id, operator_id, decision, evidence, role=None, identity_verified=False, now=None):
+    from odmm_linux_lab_review_policy import authorize_review
+    authorize_review(operator_id=operator_id, role=role, decision=decision, identity_verified=identity_verified)
     review_id, intent_id, operator_id = _id(review_id), _id(intent_id), _id(operator_id)
     if decision not in DECISIONS:
         raise ValueError("INVALID_REVIEW_DECISION")
