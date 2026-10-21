@@ -161,3 +161,9 @@ Les points d'injection sont des arrêts déterministes après exception et `SIGK
 Le module `odmm_linux_lab_reconciliation.py` propose `inspect_uncertain(db, intent_id, source, target)`. Il exige un état `UNCERTAIN` et produit un rapport en lecture seule : `TARGET_ABSENT`, `CONTENT_MISMATCH`, `POSIX_MODE_MISMATCH`, ou `LOCAL_CONTENT_AND_MODE_MATCH` (avec SHA-256 de la cible). La décision reste **MANUAL_REVIEW_REQUIRED** dans tous les cas ; aucune transition automatique `UNCERTAIN → VERIFIED`, aucune suppression, ni relance de copie n'est autorisée.
 
 Les tests reproduisent les trois scénarios de laboratoire (absence, copie partielle, copie complète non confirmée) et contrôlent que l'état SQLite reste `UNCERTAIN`. Le rapport ne prouve pas la conformité des ACL NFSv4/SMB, xattr, propriétaires ou permissions effectives et ne constitue pas une attestation NAS de production.
+
+## Audit humain et vérification des preuves
+
+Le journal SQLite `odmm_linux_lab_reconciliation_audit.py` conserve l'identifiant de revue, l'identité déclarée de l'opérateur, une décision parmi `HOLD`, `REQUEST_RECHECK` et `ESCALATE`, l'horodatage et l'empreinte SHA-256 du rapport de réconciliation canonique. La fonction `verify_review()` recalcule cette empreinte et signale les divergences de preuves sans jamais autoriser une reprise (`authorizes_resume: false`). Les identifiants de revue dupliqués sont refusés et les intentions demeurent `UNCERTAIN`.
+
+**Limites de sécurité** : le journal n'authentifie pas l'identité déclarée, n'applique pas de RBAC, n'est pas signé et n'est pas inviolable face à un administrateur SQLite. Une vérification de l'empreinte ne prouve pas la véracité de la mesure d'origine. Ce mécanisme reste un contrôle de laboratoire, non une approbation de migration NAS en production.
