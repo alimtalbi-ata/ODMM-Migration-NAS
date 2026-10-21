@@ -3,6 +3,7 @@
 Local SQLite laboratory control plane only. Author: Abdelhalim Talbi.
 """
 import hashlib
+import hmac
 import json
 import sqlite3
 import time
@@ -49,3 +50,22 @@ def record_review(db, *, review_id, intent_id, operator_id, decision, evidence, 
                 "decision": decision, "evidence_sha256": digest,
                 "state_after": "UNCERTAIN"}
     return _transaction(db, work)
+
+def verify_review(db, review_id, evidence):
+    """Verify a stored SHA256 evidence fingerprint; no authorization is granted."""
+    review_id = _id(review_id)
+    row = db.execute("""SELECT intent_id,operator_id,decision,evidence_sha256,created_at
+        FROM odmm_reconciliation_reviews WHERE review_id=?""", (review_id,)).fetchone()
+    if row is None:
+        raise ReviewConflict("UNKNOWN_REVIEW")
+    if not isinstance(evidence, dict) or evidence.get("intent_id") != row[0]:
+        raise ValueError("INVALID_RECONCILIATION_EVIDENCE")
+    try:
+        canonical = json.dumps(evidence, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    except (TypeError, ValueError, UnicodeError) as exc:
+        raise ValueError("INVALID_RECONCILIATION_EVIDENCE") from exc
+    observed = hashlib.sha256(canonical).hexdigest()
+    return {"review_id": review_id, "intent_id": row[0], "operator_id": row[1],
+            "decision": row[2], "created_at": row[4],
+            "evidence_matches": hmac.compare_digest(observed, row[3]),
+            "authorizes_resume": False}
