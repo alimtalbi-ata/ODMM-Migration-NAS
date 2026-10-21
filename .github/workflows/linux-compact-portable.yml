@@ -1,0 +1,44 @@
+name: ODMM Linux Compact portable binary
+on:
+  push:
+    branches: [main]
+    paths:
+      - '02-Sources/odmm_linux_compact_v22811.py'
+      - '03-Build-Installation/**'
+      - '.github/workflows/linux-compact-portable.yml'
+      - '06-Documentation/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux-compact-portable:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build standalone CLI with PyInstaller
+        run: |
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+          python -m PyInstaller --clean --noconfirm --onefile --name odmm-linux-compact 02-Sources/odmm_linux_compact_v22811.py
+      - name: Smoke test without Python in runtime PATH
+        run: |
+          mkdir -p /tmp/odmm-compact-empty-path
+          env -i PATH=/tmp/odmm-compact-empty-path HOME=/tmp ./dist/odmm-linux-compact --help >/tmp/odmm-compact-help.txt
+          test -s /tmp/odmm-compact-help.txt
+      - name: Assemble versioned portable archive and checksums
+        run: |
+          mkdir -p ODMM-Linux-Compact-Portable/01-Application ODMM-Linux-Compact-Portable/02-Sources ODMM-Linux-Compact-Portable/03-Documentation ODMM-Linux-Compact-Portable/04-Manifests
+          cp dist/odmm-linux-compact ODMM-Linux-Compact-Portable/01-Application/
+          cp 02-Sources/odmm_linux_compact_v22811.py ODMM-Linux-Compact-Portable/02-Sources/
+          cp 06-Documentation/ODMM-LINUX-FULL-MULTISERVER-COMPACT-PORTABLE.md ODMM-Linux-Compact-Portable/03-Documentation/
+          (cd ODMM-Linux-Compact-Portable && sha256sum 01-Application/odmm-linux-compact 02-Sources/*.py >04-Manifests/SHA256SUMS)
+          zip -qr ODMM-Linux-Compact-Portable-v228.93.zip ODMM-Linux-Compact-Portable
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ODMM-Linux-Compact-Portable-v228.93
+          path: ODMM-Linux-Compact-Portable-v228.93.zip
+          if-no-files-found: error
+          retention-days: 30
