@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "02-Sources"))
 from odmm_linux_datamover_intents import initialize as init_intents
-from odmm_linux_lab_reconciliation_audit import initialize, record_review, ReviewConflict
+from odmm_linux_lab_reconciliation_audit import initialize, record_review, verify_review, ReviewConflict
 
 class ReviewTests(unittest.TestCase):
     def setUp(self):
@@ -27,6 +27,17 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual(len(result["evidence_sha256"]), 64)
         self.assertEqual(result["state_after"], "UNCERTAIN")
         self.assertEqual(self.db.execute("SELECT state FROM odmm_datamover_intents").fetchone()[0], "UNCERTAIN")
+
+    def test_evidence_fingerprint_detects_tampering(self):
+        record_review(self.db, review_id="r1", intent_id="i", operator_id="operator",
+                      decision="REQUEST_RECHECK", evidence=self.evidence, now=10)
+        valid = verify_review(self.db, "r1", self.evidence)
+        self.assertTrue(valid["evidence_matches"])
+        self.assertFalse(valid["authorizes_resume"])
+        changed = {**self.evidence, "reason": "ALTERED"}
+        self.assertFalse(verify_review(self.db, "r1", changed)["evidence_matches"])
+        with self.assertRaisesRegex(ReviewConflict, "UNKNOWN_REVIEW"):
+            verify_review(self.db, "missing", self.evidence)
 
     def test_duplicate_review_rejected(self):
         args = dict(review_id="r1", intent_id="i", operator_id="operator",
