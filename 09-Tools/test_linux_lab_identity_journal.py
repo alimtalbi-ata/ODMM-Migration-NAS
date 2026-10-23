@@ -77,7 +77,8 @@ class IdentityJournalTests(unittest.TestCase):
         self.crash_after_observation()
         data = self.dst.read_bytes()
         mode = stat.S_IMODE(self.dst.stat().st_mode)
-        self.dst.unlink()
+        # Retain the old inode to prevent filesystem inode-number reuse.
+        self.dst.rename(self.target_dir / 'parked-original-target')
         self.dst.write_bytes(data)
         os.chmod(self.dst, mode)
         report = inspect_uncertain(self.db, "copy", self.src, self.dst)
@@ -88,7 +89,8 @@ class IdentityJournalTests(unittest.TestCase):
     def test_same_content_source_replacement_is_detected(self):
         self.crash_after_observation()
         data = self.src.read_bytes()
-        self.src.unlink()
+        # Retain the old inode so this is a deterministic replacement.
+        self.src.rename(self.source_dir / 'parked-original-source')
         self.src.write_bytes(data)
         os.chmod(self.src, 0o640)
         report = inspect_uncertain(self.db, "copy", self.src, self.dst)
