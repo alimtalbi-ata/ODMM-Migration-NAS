@@ -115,6 +115,24 @@ class ExternalAnchorTests(unittest.TestCase):
         self.anchor_dir.symlink_to(other, target_is_directory=True)
         self.assertFalse(self.verify()["authenticated"])
 
+    def test_reconciliation_exposes_anchor_but_never_approves(self):
+        self.anchor()
+        report = inspect_uncertain(
+            self.db, "copy", self.source, self.target,
+            anchor_dir=self.anchor_dir, key_resolver=lambda _: self.secret)
+        self.assertTrue(report["external_anchor"]["authenticated"])
+        self.assertEqual(report["decision"], "MANUAL_REVIEW_REQUIRED")
+        self.assertFalse(report["external_anchor"]["authorizes_resume"])
+        with self.assertRaisesRegex(ValueError, "ANCHOR_CONFIGURATION_INCOMPLETE"):
+            inspect_uncertain(self.db, "copy", self.source, self.target,
+                              anchor_dir=self.anchor_dir)
+
+    def test_resolver_failure_is_fail_closed(self):
+        self.anchor()
+        def unavailable(_):
+            raise RuntimeError("external key vault unavailable")
+        self.assertFalse(self.verify(unavailable)["authenticated"])
+
     def test_unknown_or_short_secret_refused(self):
         with self.assertRaises(AnchorError):
             create_anchor(self.db, "copy", self.anchor_dir,
