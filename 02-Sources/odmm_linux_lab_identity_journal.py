@@ -6,6 +6,7 @@ caller's connection. Not a distributed NFS/SMB fencing protocol.
 Author: Abdelhalim Talbi.
 """
 import hashlib
+from contextlib import contextmanager
 import hmac
 import json
 import os
@@ -82,16 +83,25 @@ def record_identity(db, *, intent_id, task_id, owner, token, payload_sha256, obs
     return _transaction(db, work)
 
 
+@contextmanager
+def _opened_directory(path):
+    """Pin a directory descriptor without treating it as a readable file."""
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(path, flags)
+    try:
+        yield fd
+    finally:
+        os.close(fd)
+
+
 def _check_content_against_observation(path, label, observation):
     """Read-only descriptor-relative local verification; return a mismatch reason.
 
     O_NOFOLLOW protects the immediate parent and leaf; higher ancestors are
     NOT pinned. The result is advisory and cannot authorize UNCERTAIN replay.
     """
-    directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
     leaf_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    with os.fdopen(os.open(path.parent, directory_flags), "rb") as parent:
-        pfd = parent.fileno()
+    with _opened_directory(path.parent) as pfd:
         parent_before = os.fstat(pfd)
         parent_id = (observation[label + "_parent_dev"], observation[label + "_parent_ino"])
         leaf_id = (observation[label + "_dev"], observation[label + "_ino"])
