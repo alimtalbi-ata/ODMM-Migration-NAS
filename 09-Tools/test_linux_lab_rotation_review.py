@@ -76,6 +76,16 @@ class RotationOrphanReviewTests(unittest.TestCase):
         self.assertTrue(r["inventory_complete"])
         self.assertFalse(r["authorizes_resume"])
 
+    def test_multiple_pending_without_final_can_be_inventoried(self):
+        self.put(self.pending, b"first")
+        second = self.root / (self.final.name + ".pending-" + "b" * 32)
+        self.put(second, b"second")
+        r = self.scan()
+        self.assertEqual(r["status"], "MULTIPLE_PENDING")
+        self.assertTrue(r["inventory_complete"])
+        self.assertEqual(len(r["manifest"]["files"]), 2)
+        self.assertFalse(r["authorizes_cleanup"])
+
     def test_symlink_is_rejected_without_following(self):
         victim = self.root / "victim"
         self.put(victim, b"do-not-read")
