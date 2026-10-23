@@ -175,6 +175,9 @@ def verify_rotation(db, intent_id, anchor_dir, *, from_key_id, to_key_id,
             key_resolver=lambda key_id: old_secret if key_id == from_key_id else None)
         if not original["authenticated"] or original.get("key_id") != from_key_id:
             return denied
+        from odmm_linux_lab_rotation_recovery import inspect_rotation_publication
+        if not inspect_rotation_publication(anchor_dir, intent_id, to_key_id)["ready_for_authentication"]:
+            return denied
         root = Path(anchor_dir)
         anchor_bytes = _read_regular(root / _filename(intent_id), _MAX_ANCHOR)
         receipt_bytes = _read_regular(root / _receipt_name(intent_id, to_key_id), _MAX_RECEIPT)
@@ -193,6 +196,8 @@ def verify_rotation(db, intent_id, anchor_dir, *, from_key_id, to_key_id,
                     not hmac.compare_digest(
                         hmac.new(secret, payload, hashlib.sha256).hexdigest(), mac)):
                 return denied
+        if not inspect_rotation_publication(anchor_dir, intent_id, to_key_id)["ready_for_authentication"]:
+            return denied
         return {"authenticated": True, "reason": "DUAL_HMAC_ROTATION_VERIFIED",
                 "from_key_id": from_key_id, "to_key_id": to_key_id,
                 "authorizes_resume": False, "nas_migration_qualified": False}
