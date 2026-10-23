@@ -22,6 +22,31 @@ def _require_original_inode(path, identity, label):
     if not stat.S_ISREG(current.st_mode) or (current.st_dev, current.st_ino) != identity:
         raise LabPipelineError(label + "_PATH_CHANGED")
 
+def _open_parent(path, label):
+    """Pin the immediate parent directory; never follow its final symlink."""
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(path.parent, flags)
+        identity = os.fstat(fd)
+        if not stat.S_ISDIR(identity.st_mode):
+            raise LabPipelineError(label + "_PARENT_UNSAFE")
+        _require_original_parent(path, (identity.st_dev, identity.st_ino), label)
+        return fd, (identity.st_dev, identity.st_ino)
+    except BaseException:
+        if "fd" in locals():
+            os.close(fd)
+        raise
+
+
+def _require_original_parent(path, identity, label):
+    try:
+        current = path.parent.lstat()
+    except OSError as exc:
+        raise LabPipelineError(label + "_PARENT_CHANGED") from exc
+    if not stat.S_ISDIR(current.st_mode) or (current.st_dev, current.st_ino) != identity:
+        raise LabPipelineError(label + "_PARENT_CHANGED")
+
+
 def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=None, fault_at=None):
     """Copy one regular local file to an exclusive new target.
 
@@ -31,6 +56,8 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
     if fault_at not in (None, "after_intent", "after_copy_fsync", "during_copy"):
         raise ValueError("INVALID_FAULT_POINT")
     source, target = Path(source), Path(target)
+    if source.parent.is_symlink() or target.parent.is_symlink():
+        raise LabPipelineError("PARENT_SYMLINK_REFUSED")
     if source.is_symlink() or not source.is_file() or target.is_symlink():
         raise LabPipelineError("INVALID_SOURCE_OR_TARGET")
     if target.exists():
@@ -44,12 +71,18 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
     fd = None
     source_fd = None
+    source_parent_fd = None
+    target_parent_fd = None
     try:
-        source_fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+        source_parent_fd, source_parent_identity = _open_parent(source, "SOURCE")
+        target_parent_fd, target_parent_identity = _open_parent(target, "TARGET")
+        source_fd = os.open(source.name, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0), dir_fd=source_parent_fd)
         source_before = os.fstat(source_fd)
         if not stat.S_ISREG(source_before.st_mode):
             raise LabPipelineError("SOURCE_NOT_REGULAR")
-        fd = os.open(target, flags, 0o600)
+        _require_original_parent(source, source_parent_identity, "SOURCE")
+        _require_original_parent(target, target_parent_identity, "TARGET")
+        fd = os.open(target.name, flags, 0o600, dir_fd=target_parent_fd)
         with os.fdopen(fd, "wb", closefd=True) as out:
             fd = None
             with os.fdopen(os.dup(source_fd), "rb") as inp:
@@ -75,16 +108,16 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
             _require_original_inode(target, target_identity, "TARGET")
             os.fchmod(out.fileno(), stat.S_IMODE(source_before.st_mode))
             os.fsync(out.fileno())
+        _require_original_parent(source, source_parent_identity, "SOURCE")
+        _require_original_parent(target, target_parent_identity, "TARGET")
         _require_original_inode(target, target_identity, "TARGET")
-        dirfd = os.open(target.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
-        try:
-            os.fsync(dirfd)
-        finally:
-            os.close(dirfd)
+        os.fsync(target_parent_fd)
         evidence = verify_pair(source, target)
         # A matching replacement file must never qualify the original intent.
         # This still cannot close every race without dirfd/openat2 and a
         # filesystem-wide fencing contract; keep production NAS unqualified.
+        _require_original_parent(source, source_parent_identity, "SOURCE")
+        _require_original_parent(target, target_parent_identity, "TARGET")
         _require_original_inode(source, (source_before.st_dev, source_before.st_ino), "SOURCE")
         _require_original_inode(target, target_identity, "TARGET")
         record_verification(db, intent_id, task_id, owner, token, digest, now=now)
@@ -99,3 +132,7 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
             os.close(fd)
         if source_fd is not None:
             os.close(source_fd)
+        if source_parent_fd is not None:
+            os.close(source_parent_fd)
+        if target_parent_fd is not None:
+            os.close(target_parent_fd)
