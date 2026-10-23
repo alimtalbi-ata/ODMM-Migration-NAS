@@ -85,7 +85,10 @@ def review_rotation_orphans(anchor_dir, intent_id, to_key_id):
             return denied
         final_count = sum(item["name"] == path.name for item in files)
         pending_count = len(files) - final_count
-        if final_count != int(before["status"] not in ("ABSENT", "PENDING_ONLY")):
+        expected_final = {"ABSENT": 0, "PENDING_ONLY": 0,
+                          "FINAL_PRESENT_UNVERIFIED": 1,
+                          "PUBLISHED_WITH_PENDING": 1, "UNRELATED_PENDING": 1}
+        if before["status"] in expected_final and final_count != expected_final[before["status"]]:
             return denied
         if pending_count != before["pending_count"]:
             return denied
