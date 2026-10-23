@@ -36,6 +36,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_parent_fencing.py' -v
       - name: Test durable inode observations and UNCERTAIN reconciliation
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_identity_journal.py' -v
+      - name: Test in-place mutation of durable identity evidence
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_inplace_evidence.py' -v
       - name: Test SIGKILL crash recovery in isolated subprocess
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_process_crash.py' -v
       - name: Test uncertain-intent read-only reconciliation
