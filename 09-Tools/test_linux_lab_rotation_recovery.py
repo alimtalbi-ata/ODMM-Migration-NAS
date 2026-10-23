@@ -109,6 +109,22 @@ class RotationRecoveryTests(unittest.TestCase):
         self.assertEqual(self.inspect()["status"], "UNSAFE_OR_UNAVAILABLE")
         self.assertFalse(self.verify()["authenticated"])
 
+    def test_pending_hardlink_to_external_file_fails_closed(self):
+        final_name = _receipt_name("copy", "new")
+        outside = self.root / "outside-receipt"
+        outside.write_bytes(b"untrusted")
+        outside.chmod(0o600)
+        os.link(outside, self.anchors / (final_name + ".pending-" + "d" * 32))
+        self.assertEqual(self.inspect()["status"], "UNSAFE_OR_UNAVAILABLE")
+        self.assertFalse(self.verify()["authenticated"])
+
+    def test_world_readable_final_receipt_fails_closed(self):
+        self.rotate()
+        final = next(self.anchors.glob("*.rotation.json"))
+        final.chmod(0o644)
+        self.assertEqual(self.inspect()["status"], "UNSAFE_OR_UNAVAILABLE")
+        self.assertFalse(self.verify()["authenticated"])
+
     def test_many_pending_files_fail_closed(self):
         self.rotate()
         final = next(self.anchors.glob("*.rotation.json"))
