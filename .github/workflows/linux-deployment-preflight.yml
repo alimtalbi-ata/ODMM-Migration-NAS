@@ -30,6 +30,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier.py' -v
       - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
+      - name: Test POSIX inode substitution and symlink-swap fencing
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_inode_fencing.py' -v
       - name: Test SIGKILL crash recovery in isolated subprocess
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_process_crash.py' -v
       - name: Test uncertain-intent read-only reconciliation
