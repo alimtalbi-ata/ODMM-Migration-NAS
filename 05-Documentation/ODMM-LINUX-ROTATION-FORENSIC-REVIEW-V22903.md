@@ -18,7 +18,7 @@ Chaque réponse conserve \`requires_operator_review=true\`, \`authorizes_cleanup
 
 Commande locale : \`python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_rotation_review.py' -v\`.
 
-Neuf scénarios isolés couvrent absence, pending unique, hardlink après publication, pending indépendant, final propre, symlink, permissions, mutation concurrente et limite de taille. GitHub Actions exécute ces scénarios dans la matrice Linux Full et Linux Compact. La qualification atteste un laboratoire POSIX local et des tests logiciels, **pas** une migration NFSv3/v4 ou SMB, ni une panne électrique, ni une fidélité ACL/UID/GID/SID/xattrs, ni une release installable.
+Dix scénarios isolés couvrent absence, pending unique, hardlink après publication, pending indépendant, plusieurs pending sans final, final propre, symlink, permissions, mutation concurrente et limite de taille. La réinspection des métadonnées de chaque inode après hachage détecte également une mutation tardive d'un fichier déjà lu. GitHub Actions exécute ces scénarios dans la matrice Linux Full et Linux Compact. La qualification atteste un laboratoire POSIX local et des tests logiciels, **pas** une migration NFSv3/v4 ou SMB, ni une panne électrique, ni une fidélité ACL/UID/GID/SID/xattrs, ni une release installable.
 
 ## Procédure opérateur
 
