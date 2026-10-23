@@ -38,6 +38,8 @@ jobs:
         run: python3 09-Tools/odmm_real_local_tree_smoke.py
       - name: Test real local-lab CLI subprocess acceptance
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_lab_cli.py' -v
+      - name: Test local journal status CLI read-only acceptance
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_lab_status.py' -v
       - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
       - name: Test POSIX inode substitution and symlink-swap fencing
