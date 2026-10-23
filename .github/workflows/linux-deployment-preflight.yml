@@ -30,6 +30,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier.py' -v
       - name: Test descriptor-pinned verifier under pathname substitution
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier_parent_fence.py' -v
+      - name: Test pinned full-ancestor pathname substitution
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_ancestor_fence.py' -v
       - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
       - name: Test POSIX inode substitution and symlink-swap fencing

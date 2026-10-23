@@ -6,7 +6,6 @@ caller's connection. Not a distributed NFS/SMB fencing protocol.
 Author: Abdelhalim Talbi.
 """
 import hashlib
-from contextlib import contextmanager
 import hmac
 import json
 import os
@@ -14,6 +13,7 @@ import stat
 from pathlib import Path
 
 from odmm_linux_datamover_intents import _id, _transaction
+from odmm_linux_lab_path_fence import pin_parent_chain, PathFenceError
 
 
 class IdentityEvidenceConflict(RuntimeError):
@@ -83,17 +83,6 @@ def record_identity(db, *, intent_id, task_id, owner, token, payload_sha256, obs
     return _transaction(db, work)
 
 
-@contextmanager
-def _opened_directory(path):
-    """Pin a directory descriptor without treating it as a readable file."""
-    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
-    fd = os.open(path, flags)
-    try:
-        yield fd
-    finally:
-        os.close(fd)
-
-
 def _check_content_against_observation(path, label, observation):
     """Read-only descriptor-relative local verification; return a mismatch reason.
 
@@ -101,7 +90,8 @@ def _check_content_against_observation(path, label, observation):
     NOT pinned. The result is advisory and cannot authorize UNCERTAIN replay.
     """
     leaf_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    with _opened_directory(path.parent) as pfd:
+    with pin_parent_chain(path) as (pfd, check_chain):
+        check_chain()
         parent_before = os.fstat(pfd)
         parent_id = (observation[label + "_parent_dev"], observation[label + "_parent_ino"])
         leaf_id = (observation[label + "_dev"], observation[label + "_ino"])
@@ -179,7 +169,7 @@ def inspect_identity(db, intent_id, source, target):
             mismatch = _check_content_against_observation(path, label, observation)
             if mismatch:
                 return {"recorded": True, "identity_matches": False, "reason": mismatch}
-    except (OSError, ValueError, KeyError, TypeError):
+    except (OSError, ValueError, KeyError, TypeError, PathFenceError):
         return {"recorded": True, "identity_matches": False, "reason": "IDENTITY_UNAVAILABLE_OR_UNSAFE"}
     return {"recorded": True, "identity_matches": True, "reason": "LOCAL_INODE_AND_SHA256_MATCH",
             "nas_migration_qualified": False, "authorizes_resume": False}

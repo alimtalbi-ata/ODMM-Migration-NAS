@@ -6,18 +6,28 @@ inodes while hashing. No remote NAS fencing or ACL/ownership certification.
 import hashlib
 import os
 import stat
+from contextlib import contextmanager
 from pathlib import Path
+from odmm_linux_lab_path_fence import pin_parent_chain, PathFenceError
 
 class VerificationError(ValueError):
     pass
 
 
+@contextmanager
+def _safe_parent(path):
+    try:
+        with pin_parent_chain(path) as pinned:
+            yield pinned
+    except PathFenceError as exc:
+        raise VerificationError("PATH_IDENTITY_CHANGED") from exc
+
+
 def _digest(path, chunk_size=1024 * 1024):
     path = Path(path)
-    parent_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
     leaf_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    pfd = os.open(path.parent, parent_flags)
-    try:
+    with _safe_parent(path) as (pfd, check_chain):
+        check_chain()
         parent_before = os.fstat(pfd)
         if not stat.S_ISDIR(parent_before.st_mode):
             raise VerificationError("PARENT_NOT_DIRECTORY")
@@ -54,12 +64,11 @@ def _digest(path, chunk_size=1024 * 1024):
                     (leaf_path_after.st_dev, leaf_path_after.st_ino) !=
                     (before.st_dev, before.st_ino)):
                 raise VerificationError("PATH_IDENTITY_CHANGED")
+            check_chain()
             return {"sha256": digest.hexdigest(), "size": after.st_size,
                     "mode": stat.S_IMODE(after.st_mode)}
         finally:
             os.close(fd)
-    finally:
-        os.close(pfd)
 
 
 def verify_pair(source, target):
