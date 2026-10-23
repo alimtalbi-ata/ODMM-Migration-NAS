@@ -32,7 +32,7 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier_parent_fence.py' -v
       - name: Test pinned full-ancestor pathname substitution
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_ancestor_fence.py' -v
-      - name: Test isolated Linux copy end-to-end
+      - name: Execute real local POSIX file copy smoke\n        run: python3 09-Tools/odmm_real_local_smoke.py\n      - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
       - name: Test POSIX inode substitution and symlink-swap fencing
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_inode_fencing.py' -v
