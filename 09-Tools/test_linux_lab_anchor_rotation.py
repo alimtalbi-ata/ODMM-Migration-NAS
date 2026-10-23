@@ -78,6 +78,23 @@ class RotationTests(unittest.TestCase):
             self.rotate()
         self.assertTrue(self.verify()["authenticated"])
 
+    def test_rotated_receipt_does_not_survive_evidence_mutation(self):
+        self.rotate()
+        self.db.execute(
+            "UPDATE odmm_datamover_intents SET owner=? WHERE intent_id=?",
+            ("unexpected-owner", "copy"),
+        )
+        self.assertFalse(self.verify()["authenticated"])
+        self.assertEqual(self.db.execute(
+            "SELECT state FROM odmm_datamover_intents WHERE intent_id='copy'"
+        ).fetchone()[0], "UNCERTAIN")
+
+    def test_new_key_retired_fails_closed(self):
+        self.rotate()
+        self.assertFalse(self.verify(
+            status=lambda key: "retired"
+        )["authenticated"])
+
     def test_missing_receipt_fails_closed(self):
         self.assertFalse(self.verify()["authenticated"])
 
