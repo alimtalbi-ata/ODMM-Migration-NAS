@@ -12,7 +12,7 @@ import os
 import stat
 from pathlib import Path
 
-from odmm_datamover_intents import _id
+from odmm_linux_datamover_intents import _id
 from odmm_linux_lab_external_anchor import (
     AnchorError, _evidence, _filename, _json, _key, _KEY_ID, _MAX_ANCHOR,
     verify_anchor,
