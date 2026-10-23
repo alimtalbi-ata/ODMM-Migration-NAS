@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 from odmm_linux_lab_verifier import verify_pair, VerificationError
+from odmm_linux_lab_identity_journal import inspect_identity
 
 class ReconciliationError(RuntimeError):
     pass
@@ -29,7 +30,8 @@ def inspect_uncertain(db, intent_id, source, target):
         raise ReconciliationError("INTENT_PAYLOAD_MISMATCH")
     result = {"intent_id": intent_id, "task_id": row[0], "state": "UNCERTAIN",
               "decision": "MANUAL_REVIEW_REQUIRED", "target_present": False,
-              "content_verified": False, "nas_acl_qualified": False}
+              "content_verified": False, "nas_acl_qualified": False,
+              "identity_evidence": inspect_identity(db, intent_id, source, target)}
     if target.is_symlink():
         result["reason"] = "TARGET_SYMLINK_REFUSED"
         return result
