@@ -13,6 +13,15 @@ from odmm_linux_lab_verifier import verify_pair, VerificationError
 class LabPipelineError(RuntimeError):
     pass
 
+def _require_original_inode(path, identity, label):
+    """Reject path substitution; this is local POSIX evidence, not a NAS fence."""
+    try:
+        current = path.lstat()
+    except OSError as exc:
+        raise LabPipelineError(label + "_PATH_CHANGED") from exc
+    if not stat.S_ISREG(current.st_mode) or (current.st_dev, current.st_ino) != identity:
+        raise LabPipelineError(label + "_PATH_CHANGED")
+
 def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=None, fault_at=None):
     """Copy one regular local file to an exclusive new target.
 
@@ -57,15 +66,27 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
                 raise LabPipelineError("SOURCE_CHANGED_DURING_COPY")
             out.flush()
             os.fsync(out.fileno())
-        if fault_at == "after_copy_fsync":
-            raise LabPipelineError("INJECTED_AFTER_COPY_FSYNC")
-        os.chmod(target, stat.S_IMODE(source_before.st_mode))
+            if fault_at == "after_copy_fsync":
+                raise LabPipelineError("INJECTED_AFTER_COPY_FSYNC")
+            # Never chmod by pathname: another process may replace the target
+            # with a symlink to an unrelated file after exclusive creation.
+            created = os.fstat(out.fileno())
+            target_identity = (created.st_dev, created.st_ino)
+            _require_original_inode(target, target_identity, "TARGET")
+            os.fchmod(out.fileno(), stat.S_IMODE(source_before.st_mode))
+            os.fsync(out.fileno())
+        _require_original_inode(target, target_identity, "TARGET")
         dirfd = os.open(target.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
         try:
             os.fsync(dirfd)
         finally:
             os.close(dirfd)
         evidence = verify_pair(source, target)
+        # A matching replacement file must never qualify the original intent.
+        # This still cannot close every race without dirfd/openat2 and a
+        # filesystem-wide fencing contract; keep production NAS unqualified.
+        _require_original_inode(source, (source_before.st_dev, source_before.st_ino), "SOURCE")
+        _require_original_inode(target, target_identity, "TARGET")
         record_verification(db, intent_id, task_id, owner, token, digest, now=now)
         return {"intent_id": intent_id, "state": "VERIFIED", "evidence": evidence,
                 "production_nas_qualified": False}
