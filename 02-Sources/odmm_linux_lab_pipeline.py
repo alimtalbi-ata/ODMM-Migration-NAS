@@ -105,6 +105,8 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
             # with a symlink to an unrelated file after exclusive creation.
             created = os.fstat(out.fileno())
             target_identity = (created.st_dev, created.st_ino)
+            _require_original_parent(source, source_parent_identity, "SOURCE")
+            _require_original_parent(target, target_parent_identity, "TARGET")
             _require_original_inode(target, target_identity, "TARGET")
             os.fchmod(out.fileno(), stat.S_IMODE(source_before.st_mode))
             os.fsync(out.fileno())
