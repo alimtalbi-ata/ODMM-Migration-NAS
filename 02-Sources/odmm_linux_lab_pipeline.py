@@ -9,6 +9,7 @@ import stat
 from pathlib import Path
 from odmm_linux_datamover_intents import prepare, mark_in_flight, record_verification
 from odmm_linux_lab_verifier import verify_pair, VerificationError
+from odmm_linux_lab_identity_journal import initialize as init_identity_journal, record_identity
 
 class LabPipelineError(RuntimeError):
     pass
@@ -53,7 +54,7 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
     Never overwrites. On failure after IN_FLIGHT, recovery must quarantine the
     intent; caller must not automatically retry. Not a distributed NAS fence.
     """
-    if fault_at not in (None, "after_intent", "after_copy_fsync", "during_copy"):
+    if fault_at not in (None, "after_intent", "after_copy_fsync", "during_copy", "after_identity_evidence"):
         raise ValueError("INVALID_FAULT_POINT")
     source, target = Path(source), Path(target)
     if source.parent.is_symlink() or target.parent.is_symlink():
@@ -64,6 +65,7 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
         raise LabPipelineError("TARGET_ALREADY_EXISTS")
     payload = {"kind": "local-lab-copy-v1", "source": str(source.resolve()),
                "target": str(target.absolute())}
+    init_identity_journal(db)
     digest = prepare(db, intent_id, task_id, owner, token, payload, now=now)
     mark_in_flight(db, intent_id, task_id, owner, token, now=now)
     if fault_at == "after_intent":
@@ -122,6 +124,24 @@ def run_lab_copy(db, *, intent_id, task_id, owner, token, source, target, now=No
         _require_original_parent(target, target_parent_identity, "TARGET")
         _require_original_inode(source, (source_before.st_dev, source_before.st_ino), "SOURCE")
         _require_original_inode(target, target_identity, "TARGET")
+        # Durable, immutable inode observations are written BEFORE VERIFIED.
+        # A crash after this commit leaves IN_FLIGHT -> UNCERTAIN for manual
+        # reconciliation; matching inode evidence never authorizes replay.
+        observation = {
+            "source_dev": source_before.st_dev, "source_ino": source_before.st_ino,
+            "source_parent_dev": source_parent_identity[0],
+            "source_parent_ino": source_parent_identity[1],
+            "target_dev": target_identity[0], "target_ino": target_identity[1],
+            "target_parent_dev": target_parent_identity[0],
+            "target_parent_ino": target_parent_identity[1],
+            "size": evidence["target"]["size"],
+            "sha256": evidence["target"]["sha256"],
+        }
+        record_identity(db, intent_id=intent_id, task_id=task_id, owner=owner,
+                        token=token, payload_sha256=digest, observation=observation,
+                        now=now)
+        if fault_at == "after_identity_evidence":
+            raise LabPipelineError("INJECTED_AFTER_IDENTITY_EVIDENCE")
         record_verification(db, intent_id, task_id, owner, token, digest, now=now)
         return {"intent_id": intent_id, "state": "VERIFIED", "evidence": evidence,
                 "production_nas_qualified": False}
