@@ -50,6 +50,23 @@ class ReconciliationTests(unittest.TestCase):
         self.assertFalse(result["nas_acl_qualified"])
         self.assertEqual(unresolved(self.db)[0][-1], "UNCERTAIN")
 
+    def test_unrelated_matching_paths_refused(self):
+        self._crash("after_intent")
+        fake_source = self.src.parent / "other-source"
+        fake_source.write_bytes(self.src.read_bytes())
+        with self.assertRaisesRegex(ReconciliationError, "INTENT_PAYLOAD_MISMATCH"):
+            inspect_uncertain(self.db, "i", fake_source, self.dst)
+        with self.assertRaisesRegex(ReconciliationError, "INTENT_PAYLOAD_MISMATCH"):
+            inspect_uncertain(self.db, "i", self.src, self.src.parent / "other-target")
+        self.assertEqual(unresolved(self.db)[0][-1], "UNCERTAIN")
+
+    def test_source_symlink_refused(self):
+        self._crash("after_intent")
+        alias = self.src.parent / "alias"
+        alias.symlink_to(self.src)
+        with self.assertRaisesRegex(ReconciliationError, "SOURCE_SYMLINK_REFUSED"):
+            inspect_uncertain(self.db, "i", alias, self.dst)
+
     def test_partial_target_rejected(self):
         self._crash("during_copy")
         result = inspect_uncertain(self.db, "i", self.src, self.dst)
