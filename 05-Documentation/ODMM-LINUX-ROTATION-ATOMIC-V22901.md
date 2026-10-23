@@ -29,3 +29,7 @@ Statuts à vérifier dans GitHub Actions après publication. Tests unitaires loc
 ## Suites recommandées
 
 Tester les crashs SIGKILL à chaque frontière fsync/link/unlink avec réouverture SQLite ; formaliser une procédure de réconciliation manuelle des pending ; qualifier ensuite les vrais partages NFSv3/v4 et SMB sur deux serveurs isolés sans toucher à la production.
+
+## Correctif de qualification R2 : mutation du propriétaire d'intention
+
+Le premier passage CI a révélé un test historique en échec : changer `odmm_datamover_intents.owner` n'invalidait pas le reçu, car l'ancienne preuve HMAC n'incluait pas ce champ. Le reçu v2 lie explicitement `intent_owner` aux deux signatures. Les anciens reçus v1 ne sont pas acceptés comme v2 ; aucune conversion ni réécriture automatique. Le test historique est conservé sans affaiblissement.

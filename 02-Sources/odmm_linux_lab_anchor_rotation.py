@@ -20,7 +20,7 @@ from odmm_linux_lab_external_anchor import (
 )
 from odmm_linux_lab_path_fence import pin_parent_chain
 
-_SCHEMA = "odmm.linux.lab.identity.rotation.v1"
+_SCHEMA = "odmm.linux.lab.identity.rotation.v2"
 _MAX_RECEIPT = 32768
 
 
@@ -55,10 +55,19 @@ def _read_regular(path, limit):
         return raw
 
 
-def _signed(intent_id, from_key_id, to_key_id, anchor_bytes, evidence):
+def _intent_owner(db, intent_id):
+    row = db.execute("SELECT owner FROM odmm_datamover_intents WHERE intent_id=?",
+                     (intent_id,)).fetchone()
+    if row is None or not isinstance(row[0], str):
+        raise AnchorError("INTENT_OWNER_UNAVAILABLE")
+    return row[0]
+
+
+def _signed(intent_id, from_key_id, to_key_id, anchor_bytes, evidence, owner):
     return {
         "schema": _SCHEMA,
         "intent_id": intent_id,
+        "intent_owner": owner,
         "from_key_id": from_key_id,
         "to_key_id": to_key_id,
         "original_anchor_sha256": hashlib.sha256(anchor_bytes).hexdigest(),
@@ -88,7 +97,7 @@ def create_rotation(db, intent_id, anchor_dir, *, from_key_id, to_key_id,
     root = Path(anchor_dir)
     anchor_bytes = _read_regular(root / _filename(intent_id), _MAX_ANCHOR)
     signed = _signed(intent_id, from_key_id, to_key_id, anchor_bytes,
-                     _evidence(db, intent_id))
+                     _evidence(db, intent_id), _intent_owner(db, intent_id))
     payload = _json(signed).encode("utf-8")
     receipt = {**signed,
                "old_hmac_sha256": hmac.new(old_secret, payload, hashlib.sha256).hexdigest(),
@@ -171,7 +180,7 @@ def verify_rotation(db, intent_id, anchor_dir, *, from_key_id, to_key_id,
         receipt_bytes = _read_regular(root / _receipt_name(intent_id, to_key_id), _MAX_RECEIPT)
         doc = json.loads(receipt_bytes)
         signed = _signed(intent_id, from_key_id, to_key_id, anchor_bytes,
-                         _evidence(db, intent_id))
+                         _evidence(db, intent_id), _intent_owner(db, intent_id))
         if (not isinstance(doc, dict) or set(doc) != set(signed) |
                 {"old_hmac_sha256", "new_hmac_sha256"} or
                 any(doc[k] != v for k, v in signed.items())):
