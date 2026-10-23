@@ -82,8 +82,59 @@ def record_identity(db, *, intent_id, task_id, owner, token, payload_sha256, obs
     return _transaction(db, work)
 
 
+def _check_content_against_observation(path, label, observation):
+    """Read-only descriptor-relative local verification; return a mismatch reason.
+
+    O_NOFOLLOW protects the immediate parent and leaf; higher ancestors are
+    NOT pinned. The result is advisory and cannot authorize UNCERTAIN replay.
+    """
+    directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    leaf_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    with os.fdopen(os.open(path.parent, directory_flags), "rb") as parent:
+        pfd = parent.fileno()
+        parent_before = os.fstat(pfd)
+        parent_id = (observation[label + "_parent_dev"], observation[label + "_parent_ino"])
+        leaf_id = (observation[label + "_dev"], observation[label + "_ino"])
+        if not stat.S_ISDIR(parent_before.st_mode) or (parent_before.st_dev, parent_before.st_ino) != parent_id:
+            return "PATH_IDENTITY_CHANGED"
+        with os.fdopen(os.open(path.name, leaf_flags, dir_fd=pfd), "rb") as stream:
+            before = os.fstat(stream.fileno())
+            if not stat.S_ISREG(before.st_mode) or (before.st_dev, before.st_ino) != leaf_id:
+                return "PATH_IDENTITY_CHANGED"
+            if before.st_size != observation["size"]:
+                return "CONTENT_SIZE_CHANGED"
+            digest = hashlib.sha256()
+            total = 0
+            while True:
+                chunk = stream.read(1024 * 1024)
+                if not chunk:
+                    break
+                digest.update(chunk)
+                total += len(chunk)
+                if total > observation["size"]:
+                    return "CONTENT_SIZE_CHANGED"
+            after = os.fstat(stream.fileno())
+            # Catch writes racing the read, even when the final digest happens
+            # to match. This is not a filesystem-wide atomic snapshot.
+            fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+            if any(getattr(before, k) != getattr(after, k) for k in fields):
+                return "CONTENT_CHANGED_DURING_INSPECTION"
+            if total != observation["size"]:
+                return "CONTENT_SIZE_CHANGED"
+            if not hmac.compare_digest(digest.hexdigest(), observation["sha256"]):
+                return "CONTENT_DIGEST_MISMATCH"
+            current_parent = path.parent.lstat()
+            current_leaf = path.lstat()
+            if (not stat.S_ISDIR(current_parent.st_mode) or
+                    (current_parent.st_dev, current_parent.st_ino) != parent_id or
+                    not stat.S_ISREG(current_leaf.st_mode) or
+                    (current_leaf.st_dev, current_leaf.st_ino) != leaf_id):
+                return "PATH_IDENTITY_CHANGED"
+    return None
+
+
 def inspect_identity(db, intent_id, source, target):
-    """Read-only advisory comparison; matching inode numbers do not prove ownership."""
+    """Read-only advisory comparison of inode, size and SHA-256; never a replay permit."""
     intent_id = _id(intent_id)
     table = db.execute("""SELECT 1 FROM sqlite_master
         WHERE type='table' AND name='odmm_lab_identity_evidence'""").fetchone()
@@ -114,7 +165,11 @@ def inspect_identity(db, intent_id, source, target):
                 observation[label + "_parent_dev"], observation[label + "_parent_ino"],
                 observation[label + "_dev"], observation[label + "_ino"]):
                 return {"recorded": True, "identity_matches": False, "reason": "PATH_IDENTITY_CHANGED"}
+        for label, path in paths.items():
+            mismatch = _check_content_against_observation(path, label, observation)
+            if mismatch:
+                return {"recorded": True, "identity_matches": False, "reason": mismatch}
     except (OSError, ValueError, KeyError, TypeError):
         return {"recorded": True, "identity_matches": False, "reason": "IDENTITY_UNAVAILABLE_OR_UNSAFE"}
-    return {"recorded": True, "identity_matches": True, "reason": "LOCAL_INODE_IDENTITIES_MATCH",
+    return {"recorded": True, "identity_matches": True, "reason": "LOCAL_INODE_AND_SHA256_MATCH",
             "nas_migration_qualified": False, "authorizes_resume": False}
