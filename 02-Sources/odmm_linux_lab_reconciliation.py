@@ -3,6 +3,7 @@
 No automatic transition, delete, overwrite, or resume. Author: Abdelhalim Talbi.
 """
 import hashlib
+import json
 from pathlib import Path
 from odmm_linux_lab_verifier import verify_pair, VerificationError
 
@@ -19,6 +20,13 @@ def inspect_uncertain(db, intent_id, source, target):
     if row[4] != "UNCERTAIN":
         raise ReconciliationError("INTENT_NOT_UNCERTAIN")
     source, target = Path(source), Path(target)
+    if source.is_symlink():
+        raise ReconciliationError("SOURCE_SYMLINK_REFUSED")
+    payload = {"kind": "local-lab-copy-v1", "source": str(source.resolve()),
+               "target": str(target.absolute())}
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != row[3]:
+        raise ReconciliationError("INTENT_PAYLOAD_MISMATCH")
     result = {"intent_id": intent_id, "task_id": row[0], "state": "UNCERTAIN",
               "decision": "MANUAL_REVIEW_REQUIRED", "target_present": False,
               "content_verified": False, "nas_acl_qualified": False}
