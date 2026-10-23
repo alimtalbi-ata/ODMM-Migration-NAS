@@ -121,7 +121,7 @@ def verify_anchor(db, intent_id, anchor_dir, *, key_resolver):
         return {"authenticated": True, "reason": "EXTERNAL_HMAC_MATCH",
                 "key_id": doc["key_id"], "authorizes_resume": False,
                 "nas_migration_qualified": False}
-    except (OSError, ValueError, TypeError, KeyError, UnicodeError, AnchorError,
-            PathFenceError, json.JSONDecodeError):
+    except Exception:
+        # A missing/unavailable external key resolver must never approve evidence.
         return {"authenticated": False, "reason": "ANCHOR_MISSING_UNSAFE_OR_MISMATCH",
                 "authorizes_resume": False, "nas_migration_qualified": False}
