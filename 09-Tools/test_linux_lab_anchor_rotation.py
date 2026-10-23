@@ -90,6 +90,20 @@ class RotationTests(unittest.TestCase):
             "SELECT state FROM odmm_datamover_intents WHERE intent_id='copy'"
         ).fetchone()[0], "UNCERTAIN")
 
+    def test_rotation_rejects_identical_key_material(self):
+        with self.assertRaisesRegex(AnchorError, "ROTATION_REQUIRES_DISTINCT_KEYS"):
+            create_rotation(self.db, "copy", self.anchor_dir,
+                            from_key_id="old", to_key_id="new",
+                            old_secret=self.old, new_secret=self.old)
+        self.assertFalse(any(self.anchor_dir.glob("*.rotation.json")))
+
+    def test_rotation_refuses_overwrite_after_success(self):
+        self.rotate()
+        original = next(self.anchor_dir.glob("*.rotation.json")).read_bytes()
+        with self.assertRaises(FileExistsError):
+            self.rotate()
+        self.assertEqual(next(self.anchor_dir.glob("*.rotation.json")).read_bytes(), original)
+
     def test_new_key_retired_fails_closed(self):
         self.rotate()
         self.assertFalse(self.verify(
