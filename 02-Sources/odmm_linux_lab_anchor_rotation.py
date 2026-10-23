@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import json
 import os
+import secrets
 import stat
 from pathlib import Path
 
@@ -78,6 +79,8 @@ def create_rotation(db, intent_id, anchor_dir, *, from_key_id, to_key_id,
             from_key_id == to_key_id):
         raise AnchorError("INVALID_ROTATION_KEY_IDS")
     old_secret, new_secret = _key(old_secret), _key(new_secret)
+    if hmac.compare_digest(old_secret, new_secret):
+        raise AnchorError("ROTATION_REQUIRES_DISTINCT_KEYS")
     old = verify_anchor(db, intent_id, anchor_dir,
                         key_resolver=lambda key_id: old_secret if key_id == from_key_id else None)
     if not old["authenticated"] or old.get("key_id") != from_key_id:
@@ -94,17 +97,46 @@ def create_rotation(db, intent_id, anchor_dir, *, from_key_id, to_key_id,
     if len(encoded) > _MAX_RECEIPT:
         raise AnchorError("ROTATION_RECEIPT_TOO_LARGE")
     path = root / _receipt_name(intent_id, to_key_id)
+    # A final receipt must never be visible until its entire payload is
+    # written and fsynced. An exclusive hard link publishes it without
+    # overwriting an existing receipt (unlike os.replace).
+    stage_name = path.name + ".pending-" + secrets.token_hex(16)
     with pin_parent_chain(path) as (dirfd, check):
         check()
-        fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+        fd = os.open(stage_name, os.O_WRONLY | os.O_CREAT | os.O_EXCL |
                      os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0), 0o600,
                      dir_fd=dirfd)
-        with os.fdopen(fd, "wb") as stream:
-            stream.write(encoded)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.fsync(dirfd)
-        check()
+        owned = os.fstat(fd)
+        try:
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(encoded)
+                stream.flush()
+                os.fsync(stream.fileno())
+            check()
+            staged = os.stat(stage_name, dir_fd=dirfd, follow_symlinks=False)
+            if (not stat.S_ISREG(staged.st_mode) or staged.st_nlink != 1 or
+                    staged.st_size != len(encoded) or staged.st_mode & 0o077 or
+                    (staged.st_dev, staged.st_ino) != (owned.st_dev, owned.st_ino)):
+                raise AnchorError("ROTATION_STAGE_CHANGED")
+            os.link(stage_name, path.name, src_dir_fd=dirfd,
+                    dst_dir_fd=dirfd, follow_symlinks=False)
+            published = os.stat(path.name, dir_fd=dirfd, follow_symlinks=False)
+            if (published.st_dev, published.st_ino) != (owned.st_dev, owned.st_ino):
+                raise AnchorError("ROTATION_PUBLISHED_INODE_CHANGED")
+            os.fsync(dirfd)
+            check()
+        finally:
+            # Only remove our own staging inode; never unlink a substituted
+            # path or the final receipt. A SIGKILL can leave a pending file:
+            # verification ignores it and remains fail-closed.
+            try:
+                current = os.stat(stage_name, dir_fd=dirfd, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                if (current.st_dev, current.st_ino) == (owned.st_dev, owned.st_ino):
+                    os.unlink(stage_name, dir_fd=dirfd)
+                    os.fsync(dirfd)
     return {"rotation_recorded": True, "to_key_id": to_key_id,
             "authorizes_resume": False, "nas_migration_qualified": False}
 

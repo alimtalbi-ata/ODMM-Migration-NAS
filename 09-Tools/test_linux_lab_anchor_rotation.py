@@ -7,6 +7,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "02-Sources"))
@@ -151,6 +152,57 @@ class RotationTests(unittest.TestCase):
                             from_key_id="old", to_key_id="../bad",
                             old_secret=self.old, new_secret=self.new)
 
+
+    def test_publish_is_atomic_after_stage_fsync(self):
+        import odmm_linux_lab_anchor_rotation as rotation
+        original_link = rotation.os.link
+        def inspect_before_publish(src, dst, **kwargs):
+            self.assertFalse(any(self.anchor_dir.glob("*.rotation.json")))
+            pending = list(self.anchor_dir.glob("*.pending-*"))
+            self.assertEqual(len(pending), 1)
+            self.assertIn("old_hmac_sha256", json.loads(pending[0].read_text()))
+            return original_link(src, dst, **kwargs)
+        with patch.object(rotation.os, "link", side_effect=inspect_before_publish):
+            self.rotate()
+        self.assertTrue(self.verify()["authenticated"])
+        self.assertFalse(list(self.anchor_dir.glob("*.pending-*")))
+
+    def test_publish_failure_cleans_stage_and_can_retry(self):
+        import odmm_linux_lab_anchor_rotation as rotation
+        with patch.object(rotation.os, "link", side_effect=OSError("injected link failure")):
+            with self.assertRaisesRegex(OSError, "injected link failure"):
+                self.rotate()
+        self.assertFalse(any(self.anchor_dir.glob("*.rotation.json")))
+        self.assertFalse(any(self.anchor_dir.glob("*.pending-*")))
+        self.assertFalse(self.verify()["authenticated"])
+        self.rotate()
+        self.assertTrue(self.verify()["authenticated"])
+
+    def test_stage_fsync_failure_never_publishes_receipt(self):
+        import odmm_linux_lab_anchor_rotation as rotation
+        with patch.object(rotation.os, "fsync", side_effect=OSError("injected stage fsync failure")):
+            with self.assertRaisesRegex(OSError, "injected stage fsync failure"):
+                self.rotate()
+        self.assertFalse(any(self.anchor_dir.glob("*.rotation.json")))
+        self.assertFalse(any(self.anchor_dir.glob("*.pending-*")))
+
+    def test_duplicate_receipt_cleans_pending_stage(self):
+        self.rotate()
+        with self.assertRaises(FileExistsError):
+            self.rotate()
+        self.assertFalse(any(self.anchor_dir.glob("*.pending-*")))
+        self.assertTrue(self.verify()["authenticated"])
+
+    def test_equal_hmac_keys_rejected_before_publication(self):
+        with self.assertRaisesRegex(AnchorError, "ROTATION_REQUIRES_DISTINCT_KEYS"):
+            create_rotation(self.db, "copy", self.anchor_dir,
+                            from_key_id="old", to_key_id="new",
+                            old_secret=self.old, new_secret=self.old)
+        self.assertFalse(any(self.anchor_dir.glob("*.rotation.json")))
+
+    def test_orphan_pending_receipt_does_not_authenticate(self):
+        (self.anchor_dir / "orphan.rotation.json.pending-deadbeef").write_text("{}")
+        self.assertFalse(self.verify()["authenticated"])
 
 if __name__ == "__main__":
     unittest.main()
