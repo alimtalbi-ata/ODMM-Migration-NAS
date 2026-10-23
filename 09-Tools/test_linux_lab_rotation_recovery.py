@@ -19,7 +19,7 @@ from odmm_linux_lease_registry import initialize as init_leases, claim
 from odmm_linux_datamover_intents import initialize, quarantine_unfinished
 from odmm_linux_lab_pipeline import run_lab_copy, LabPipelineError
 from odmm_linux_lab_external_anchor import create_anchor
-from odmm_linux_lab_anchor_rotation import create_rotation, verify_rotation
+from odmm_linux_lab_anchor_rotation import create_rotation, verify_rotation, _receipt_name
 from odmm_linux_lab_rotation_recovery import inspect_rotation_publication
 
 
