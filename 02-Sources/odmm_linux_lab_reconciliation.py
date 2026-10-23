@@ -7,11 +7,15 @@ import json
 from pathlib import Path
 from odmm_linux_lab_verifier import verify_pair, VerificationError
 from odmm_linux_lab_identity_journal import inspect_identity
+from odmm_linux_lab_external_anchor import verify_anchor
 
 class ReconciliationError(RuntimeError):
     pass
 
-def inspect_uncertain(db, intent_id, source, target):
+def inspect_uncertain(db, intent_id, source, target, *, anchor_dir=None, key_resolver=None):
+    """Optional external anchor verification is advisory and never permits replay."""
+    if (anchor_dir is None) != (key_resolver is None):
+        raise ValueError("ANCHOR_CONFIGURATION_INCOMPLETE")
     if not isinstance(intent_id, str) or not intent_id or len(intent_id) > 128:
         raise ValueError("INVALID_INTENT_ID")
     row = db.execute("""SELECT task_id,owner,fence_token,payload_sha256,state
@@ -32,6 +36,9 @@ def inspect_uncertain(db, intent_id, source, target):
               "decision": "MANUAL_REVIEW_REQUIRED", "target_present": False,
               "content_verified": False, "nas_acl_qualified": False,
               "identity_evidence": inspect_identity(db, intent_id, source, target)}
+    if anchor_dir is not None:
+        result["external_anchor"] = verify_anchor(db, intent_id, anchor_dir,
+                                                   key_resolver=key_resolver)
     if target.is_symlink():
         result["reason"] = "TARGET_SYMLINK_REFUSED"
         return result
