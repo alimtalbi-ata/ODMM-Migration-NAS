@@ -44,6 +44,7 @@ def _digest_leaf(dirfd, name):
             raise ValueError("RECEIPT_PATH_CHANGED")
     return {"name": name, "size": len(data), "device": before.st_dev,
             "inode": before.st_ino, "links": before.st_nlink,
+            "mtime_ns": before.st_mtime_ns, "ctime_ns": before.st_ctime_ns,
             "sha256": hashlib.sha256(data).hexdigest()}
 
 
@@ -76,6 +77,14 @@ def review_rotation_orphans(anchor_dir, intent_id, to_key_id):
             if len(names) > _MAX_ENTRIES:
                 return denied
             files = [_digest_leaf(dirfd, name) for name in names]
+            # Detect a mutation after hashing an earlier entry, even when
+            # the directory itself was not modified by an in-place write.
+            for item in files:
+                current = os.stat(item["name"], dir_fd=dirfd, follow_symlinks=False)
+                if (_identity(current) !=
+                        (item["device"], item["inode"], item["links"],
+                         item["size"], item["mtime_ns"], item["ctime_ns"])):
+                    raise ValueError("RECEIPT_CHANGED_AFTER_DIGEST")
             last = os.fstat(dirfd)
             if _identity(first) != _identity(last):
                 raise ValueError("RECEIPT_DIRECTORY_CHANGED")
