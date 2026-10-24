@@ -81,6 +81,35 @@ class MetadataTests(unittest.TestCase):
             self.assertFalse(result["nas_acl_qualified"])
             self.assertFalse(result["authorizes_resume"])
 
+    def test_concurrent_xattr_value_change_is_rejected(self):
+        import unittest.mock
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            try:
+                os.setxattr(src, "user.odmm_probe", b"before")
+                os.setxattr(dst, "user.odmm_probe", b"before")
+            except OSError as exc:
+                self.skipTest("user xattrs unavailable: " + str(exc))
+            original = os.getxattr
+            calls = {"count": 0}
+
+            def changing_getxattr(fd, name, *args, **kwargs):
+                if name == "user.odmm_probe":
+                    calls["count"] += 1
+                    if calls["count"] == 2:
+                        return b"after"
+                return original(fd, name, *args, **kwargs)
+
+            with unittest.mock.patch("odmm_linux_lab_metadata.os.getxattr",
+                                     side_effect=changing_getxattr):
+                result = inspect_metadata(src, dst)
+            self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(result["authorizes_resume"])
+
 
 if __name__ == "__main__":
     unittest.main()
