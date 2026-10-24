@@ -40,6 +40,38 @@ class MetadataTests(unittest.TestCase):
             self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
             self.assertFalse(result["authorizes_resume"])
 
+    def test_xattr_mismatch_requires_review_when_supported(self):
+        import os
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            try:
+                os.setxattr(src, "user.odmm_probe", b"source")
+                os.setxattr(dst, "user.odmm_probe", b"target")
+            except OSError as exc:
+                self.skipTest("user xattrs unavailable: " + str(exc))
+            result = inspect_metadata(src, dst)
+            self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertIn("xattrs_hex", result["differences"])
+            self.assertFalse(result["authorizes_resume"])
+
+    def test_xattr_match_is_not_nas_acl_qualification(self):
+        import os
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            try:
+                os.setxattr(src, "user.odmm_probe", b"equal")
+                os.setxattr(dst, "user.odmm_probe", b"equal")
+            except OSError as exc:
+                self.skipTest("user xattrs unavailable: " + str(exc))
+            result = inspect_metadata(src, dst)
+            self.assertEqual(result["status"], "LOCAL_METADATA_MATCH")
+            self.assertFalse(result["nas_acl_qualified"])
+            self.assertFalse(result["authorizes_resume"])
+
 
 if __name__ == "__main__":
     unittest.main()
