@@ -119,7 +119,7 @@ class TreeCliAcceptance(unittest.TestCase):
             root = Path(tmp)
             file = root / "file.bin"
             file.write_bytes(b"original")
-            spec = importlib.util.spec_from_file_location("odmm_tree_cli", TOOL)
+            spec = importlib.util.spec_from_file_location("odmm_tree_cli", CLI)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             before = module.source_fingerprint(file)
