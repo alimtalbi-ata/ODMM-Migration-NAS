@@ -128,6 +128,35 @@ class CombinedRecoveryTests(unittest.TestCase):
             self.assertFalse(report["authorizes_resume"])
             self.assertEqual(journal.read_bytes(), before)
 
+    def test_verified_intent_with_changed_source_requires_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            file = src / "data"
+            file.write_bytes(b"before")
+            (dst / "data").write_bytes(b"after!")
+            info = file.stat()
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+                db.execute("INSERT INTO odmm_datamover_intents VALUES ('verified-1','tree-0','VERIFIED')")
+                db.execute("""CREATE TABLE odmm_tree_task_paths
+                    (task_id TEXT,relative_path TEXT,source_dev INTEGER,source_ino INTEGER,
+                     source_size INTEGER,source_mtime_ns INTEGER,source_ctime_ns INTEGER)""")
+                db.execute("INSERT INTO odmm_tree_task_paths VALUES (?,?,?,?,?,?,?)",
+                           ("tree-0", "data", info.st_dev, info.st_ino, info.st_size,
+                            info.st_mtime_ns, info.st_ctime_ns))
+            file.write_bytes(b"after!")
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertEqual(report["unresolved_intents"][0]["state"], "VERIFIED")
+            self.assertFalse(report["unresolved_intents"][0]["source_identity_matches"])
+
     def test_unresolved_intent_and_missing_file_are_both_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
