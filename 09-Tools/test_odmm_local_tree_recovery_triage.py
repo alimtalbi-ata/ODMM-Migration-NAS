@@ -59,6 +59,20 @@ class RecoveryTriageTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 module.digest(path, original)
 
+    def test_root_mode_mismatch_requires_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, dst = Path(tmp) / "src", Path(tmp) / "dst"
+            src.mkdir(mode=0o700)
+            dst.mkdir(mode=0o700)
+            src.chmod(0o750)
+            dst.chmod(0o700)
+            result = self.invoke(src, dst)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertIn("ROOT_MODE_MISMATCH",
+                          [item["code"] for item in report["findings"]])
+            self.assertFalse(report["authorizes_resume"])
+
     def test_missing_and_corrupted_files_require_review(self):
         with tempfile.TemporaryDirectory() as tmp:
             src, dst = Path(tmp) / "src", Path(tmp) / "dst"
