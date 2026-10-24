@@ -98,7 +98,11 @@ def verify_tree(source, target, dirs, files):
         raise RuntimeError("POST_COPY_ROOT_MODE_MISMATCH")
     expected = {str(r) for r in files} | {str(r) for r in dirs}
     actual = set()
-    for current, subdirs, filenames in os.walk(target, followlinks=False):
+    def verification_traversal_error(exc):
+        raise RuntimeError("POST_COPY_TARGET_TRAVERSAL_FAILED: " + str(exc)) from exc
+
+    for current, subdirs, filenames in os.walk(
+            target, followlinks=False, onerror=verification_traversal_error):
         for name in subdirs + filenames:
             rel = str((Path(current) / name).relative_to(target))
             if rel != ".odmm-local-journal.sqlite":
