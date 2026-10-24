@@ -42,6 +42,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_lab_status.py' -v
       - name: Test guarded local POSIX tree CLI acceptance
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_tree_cli.py' -v
+      - name: Test negative corruption and inventory verification
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_tree_verifier_negative.py' -v
       - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
       - name: Test POSIX inode substitution and symlink-swap fencing
