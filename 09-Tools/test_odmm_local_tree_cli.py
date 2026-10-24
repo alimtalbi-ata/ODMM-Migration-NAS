@@ -48,6 +48,36 @@ class TreeCliAcceptance(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertFalse(target.exists())
 
+    def test_hardlink_rejected_before_target_creation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, target = root / "source", root / "target"
+            source.mkdir()
+            first = source / "first.bin"
+            first.write_bytes(b"hardlink content")
+            (source / "second.bin").hardlink_to(first)
+            result = self.run_cli(source, target)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("UNSUPPORTED_HARDLINK", result.stderr)
+            self.assertFalse(target.exists())
+
+    def test_xattr_rejected_before_target_creation_when_supported(self):
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, target = root / "source", root / "target"
+            source.mkdir()
+            path = source / "data.bin"
+            path.write_bytes(b"metadata")
+            try:
+                os.setxattr(path, "user.odmm_test", b"preserve-me")
+            except (OSError, AttributeError):
+                self.skipTest("user xattrs unavailable on test filesystem")
+            result = self.run_cli(source, target)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("UNSUPPORTED_XATTR_OR_ACL", result.stderr)
+            self.assertFalse(target.exists())
+
     def test_source_target_overlap_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
