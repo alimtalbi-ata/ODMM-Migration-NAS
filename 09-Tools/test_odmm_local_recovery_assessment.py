@@ -186,6 +186,26 @@ class CombinedRecoveryTests(unittest.TestCase):
             self.assertEqual(report["unresolved_intents"][0]["state"], "VERIFIED")
             self.assertFalse(report["unresolved_intents"][0]["source_identity_matches"])
 
+    def test_matching_files_without_task_evidence_cannot_be_declared_clean(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            (src / "data").write_bytes(b"same")
+            (dst / "data").write_bytes(b"same")
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["tree_counts"]["verified_files"], 1)
+            self.assertTrue(report["missing_recovery_evidence"])
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(report["authorizes_resume"])
+
     def test_unresolved_intent_and_missing_file_are_both_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
