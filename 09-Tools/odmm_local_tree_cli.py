@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "02-Sources"))
 from odmm_linux_lease_registry import initialize as init_leases, claim
 from odmm_linux_datamover_intents import initialize as init_intents
 from odmm_linux_lab_pipeline import run_lab_copy
+from odmm_local_tree_preflight import inspect as preflight_inspect
 
 
 def require_supported_metadata(path, *, regular):
@@ -113,6 +114,12 @@ def main(argv=None):
     resolved_src, resolved_dst = src.resolve(), dst.resolve()
     if resolved_src == resolved_dst or resolved_src in resolved_dst.parents or resolved_dst in resolved_src.parents:
         p.error("Source/destination overlap refused")
+    count, total_bytes, findings = preflight_inspect(src, dst)
+    if findings:
+        print(json.dumps({"state": "BLOCKED_BY_PREFLIGHT", "findings": findings,
+                          "target_created": False, "nas_migration_qualified": False},
+                         sort_keys=True), file=sys.stderr)
+        return 2
     try:
         dirs, files = inventory(src)
     except (ValueError, OSError) as exc:
