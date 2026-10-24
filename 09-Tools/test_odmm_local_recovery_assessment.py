@@ -12,6 +12,33 @@ TOOL = Path(__file__).resolve().parent / "odmm_local_recovery_assessment.py"
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux only")
 class CombinedRecoveryTests(unittest.TestCase):
+    def test_mapped_symlink_parent_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            outside = root / "outside"
+            src.mkdir()
+            dst.mkdir()
+            outside.mkdir()
+            (outside / "data").write_bytes(b"secret")
+            (src / "redirect").symlink_to(outside, target_is_directory=True)
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+                db.execute("INSERT INTO odmm_datamover_intents VALUES ('i1','tree-0','IN_FLIGHT')")
+                db.execute("""CREATE TABLE odmm_tree_task_paths
+                    (task_id TEXT,relative_path TEXT,source_dev INTEGER,source_ino INTEGER,
+                     source_size INTEGER,source_mtime_ns INTEGER,source_ctime_ns INTEGER)""")
+                db.execute("INSERT INTO odmm_tree_task_paths VALUES (?,?,?,?,?,?,?)",
+                           ("tree-0", "redirect/data", 0, 0, 0, 0, 0))
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertFalse(report["unresolved_intents"][0]["source_identity_matches"])
+            self.assertFalse(report["authorizes_resume"])
+            self.assertEqual((outside / "data").read_bytes(), b"secret")
+
     def test_mapped_intent_reports_changed_source_identity(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
