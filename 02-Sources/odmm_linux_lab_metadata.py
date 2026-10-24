@@ -33,7 +33,10 @@ def _snapshot(path):
             if any(getattr(before, field) != getattr(after, field) for field in fields):
                 raise VerificationError("METADATA_CHANGED_DURING_INSPECTION")
             leaf = path.lstat()
-            if (leaf.st_dev, leaf.st_ino) != (before.st_dev, before.st_ino):
+            if (not stat.S_ISREG(leaf.st_mode) or
+                    (leaf.st_dev, leaf.st_ino) != (before.st_dev, before.st_ino) or
+                    leaf.st_mtime_ns != after.st_mtime_ns or
+                    leaf.st_ctime_ns != after.st_ctime_ns):
                 raise VerificationError("PATH_IDENTITY_CHANGED")
             check_chain()
             return {"uid": after.st_uid, "gid": after.st_gid,
