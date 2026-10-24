@@ -21,6 +21,8 @@ def assess(source, target, journal):
     uri = "file:" + quote(str(journal.resolve()), safe="/") + "?mode=ro"
     with sqlite3.connect(uri, uri=True) as db:
         db.execute("PRAGMA query_only=ON")
+        if db.execute("PRAGMA quick_check").fetchone()[0] != "ok":
+            raise ValueError("JOURNAL_INTEGRITY_FAILED")
         rows = db.execute(
             "SELECT intent_id,task_id,state FROM odmm_datamover_intents ORDER BY intent_id"
         ).fetchall()
