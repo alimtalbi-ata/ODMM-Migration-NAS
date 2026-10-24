@@ -2,8 +2,7 @@
 """Read-only recovery assessment combining local POSIX tree and SQLite journal.
 
 Never authorizes automatic replay; never modifies journal or destination.
-The task-to-path mapping is not persisted in this lab journal, so findings
-cannot be assigned reliably to individual intents.
+Older lab journals may lack task-to-path mappings. No automatic replay.
 """
 import argparse
 import json
@@ -33,6 +32,8 @@ def assess(source, target, journal):
         mapping_rows = db.execute("""SELECT task_id,relative_path,source_dev,source_ino,
             source_size,source_mtime_ns,source_ctime_ns FROM odmm_tree_task_paths""").fetchall() if available else []
     mapping = {row[0]: row[1:] for row in mapping_rows}
+    task_ids = {task_id for _, task_id, _ in rows}
+    orphan_mappings = sorted(set(mapping) - task_ids)
     unresolved = []
     for intent_id, task_id, state in rows:
         if state not in ("PREPARED", "IN_FLIGHT", "UNCERTAIN"):
@@ -62,9 +63,10 @@ def assess(source, target, journal):
         else:
             entry["mapping_missing"] = True
         unresolved.append(entry)
-    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings else "CURRENT_FILES_MATCH",
+    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
             "unresolved_intents": unresolved, "total_intents": len(rows),
+            "orphan_task_mappings": orphan_mappings,
             "mapping_limit": "TASK_TO_PATH_AVAILABLE" if available else "NO_DURABLE_TASK_TO_PATH_MAPPING",
             "read_only": True, "authorizes_resume": False,
             "nas_migration_qualified": False}
