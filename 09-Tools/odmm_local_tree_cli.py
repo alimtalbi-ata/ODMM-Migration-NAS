@@ -173,6 +173,24 @@ def main(argv=None):
             db.execute("PRAGMA synchronous=FULL")
             init_leases(db)
             init_intents(db)
+            db.execute("""CREATE TABLE odmm_tree_task_paths (
+                task_id TEXT PRIMARY KEY, relative_path TEXT NOT NULL UNIQUE,
+                source_dev INTEGER NOT NULL, source_ino INTEGER NOT NULL,
+                source_size INTEGER NOT NULL, source_mtime_ns INTEGER NOT NULL,
+                source_ctime_ns INTEGER NOT NULL)""")
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                for index, relative in enumerate(files):
+                    fingerprint = source_fingerprints[relative]
+                    db.execute("""INSERT INTO odmm_tree_task_paths
+                        (task_id,relative_path,source_dev,source_ino,source_size,
+                         source_mtime_ns,source_ctime_ns) VALUES (?,?,?,?,?,?,?)""",
+                        (f"tree-{index}", str(relative), fingerprint[0],
+                         fingerprint[1], fingerprint[2], fingerprint[3], fingerprint[4]))
+                db.commit()
+            except BaseException:
+                db.rollback()
+                raise
             for index, relative in enumerate(files):
                 if source_fingerprint(src / relative) != source_fingerprints[relative]:
                     raise RuntimeError("SOURCE_CHANGED_BEFORE_COPY")
