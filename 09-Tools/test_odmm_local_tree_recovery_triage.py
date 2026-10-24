@@ -31,6 +31,34 @@ class RecoveryTriageTests(unittest.TestCase):
             self.assertFalse(report["authorizes_resume"])
             self.assertEqual((dst / "data").read_bytes(), before)
 
+    def test_replaced_file_is_rejected_during_hash(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("recovery_triage", TOOL)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "file"
+            path.write_bytes(b"same")
+            original = path.lstat()
+            path.unlink()
+            path.write_bytes(b"same")
+            with self.assertRaisesRegex(RuntimeError, "FILE_CHANGED_BEFORE_HASH"):
+                module.digest(path, original)
+
+    def test_symlink_substitution_is_rejected(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("recovery_triage", TOOL)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "file"
+            path.write_bytes(b"same")
+            original = path.lstat()
+            path.unlink()
+            path.symlink_to(Path(tmp) / "elsewhere")
+            with self.assertRaises(OSError):
+                module.digest(path, original)
+
     def test_missing_and_corrupted_files_require_review(self):
         with tempfile.TemporaryDirectory() as tmp:
             src, dst = Path(tmp) / "src", Path(tmp) / "dst"
