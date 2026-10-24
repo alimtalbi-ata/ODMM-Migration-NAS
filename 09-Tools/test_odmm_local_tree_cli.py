@@ -112,6 +112,21 @@ class TreeCliAcceptance(unittest.TestCase):
             self.assertEqual(report["files_verified"], 5)
             self.assertFalse(report["nas_migration_qualified"])
 
+    def test_source_fingerprint_detects_same_size_rewrite(self):
+        import importlib.util
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            file = root / "file.bin"
+            file.write_bytes(b"original")
+            spec = importlib.util.spec_from_file_location("odmm_tree_cli", TOOL)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            before = module.source_fingerprint(file)
+            file.write_bytes(b"modified")
+            os.utime(file, ns=(file.stat().st_atime_ns, before[3]))
+            self.assertNotEqual(before, module.source_fingerprint(file))
+
     def test_source_target_overlap_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
