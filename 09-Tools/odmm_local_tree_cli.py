@@ -44,7 +44,11 @@ def inventory(root):
     require_supported_metadata(root, regular=False)
     files = []
     dirs = []
-    for current, subdirs, filenames in os.walk(root, topdown=True, followlinks=False):
+    def traversal_error(exc):
+        raise ValueError("SOURCE_TRAVERSAL_FAILED: " + str(exc)) from exc
+
+    for current, subdirs, filenames in os.walk(
+            root, topdown=True, followlinks=False, onerror=traversal_error):
         for name in subdirs + filenames:
             path = Path(current) / name
             mode = path.lstat().st_mode
