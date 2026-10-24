@@ -162,6 +162,39 @@ class MetadataTests(unittest.TestCase):
             self.assertIn("sha256", rendered)
             self.assertFalse(result["authorizes_resume"])
 
+    def test_parent_directory_swap_during_xattr_read_is_rejected(self):
+        import unittest.mock
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            parent = root / "parent"
+            parent.mkdir()
+            src, dst = parent / "src", root / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            try:
+                os.setxattr(src, "user.odmm_probe", b"value")
+                os.setxattr(dst, "user.odmm_probe", b"value")
+            except OSError as exc:
+                self.skipTest("user xattrs unavailable: " + str(exc))
+            original = os.getxattr
+            swapped = {"done": False}
+
+            def swap_parent(fd, name, *args, **kwargs):
+                if not swapped["done"]:
+                    swapped["done"] = True
+                    parent.rename(root / "moved")
+                    parent.mkdir()
+                    (parent / "src").write_bytes(b"same")
+                return original(fd, name, *args, **kwargs)
+
+            with unittest.mock.patch("odmm_linux_lab_metadata.os.getxattr",
+                                     side_effect=swap_parent):
+                result = inspect_metadata(src, dst)
+            self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(result["authorizes_resume"])
+
 
 if __name__ == "__main__":
     unittest.main()
