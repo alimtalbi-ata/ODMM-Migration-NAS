@@ -12,6 +12,30 @@ TOOL = Path(__file__).resolve().parent / "odmm_local_recovery_assessment.py"
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux only")
 class CombinedRecoveryTests(unittest.TestCase):
+    def test_orphan_mapping_blocks_clean_assessment(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+                db.execute("""CREATE TABLE odmm_tree_task_paths
+                    (task_id TEXT,relative_path TEXT,source_dev INTEGER,source_ino INTEGER,
+                     source_size INTEGER,source_mtime_ns INTEGER,source_ctime_ns INTEGER)""")
+                db.execute("INSERT INTO odmm_tree_task_paths VALUES (?,?,?,?,?,?,?)",
+                           ("orphan-task", "lost", 0, 0, 0, 0, 0))
+            before = journal.read_bytes()
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["orphan_task_mappings"], ["orphan-task"])
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(report["authorizes_resume"])
+            self.assertEqual(journal.read_bytes(), before)
+
     def test_mapped_symlink_parent_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
