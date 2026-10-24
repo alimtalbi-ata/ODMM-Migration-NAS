@@ -29,6 +29,7 @@ class TreeCliAcceptance(unittest.TestCase):
             result = self.run_cli(source, target)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["files_copied"], 2)
+            self.assertEqual(json.loads(result.stdout)["files_verified"], 2)
             self.assertEqual((target / "root.bin").read_bytes(), (source / "root.bin").read_bytes())
             self.assertEqual((target / "nested" / "data.txt").read_bytes(),
                              (source / "nested" / "data.txt").read_bytes())
