@@ -17,6 +17,22 @@ class TreeCliAcceptance(unittest.TestCase):
              "--target", str(target), "--ack-local-lab-only"],
             capture_output=True, text=True, timeout=30)
 
+    def test_task_path_mapping_persisted_before_copy(self):
+        import sqlite3
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, target = root / "source", root / "target"
+            source.mkdir()
+            (source / "a.txt").write_text("alpha")
+            (source / "b.txt").write_text("beta")
+            result = self.run_cli(source, target)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            with sqlite3.connect(target / ".odmm-local-journal.sqlite") as db:
+                rows = db.execute(
+                    "SELECT task_id,relative_path,source_size FROM odmm_tree_task_paths ORDER BY task_id"
+                ).fetchall()
+            self.assertEqual(rows, [("tree-0", "a.txt", 5), ("tree-1", "b.txt", 4)])
+
     def test_nested_tree_files_permissions_and_journal(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
