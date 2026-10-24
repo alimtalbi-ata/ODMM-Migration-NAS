@@ -59,7 +59,7 @@ class TreeCliAcceptance(unittest.TestCase):
             (source / "second.bin").hardlink_to(first)
             result = self.run_cli(source, target)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("UNSUPPORTED_HARDLINK", result.stderr)
+            self.assertIn("HARDLINK_UNSUPPORTED", [item["code"] for item in json.loads(result.stderr)["findings"]])
             self.assertFalse(target.exists())
 
     def test_xattr_rejected_before_target_creation_when_supported(self):
@@ -76,7 +76,7 @@ class TreeCliAcceptance(unittest.TestCase):
                 self.skipTest("user xattrs unavailable on test filesystem")
             result = self.run_cli(source, target)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("UNSUPPORTED_XATTR_OR_ACL", result.stderr)
+            self.assertIn("XATTR_OR_ACL_UNSUPPORTED", [item["code"] for item in json.loads(result.stderr)["findings"]])
             self.assertFalse(target.exists())
 
     def test_preflight_blocks_unsupported_metadata_without_target(self):
