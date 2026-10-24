@@ -48,6 +48,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_capabilities.py' -v
       - name: Test source rewrite during real local tree copy
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_source_mutation_during_copy.py' -v
+      - name: Test combined SQLite and tree recovery assessment
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_recovery_assessment.py' -v
       - name: Test read-only local tree recovery triage
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_tree_recovery_triage.py' -v
       - name: Test read-only local tree migration preflight
