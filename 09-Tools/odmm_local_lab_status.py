@@ -28,11 +28,17 @@ def main(argv=None):
             rows = db.execute(
                 "SELECT intent_id,task_id,state FROM odmm_datamover_intents ORDER BY intent_id"
             ).fetchall()
+        counts = {state: sum(row[2] == state for row in rows) for state in
+                  ("PREPARED", "IN_FLIGHT", "UNCERTAIN", "VERIFIED", "ABORTED")}
+        unresolved = counts["PREPARED"] + counts["IN_FLIGHT"] + counts["UNCERTAIN"]
         output = {
             "journal": str(path),
             "read_only": True,
             "nas_migration_qualified": False,
             "authorizes_resume": False,
+            "recovery_assessment": "MANUAL_REVIEW_REQUIRED" if unresolved else "NO_UNRESOLVED_INTENTS",
+            "intent_counts": counts,
+            "unresolved_intent_count": unresolved,
             "intents": [{"intent_id": i, "task_id": t, "state": s}
                         for i, t, s in rows],
         }
