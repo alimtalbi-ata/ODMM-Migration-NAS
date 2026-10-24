@@ -1,5 +1,6 @@
 """Regression tests for local read-only POSIX metadata inspection."""
 import sys
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +16,8 @@ class MetadataTests(unittest.TestCase):
             src, dst = Path(d) / "src", Path(d) / "dst"
             src.write_bytes(b"same")
             dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
             result = inspect_metadata(src, dst)
             self.assertEqual(result["status"], "LOCAL_METADATA_MATCH")
             self.assertFalse(result["nas_acl_qualified"])
@@ -25,6 +28,8 @@ class MetadataTests(unittest.TestCase):
             src, dst = Path(d) / "src", Path(d) / "dst"
             src.write_bytes(b"same")
             dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
             src.chmod(0o600)
             dst.chmod(0o644)
             result = inspect_metadata(src, dst)
@@ -46,6 +51,8 @@ class MetadataTests(unittest.TestCase):
             src, dst = Path(d) / "src", Path(d) / "dst"
             src.write_bytes(b"same")
             dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
             try:
                 os.setxattr(src, "user.odmm_probe", b"source")
                 os.setxattr(dst, "user.odmm_probe", b"target")
@@ -62,6 +69,8 @@ class MetadataTests(unittest.TestCase):
             src, dst = Path(d) / "src", Path(d) / "dst"
             src.write_bytes(b"same")
             dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
             try:
                 os.setxattr(src, "user.odmm_probe", b"equal")
                 os.setxattr(dst, "user.odmm_probe", b"equal")
