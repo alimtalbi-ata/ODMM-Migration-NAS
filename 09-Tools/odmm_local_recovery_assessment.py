@@ -52,6 +52,8 @@ def assess(source, target, journal):
     unresolved = []
     for intent_id, task_id, state in rows:
         if state not in ("PREPARED", "IN_FLIGHT", "UNCERTAIN", "VERIFIED"):
+            unresolved.append({"intent_id": intent_id, "task_id": task_id,
+                               "state": state, "reason": "UNKNOWN_INTENT_STATE"})
             continue
         entry = {"intent_id": intent_id, "task_id": task_id, "state": state}
         mapped = mapping.get(task_id)
