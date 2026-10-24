@@ -230,6 +230,36 @@ class CombinedRecoveryTests(unittest.TestCase):
             self.assertEqual(journal.read_bytes(), before)
             self.assertFalse((dst / "data").exists())
 
+    def test_unknown_intent_state_fails_closed_even_with_matching_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            (src / "data").write_bytes(b"same")
+            (dst / "data").write_bytes(b"same")
+            info = (src / "data").stat()
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+                db.execute("INSERT INTO odmm_datamover_intents VALUES ('i1','tree-0','FUTURE_STATE')")
+                db.execute("""CREATE TABLE odmm_tree_task_paths
+                    (task_id TEXT,relative_path TEXT,source_dev INTEGER,source_ino INTEGER,
+                     source_size INTEGER,source_mtime_ns INTEGER,source_ctime_ns INTEGER)""")
+                db.execute("INSERT INTO odmm_tree_task_paths VALUES (?,?,?,?,?,?,?)",
+                           ("tree-0", "data", info.st_dev, info.st_ino, info.st_size,
+                            info.st_mtime_ns, info.st_ctime_ns))
+            before = journal.read_bytes()
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertEqual(report["unresolved_intents"][0]["reason"], "UNKNOWN_INTENT_STATE")
+            self.assertFalse(report["authorizes_resume"])
+            self.assertEqual(journal.read_bytes(), before)
+            self.assertEqual((dst / "data").read_bytes(), b"same")
+
 
 if __name__ == "__main__":
     unittest.main()
