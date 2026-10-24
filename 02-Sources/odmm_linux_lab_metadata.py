@@ -3,6 +3,7 @@
 Author: Abdelhalim Talbi. Linux local regular files only.
 """
 import os
+import hashlib
 import stat
 from pathlib import Path
 from odmm_linux_lab_verifier import _safe_parent, VerificationError
@@ -22,10 +23,12 @@ def _snapshot(path):
             names = sorted(os.listxattr(fd))
             if any(name.startswith("system.posix_acl_") for name in names):
                 raise VerificationError("POSIX_ACL_REQUIRES_DEDICATED_QUALIFICATION")
-            attrs = {name: os.getxattr(fd, name).hex() for name in names}
+            raw_attrs = {name: os.getxattr(fd, name) for name in names}
+            attrs = {name: {"sha256": hashlib.sha256(value).hexdigest(), "size": len(value)}
+                     for name, value in raw_attrs.items()}
             if sorted(os.listxattr(fd)) != names:
                 raise VerificationError("XATTR_SET_CHANGED_DURING_INSPECTION")
-            if any(os.getxattr(fd, name).hex() != value for name, value in attrs.items()):
+            if any(os.getxattr(fd, name) != value for name, value in raw_attrs.items()):
                 raise VerificationError("XATTR_VALUE_CHANGED_DURING_INSPECTION")
             after = os.fstat(fd)
             fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns",
@@ -41,7 +44,7 @@ def _snapshot(path):
             check_chain()
             return {"uid": after.st_uid, "gid": after.st_gid,
                     "mode": stat.S_IMODE(after.st_mode),
-                    "mtime_ns": after.st_mtime_ns, "xattrs_hex": attrs}
+                    "mtime_ns": after.st_mtime_ns, "xattrs_sha256": attrs}
         finally:
             os.close(fd)
 
