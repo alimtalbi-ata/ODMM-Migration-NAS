@@ -58,6 +58,43 @@ def inventory(root):
     return sorted(dirs), sorted(files)
 
 
+def verify_tree(source, target, dirs, files):
+    """Independent post-copy comparison; excludes ODMM's own journal."""
+    import hashlib
+    def digest(path):
+        h = hashlib.sha256()
+        with path.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                h.update(block)
+        return h.hexdigest()
+    for relative in files:
+        src, dst = source / relative, target / relative
+        if not dst.is_file() or dst.is_symlink():
+            raise RuntimeError("POST_COPY_FILE_MISSING_OR_UNSAFE: " + str(relative))
+        if digest(src) != digest(dst):
+            raise RuntimeError("POST_COPY_HASH_MISMATCH: " + str(relative))
+        if stat.S_IMODE(src.stat().st_mode) != stat.S_IMODE(dst.stat().st_mode):
+            raise RuntimeError("POST_COPY_FILE_MODE_MISMATCH: " + str(relative))
+    for relative in dirs:
+        src, dst = source / relative, target / relative
+        if not dst.is_dir() or dst.is_symlink():
+            raise RuntimeError("POST_COPY_DIRECTORY_MISSING_OR_UNSAFE: " + str(relative))
+        if stat.S_IMODE(src.stat().st_mode) != stat.S_IMODE(dst.stat().st_mode):
+            raise RuntimeError("POST_COPY_DIRECTORY_MODE_MISMATCH: " + str(relative))
+    if stat.S_IMODE(source.stat().st_mode) != stat.S_IMODE(target.stat().st_mode):
+        raise RuntimeError("POST_COPY_ROOT_MODE_MISMATCH")
+    expected = {str(r) for r in files} | {str(r) for r in dirs}
+    actual = set()
+    for current, subdirs, filenames in os.walk(target, followlinks=False):
+        for name in subdirs + filenames:
+            rel = str((Path(current) / name).relative_to(target))
+            if rel != ".odmm-local-journal.sqlite":
+                actual.add(rel)
+    if actual != expected:
+        raise RuntimeError("POST_COPY_INVENTORY_MISMATCH")
+    return len(files)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="ODMM local POSIX tree-copy lab; NOT NAS qualified")
     p.add_argument("--source", required=True, type=Path)
@@ -106,7 +143,8 @@ def main(argv=None):
         for relative in reversed(dirs):
             os.chmod(dst / relative, stat.S_IMODE((src / relative).stat().st_mode))
         os.chmod(dst, stat.S_IMODE(src.stat().st_mode))
-        print(json.dumps({"state": "VERIFIED", "files_copied": copied,
+        verified = verify_tree(src, dst, dirs, files)
+        print(json.dumps({"state": "VERIFIED", "files_copied": copied, "files_verified": verified,
                           "directories_copied": len(dirs), "target": str(dst),
                           "journal": str(dst / ".odmm-local-journal.sqlite"),
                           "nas_migration_qualified": False}, sort_keys=True))
