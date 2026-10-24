@@ -79,9 +79,11 @@ def assess(source, target, journal):
             entry["mapping_missing"] = True
         if state != "VERIFIED" or entry.get("source_identity_matches") is False or entry.get("mapping_missing"):
             unresolved.append(entry)
-    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings or duplicate_intent_tasks or duplicate_mapping_tasks or duplicate_mapped_paths else "CURRENT_FILES_MATCH",
+    missing_evidence = not rows or not available or not mapping_rows
+    return {"status": "MANUAL_REVIEW_REQUIRED" if missing_evidence or unresolved or findings or orphan_mappings or duplicate_intent_tasks or duplicate_mapping_tasks or duplicate_mapped_paths else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
             "unresolved_intents": unresolved, "total_intents": len(rows),
+            "missing_recovery_evidence": missing_evidence,
             "orphan_task_mappings": orphan_mappings,
             "duplicate_intent_tasks": duplicate_intent_tasks,
             "duplicate_mapping_tasks": duplicate_mapping_tasks,
