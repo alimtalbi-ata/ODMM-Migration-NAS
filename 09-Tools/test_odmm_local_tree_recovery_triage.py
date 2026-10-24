@@ -73,6 +73,23 @@ class RecoveryTriageTests(unittest.TestCase):
                           [item["code"] for item in report["findings"]])
             self.assertFalse(report["authorizes_resume"])
 
+    def test_hardlinked_source_requires_review_even_if_bytes_match(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, dst = Path(tmp) / "src", Path(tmp) / "dst"
+            src.mkdir()
+            dst.mkdir()
+            (src / "data").write_bytes(b"same")
+            (src / "alias").hardlink_to(src / "data")
+            (dst / "data").write_bytes(b"same")
+            (dst / "alias").write_bytes(b"same")
+            result = self.invoke(src, dst)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertIn("UNSAFE_SOURCE_HARDLINK",
+                          [finding["code"] for finding in report["findings"]])
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(report["authorizes_resume"])
+
     def test_missing_and_corrupted_files_require_review(self):
         with tempfile.TemporaryDirectory() as tmp:
             src, dst = Path(tmp) / "src", Path(tmp) / "dst"
