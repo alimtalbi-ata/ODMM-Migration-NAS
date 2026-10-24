@@ -124,6 +124,20 @@ def main(argv=None):
         dirs, files = inventory(src)
     except (ValueError, OSError) as exc:
         p.error(str(exc))
+    # Recheck just before mutation; an inventory drift must not silently
+    # omit new files or directories. This is not an atomic filesystem snapshot.
+    _, _, second_findings = preflight_inspect(src, dst)
+    try:
+        dirs_again, files_again = inventory(src)
+    except (ValueError, OSError) as exc:
+        second_findings.append({"code": "SOURCE_METADATA_CHANGED", "path": str(src)})
+        dirs_again, files_again = [], []
+    if second_findings or dirs_again != dirs or files_again != files:
+        print(json.dumps({"state": "BLOCKED_BY_PREFLIGHT", "findings": second_findings or
+                          [{"code": "SOURCE_INVENTORY_CHANGED", "path": str(src)}],
+                          "target_created": False, "nas_migration_qualified": False},
+                         sort_keys=True), file=sys.stderr)
+        return 2
     created = False
     copied = 0
     try:
