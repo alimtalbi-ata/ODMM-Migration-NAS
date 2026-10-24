@@ -31,6 +31,29 @@ class LocalStatusTests(unittest.TestCase):
             doc = json.loads(status.stdout)
             self.assertEqual([r["state"] for r in doc["intents"]], ["VERIFIED"])
             self.assertFalse(doc["authorizes_resume"])
+            self.assertEqual(doc["recovery_assessment"], "NO_UNRESOLVED_INTENTS")
+            self.assertEqual(doc["intent_counts"]["VERIFIED"], 1)
+            self.assertEqual(doc["unresolved_intent_count"], 0)
+            self.assertEqual(db.read_bytes(), before)
+
+    def test_in_flight_intent_requires_manual_review_without_mutation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "journal.sqlite"
+            with sqlite3.connect(db) as connection:
+                connection.execute("""CREATE TABLE odmm_datamover_intents
+                    (intent_id TEXT, task_id TEXT, state TEXT)""")
+                connection.execute("""INSERT INTO odmm_datamover_intents
+                    VALUES ('incident-1', 'task-1', 'IN_FLIGHT')""")
+            before = db.read_bytes()
+            result = subprocess.run(
+                [sys.executable, str(STATUS), "--journal", str(db)],
+                capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["recovery_assessment"], "MANUAL_REVIEW_REQUIRED")
+            self.assertEqual(report["unresolved_intent_count"], 1)
+            self.assertEqual(report["intent_counts"]["IN_FLIGHT"], 1)
+            self.assertFalse(report["authorizes_resume"])
             self.assertEqual(db.read_bytes(), before)
 
     def test_missing_or_symlink_journal_rejected(self):
