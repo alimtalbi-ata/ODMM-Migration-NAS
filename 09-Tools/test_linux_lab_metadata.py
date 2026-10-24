@@ -195,6 +195,21 @@ class MetadataTests(unittest.TestCase):
             self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
             self.assertFalse(result["authorizes_resume"])
 
+    def test_posix_acl_presence_never_counts_as_generic_xattr_match(self):
+        import unittest.mock
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            with unittest.mock.patch("odmm_linux_lab_metadata.os.listxattr",
+                                     return_value=["system.posix_acl_access"]):
+                result = inspect_metadata(src, dst)
+            self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(result["nas_acl_qualified"])
+            self.assertFalse(result["authorizes_resume"])
+
 
 if __name__ == "__main__":
     unittest.main()
