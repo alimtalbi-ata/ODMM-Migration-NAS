@@ -79,6 +79,25 @@ class TreeCliAcceptance(unittest.TestCase):
             self.assertIn("UNSUPPORTED_XATTR_OR_ACL", result.stderr)
             self.assertFalse(target.exists())
 
+    def test_preflight_blocks_unsupported_metadata_without_target(self):
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, target = root / "source", root / "target"
+            source.mkdir()
+            data = source / "file"
+            data.write_bytes(b"must-not-be-copied")
+            try:
+                os.setxattr(data, "user.odmm_guard", b"acl-metadata")
+            except (OSError, AttributeError):
+                self.skipTest("xattrs unavailable on filesystem")
+            result = self.run_cli(source, target)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stderr)
+            self.assertEqual(report["state"], "BLOCKED_BY_PREFLIGHT")
+            self.assertFalse(report["target_created"])
+            self.assertFalse(target.exists())
+
     def test_source_target_overlap_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
