@@ -59,6 +59,14 @@ def inventory(root):
     return sorted(dirs), sorted(files)
 
 
+
+def source_fingerprint(path):
+    """Best-effort drift fence; not an atomic snapshot or NAS consistency proof."""
+    info = path.stat(follow_symlinks=False)
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns,
+            info.st_ctime_ns, info.st_mode, info.st_nlink)
+
+
 def verify_tree(source, target, dirs, files):
     """Independent post-copy comparison; excludes ODMM's own journal."""
     import hashlib
@@ -138,6 +146,13 @@ def main(argv=None):
                           "target_created": False, "nas_migration_qualified": False},
                          sort_keys=True), file=sys.stderr)
         return 2
+    try:
+        source_fingerprints = {relative: source_fingerprint(src / relative) for relative in files}
+    except OSError as exc:
+        print(json.dumps({"state": "BLOCKED_BY_PREFLIGHT", "findings":
+                          [{"code": "SOURCE_STAT_FAILED", "path": str(src)}],
+                          "target_created": False, "nas_migration_qualified": False}), file=sys.stderr)
+        return 2
     created = False
     copied = 0
     try:
@@ -151,6 +166,8 @@ def main(argv=None):
             init_leases(db)
             init_intents(db)
             for index, relative in enumerate(files):
+                if source_fingerprint(src / relative) != source_fingerprints[relative]:
+                    raise RuntimeError("SOURCE_CHANGED_BEFORE_COPY")
                 task = f"tree-{index}"
                 token = claim(db, task, "local-tree-worker", 3600)
                 result = run_lab_copy(
@@ -159,12 +176,17 @@ def main(argv=None):
                     source=src / relative, target=dst / relative)
                 if result["state"] != "VERIFIED":
                     raise RuntimeError("NOT_VERIFIED")
+                if source_fingerprint(src / relative) != source_fingerprints[relative]:
+                    raise RuntimeError("SOURCE_CHANGED_DURING_COPY")
                 copied += 1
         # Directory modes applied bottom-up after all children are written.
         for relative in reversed(dirs):
             os.chmod(dst / relative, stat.S_IMODE((src / relative).stat().st_mode))
         os.chmod(dst, stat.S_IMODE(src.stat().st_mode))
         verified = verify_tree(src, dst, dirs, files)
+        for relative in files:
+            if source_fingerprint(src / relative) != source_fingerprints[relative]:
+                raise RuntimeError("SOURCE_CHANGED_DURING_VERIFICATION")
         print(json.dumps({"state": "VERIFIED", "files_copied": copied, "files_verified": verified,
                           "directories_copied": len(dirs), "target": str(dst),
                           "journal": str(dst / ".odmm-local-journal.sqlite"),
