@@ -26,10 +26,56 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lease_registry.py' -v
       - name: Test durable datamover intent recovery
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_datamover_intents.py' -v
+      - name: Test read-only POSIX metadata and xattr comparison
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_metadata.py' -v
+      - name: Test fail-closed NFS and SMB mount identification
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_nas_mount_preflight.py' -v
       - name: Test independent laboratory file verification
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier.py' -v
+      - name: Test descriptor-pinned verifier under pathname substitution
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier_parent_fence.py' -v
+      - name: Test pinned full-ancestor pathname substitution
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_ancestor_fence.py' -v
+      - name: Execute real local POSIX file copy smoke
+        run: python3 09-Tools/odmm_real_local_smoke.py
+      - name: Execute real nested POSIX tree and interruption smoke
+        run: python3 09-Tools/odmm_real_local_tree_smoke.py
+      - name: Test real local-lab CLI subprocess acceptance
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_lab_cli.py' -v
+      - name: Test local journal status CLI read-only acceptance
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_lab_status.py' -v
+      - name: Test guarded local POSIX tree CLI acceptance
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_tree_cli.py' -v
+      - name: Test negative corruption and inventory verification
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_tree_verifier_negative.py' -v
+      - name: Enforce explicit NAS qualification gate
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_capabilities.py' -v
+      - name: Test source rewrite during real local tree copy
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_source_mutation_during_copy.py' -v
+      - name: Test combined SQLite and tree recovery assessment
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_recovery_assessment.py' -v
+      - name: Test read-only local tree recovery triage
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_tree_recovery_triage.py' -v
+      - name: Test read-only local tree migration preflight
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_tree_preflight.py' -v
       - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
+      - name: Test POSIX inode substitution and symlink-swap fencing
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_inode_fencing.py' -v
+      - name: Test pinned parent directory substitution and quarantine
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_parent_fencing.py' -v
+      - name: Test durable inode observations and UNCERTAIN reconciliation
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_identity_journal.py' -v
+      - name: Test external HMAC anchor and UNCERTAIN fail-closed review
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_external_anchor.py' -v
+      - name: Test dual-HMAC rollover and revocation fail-closed policy
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_anchor_rotation.py' -v
+      - name: Test SIGKILL rotation publication windows and read-only orphan inventory
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_rotation_recovery.py' -v
+      - name: Test read-only forensic review of orphan HMAC receipts
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_rotation_review.py' -v
+      - name: Test in-place mutation of durable identity evidence
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_inplace_evidence.py' -v
       - name: Test SIGKILL crash recovery in isolated subprocess
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_process_crash.py' -v
       - name: Test uncertain-intent read-only reconciliation
