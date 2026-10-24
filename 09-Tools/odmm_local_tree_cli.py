@@ -20,7 +20,27 @@ from odmm_linux_datamover_intents import initialize as init_intents
 from odmm_linux_lab_pipeline import run_lab_copy
 
 
+def require_supported_metadata(path, *, regular):
+    """Fail closed when this local prototype would silently lose metadata."""
+    info = path.lstat()
+    if info.st_uid != os.geteuid() or info.st_gid != os.getegid():
+        raise ValueError("UNSUPPORTED_OWNER_OR_GROUP: " + str(path))
+    if info.st_mode & (stat.S_ISUID | stat.S_ISGID | stat.S_ISVTX):
+        raise ValueError("UNSUPPORTED_SPECIAL_MODE: " + str(path))
+    if regular and info.st_nlink != 1:
+        raise ValueError("UNSUPPORTED_HARDLINK: " + str(path))
+    # Includes POSIX ACL xattrs where exposed by the filesystem.
+    # If the filesystem cannot enumerate metadata, never assume it is empty.
+    try:
+        names = os.listxattr(path, follow_symlinks=False)
+    except OSError as exc:
+        raise ValueError("XATTR_INSPECTION_FAILED: " + str(path)) from exc
+    if names:
+        raise ValueError("UNSUPPORTED_XATTR_OR_ACL: " + str(path))
+
+
 def inventory(root):
+    require_supported_metadata(root, regular=False)
     files = []
     dirs = []
     for current, subdirs, filenames in os.walk(root, topdown=True, followlinks=False):
@@ -28,8 +48,10 @@ def inventory(root):
             path = Path(current) / name
             mode = path.lstat().st_mode
             if stat.S_ISDIR(mode):
+                require_supported_metadata(path, regular=False)
                 dirs.append(path.relative_to(root))
             elif stat.S_ISREG(mode):
+                require_supported_metadata(path, regular=True)
                 files.append(path.relative_to(root))
             else:
                 raise ValueError("UNSUPPORTED_SYMLINK_OR_SPECIAL_FILE: " + str(path))
