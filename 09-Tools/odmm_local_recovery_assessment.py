@@ -34,6 +34,14 @@ def assess(source, target, journal):
         mapping_rows = db.execute("""SELECT task_id,relative_path,source_dev,source_ino,
             source_size,source_mtime_ns,source_ctime_ns FROM odmm_tree_task_paths""").fetchall() if available else []
     mapping = {row[0]: row[1:] for row in mapping_rows}
+    duplicate_mapping_tasks = sorted(
+        task_id for task_id in {row[0] for row in mapping_rows}
+        if sum(row[0] == task_id for row in mapping_rows) > 1)
+    path_occurrences = {}
+    for row in mapping_rows:
+        path_occurrences[row[1]] = path_occurrences.get(row[1], 0) + 1
+    duplicate_mapped_paths = sorted(
+        path for path, count in path_occurrences.items() if count > 1)
     task_ids = {task_id for _, task_id, _ in rows}
     task_occurrences = {}
     for _, task_id, _ in rows:
@@ -71,11 +79,13 @@ def assess(source, target, journal):
             entry["mapping_missing"] = True
         if state != "VERIFIED" or entry.get("source_identity_matches") is False or entry.get("mapping_missing"):
             unresolved.append(entry)
-    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings or duplicate_intent_tasks else "CURRENT_FILES_MATCH",
+    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings or duplicate_intent_tasks or duplicate_mapping_tasks or duplicate_mapped_paths else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
             "unresolved_intents": unresolved, "total_intents": len(rows),
             "orphan_task_mappings": orphan_mappings,
             "duplicate_intent_tasks": duplicate_intent_tasks,
+            "duplicate_mapping_tasks": duplicate_mapping_tasks,
+            "duplicate_mapped_paths": duplicate_mapped_paths,
             "mapping_limit": "TASK_TO_PATH_AVAILABLE" if available else "NO_DURABLE_TASK_TO_PATH_MAPPING",
             "read_only": True, "authorizes_resume": False,
             "nas_migration_qualified": False}
