@@ -98,6 +98,20 @@ class TreeCliAcceptance(unittest.TestCase):
             self.assertFalse(report["target_created"])
             self.assertFalse(target.exists())
 
+    def test_tree_copy_reports_verified_file_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, target = root / "source", root / "target"
+            source.mkdir()
+            for index in range(5):
+                (source / f"file-{index}.bin").write_bytes(bytes([index]) * 8192)
+            result = self.run_cli(source, target)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["files_copied"], 5)
+            self.assertEqual(report["files_verified"], 5)
+            self.assertFalse(report["nas_migration_qualified"])
+
     def test_source_target_overlap_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
