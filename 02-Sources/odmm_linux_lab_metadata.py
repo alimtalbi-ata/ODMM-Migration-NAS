@@ -20,6 +20,8 @@ def _snapshot(path):
                 raise VerificationError("NOT_REGULAR_FILE")
             # fd-based reads avoid reopening an attacker-controlled pathname.
             names = sorted(os.listxattr(fd))
+            if any(name.startswith("system.posix_acl_") for name in names):
+                raise VerificationError("POSIX_ACL_REQUIRES_DEDICATED_QUALIFICATION")
             attrs = {name: os.getxattr(fd, name).hex() for name in names}
             after = os.fstat(fd)
             fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns",
