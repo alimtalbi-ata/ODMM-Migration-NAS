@@ -85,6 +85,9 @@ def assess(source, target, journal, *, inspect_posix_metadata=False):
     if inspect_posix_metadata:
         # Optional advisory: do not silently redefine older local-copy guarantees.
         import importlib.util
+        source_modules = str(Path(__file__).resolve().parents[1] / "02-Sources")
+        if source_modules not in sys.path:
+            sys.path.insert(0, source_modules)
         module_path = Path(__file__).resolve().parents[1] / "02-Sources" / "odmm_linux_lab_metadata.py"
         spec = importlib.util.spec_from_file_location("odmm_linux_lab_metadata", module_path)
         module = importlib.util.module_from_spec(spec)
