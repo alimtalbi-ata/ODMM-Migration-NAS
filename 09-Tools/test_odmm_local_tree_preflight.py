@@ -43,6 +43,27 @@ class PreflightTests(unittest.TestCase):
                           [x["code"] for x in json.loads(result.stdout)["findings"]])
             self.assertFalse(target.exists())
 
+    def test_traversal_error_is_reported_and_blocks(self):
+        import importlib.util
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location("odmm_preflight_test", TOOL)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, target = root / "source", root / "target"
+            source.mkdir()
+            real_walk = os.walk
+
+            def failing_walk(*args, **kwargs):
+                yield from real_walk(*args, **kwargs)
+                kwargs["onerror"](PermissionError(13, "permission denied", str(source / "blocked")))
+
+            with patch.object(module.os, "walk", failing_walk):
+                _, _, findings = module.inspect(source, target)
+            self.assertIn("SOURCE_TRAVERSAL_UNAVAILABLE", [x["code"] for x in findings])
+            self.assertFalse(target.exists())
+
     def test_existing_target_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
