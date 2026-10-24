@@ -49,6 +49,9 @@ def inspect(source, target):
     if source.is_symlink() or target.is_symlink() or not source.is_dir() or not target.is_dir():
         return counts, [{"code": "INVALID_ROOT", "path": str(target)}]
 
+    if stat.S_IMODE(source.stat().st_mode) != stat.S_IMODE(target.stat().st_mode):
+        findings.append({"code": "ROOT_MODE_MISMATCH", "path": "."})
+
     def walk_error(exc):
         raise OSError("TREE_TRAVERSAL_FAILED: " + str(exc)) from exc
 
