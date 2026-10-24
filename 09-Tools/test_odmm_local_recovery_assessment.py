@@ -12,6 +12,21 @@ TOOL = Path(__file__).resolve().parent / "odmm_local_recovery_assessment.py"
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux only")
 class CombinedRecoveryTests(unittest.TestCase):
+    def test_corrupt_sqlite_journal_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            journal.write_bytes(b"not a SQLite database" * 10)
+            before = journal.read_bytes()
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(json.loads(result.stderr)["status"], "ASSESSMENT_FAILED")
+            self.assertEqual(journal.read_bytes(), before)
+
     def test_orphan_mapping_blocks_clean_assessment(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
