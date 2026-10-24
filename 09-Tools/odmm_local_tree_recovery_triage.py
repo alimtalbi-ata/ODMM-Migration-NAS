@@ -73,6 +73,10 @@ def inspect(source, target):
             elif stat.S_IMODE(info.st_mode) != stat.S_IMODE(target_entries[relative][1].st_mode):
                 findings.append({"code": "DIRECTORY_MODE_MISMATCH", "path": relative})
             continue
+        if info.st_nlink != 1:
+            counts["mismatched_files"] += 1
+            findings.append({"code": "UNSAFE_SOURCE_HARDLINK", "path": relative})
+            continue
         dest = target_entries.get(relative)
         if dest is None:
             counts["missing_files"] += 1
