@@ -110,6 +110,36 @@ class MetadataTests(unittest.TestCase):
             self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
             self.assertFalse(result["authorizes_resume"])
 
+    def test_pathname_replacement_during_xattr_read_is_rejected(self):
+        import unittest.mock
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            try:
+                os.setxattr(src, "user.odmm_probe", b"value")
+                os.setxattr(dst, "user.odmm_probe", b"value")
+            except OSError as exc:
+                self.skipTest("user xattrs unavailable: " + str(exc))
+            original = os.getxattr
+            switched = {"done": False}
+
+            def replacing_getxattr(fd, name, *args, **kwargs):
+                if not switched["done"]:
+                    switched["done"] = True
+                    replacement = Path(d) / "replacement"
+                    replacement.write_bytes(b"same")
+                    os.replace(replacement, src)
+                return original(fd, name, *args, **kwargs)
+
+            with unittest.mock.patch("odmm_linux_lab_metadata.os.getxattr",
+                                     side_effect=replacing_getxattr):
+                result = inspect_metadata(src, dst)
+            self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(result["authorizes_resume"])
+
 
 if __name__ == "__main__":
     unittest.main()
