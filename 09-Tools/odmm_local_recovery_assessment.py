@@ -26,12 +26,40 @@ def assess(source, target, journal):
             "SELECT intent_id,task_id,state FROM odmm_datamover_intents ORDER BY intent_id"
         ).fetchall()
     counts, findings = inspect(source, target)
-    unresolved = [{"intent_id": i, "task_id": t, "state": s}
-                  for i, t, s in rows if s in ("PREPARED", "IN_FLIGHT", "UNCERTAIN")]
+    with sqlite3.connect(uri, uri=True) as db:
+        db.execute("PRAGMA query_only=ON")
+        available = db.execute("""SELECT count(*) FROM sqlite_master
+            WHERE type='table' AND name='odmm_tree_task_paths'""").fetchone()[0]
+        mapping_rows = db.execute("""SELECT task_id,relative_path,source_dev,source_ino,
+            source_size,source_mtime_ns,source_ctime_ns FROM odmm_tree_task_paths""").fetchall() if available else []
+    mapping = {row[0]: row[1:] for row in mapping_rows}
+    unresolved = []
+    for intent_id, task_id, state in rows:
+        if state not in ("PREPARED", "IN_FLIGHT", "UNCERTAIN"):
+            continue
+        entry = {"intent_id": intent_id, "task_id": task_id, "state": state}
+        mapped = mapping.get(task_id)
+        if mapped:
+            relative, dev, ino, size, mtime, ctime = mapped
+            entry["relative_path"] = relative
+            # A source may change after interruption; never silently reuse it.
+            path = source / relative
+            try:
+                if Path(relative).is_absolute() or ".." in Path(relative).parts or path.is_symlink():
+                    raise ValueError("UNSAFE_MAPPED_PATH")
+                info = path.stat(follow_symlinks=False)
+                entry["source_identity_matches"] = (
+                    (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns,
+                     info.st_ctime_ns) == (dev, ino, size, mtime, ctime))
+            except (OSError, ValueError):
+                entry["source_identity_matches"] = False
+        else:
+            entry["mapping_missing"] = True
+        unresolved.append(entry)
     return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
             "unresolved_intents": unresolved, "total_intents": len(rows),
-            "mapping_limit": "NO_DURABLE_TASK_TO_PATH_MAPPING",
+            "mapping_limit": "TASK_TO_PATH_AVAILABLE" if available else "NO_DURABLE_TASK_TO_PATH_MAPPING",
             "read_only": True, "authorizes_resume": False,
             "nas_migration_qualified": False}
 
