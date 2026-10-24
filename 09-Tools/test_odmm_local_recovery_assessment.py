@@ -260,6 +260,39 @@ class CombinedRecoveryTests(unittest.TestCase):
             self.assertEqual(journal.read_bytes(), before)
             self.assertEqual((dst / "data").read_bytes(), b"same")
 
+    def test_opt_in_metadata_mismatch_reports_read_only_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            (src / "data").write_bytes(b"same")
+            (dst / "data").write_bytes(b"same")
+            (src / "data").chmod(0o600)
+            (dst / "data").chmod(0o644)
+            info = (src / "data").stat()
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+                db.execute("INSERT INTO odmm_datamover_intents VALUES ('i1','tree-0','UNCERTAIN')")
+                db.execute("""CREATE TABLE odmm_tree_task_paths
+                    (task_id TEXT,relative_path TEXT,source_dev INTEGER,source_ino INTEGER,
+                     source_size INTEGER,source_mtime_ns INTEGER,source_ctime_ns INTEGER)""")
+                db.execute("INSERT INTO odmm_tree_task_paths VALUES (?,?,?,?,?,?,?)",
+                           ("tree-0", "data", info.st_dev, info.st_ino, info.st_size,
+                            info.st_mtime_ns, info.st_ctime_ns))
+            before = journal.read_bytes()
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal),
+                                     "--inspect-posix-metadata"],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertTrue(report["posix_metadata_inspection_enabled"])
+            self.assertEqual(report["posix_metadata_findings"][0]["task_id"], "tree-0")
+            self.assertIn("mode", report["posix_metadata_findings"][0]["result"]["differences"])
+            self.assertFalse(report["authorizes_resume"])
+            self.assertEqual(journal.read_bytes(), before)
+
 
 if __name__ == "__main__":
     unittest.main()
