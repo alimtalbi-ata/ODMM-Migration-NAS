@@ -13,12 +13,33 @@ import sys
 from pathlib import Path
 
 
-def digest(path):
-    h = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+def digest(path, inventoried):
+    """Reject inode replacement or metadata drift around hashing.
+
+    This is a best-effort POSIX race fence, not an atomic filesystem snapshot.
+    """
+    def identity(info):
+        return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns,
+                info.st_ctime_ns, info.st_mode, info.st_nlink)
+
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        before = os.fstat(fd)
+        if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or
+                identity(before) != identity(inventoried)):
+            raise RuntimeError("FILE_CHANGED_BEFORE_HASH")
+        h = hashlib.sha256()
+        while True:
+            chunk = os.read(fd, 1024 * 1024)
+            if not chunk:
+                break
             h.update(chunk)
-    return h.hexdigest()
+        after = os.fstat(fd)
+        if identity(before) != identity(after) or identity(after) != identity(path.lstat()):
+            raise RuntimeError("FILE_CHANGED_DURING_HASH")
+        return h.hexdigest()
+    finally:
+        os.close(fd)
 
 
 def inspect(source, target):
@@ -58,7 +79,7 @@ def inspect(source, target):
             findings.append({"code": "UNSAFE_TARGET_FILE", "path": relative})
         elif (info.st_size != dest[1].st_size or
               stat.S_IMODE(info.st_mode) != stat.S_IMODE(dest[1].st_mode) or
-              digest(src) != digest(dest[0])):
+              digest(src, info) != digest(dest[0], dest[1])):
             counts["mismatched_files"] += 1
             findings.append({"code": "FILE_MISMATCH", "path": relative})
         else:
@@ -86,7 +107,7 @@ def main(argv=None):
                   "nas_migration_qualified": False}
         print(json.dumps(report, sort_keys=True))
         return 2 if findings else 0
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, RuntimeError) as exc:
         print(json.dumps({"status": "INSPECTION_FAILED", "error": type(exc).__name__,
                           "read_only": True, "authorizes_resume": False}), file=sys.stderr)
         return 2
