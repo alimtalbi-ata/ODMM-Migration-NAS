@@ -23,6 +23,10 @@ def _snapshot(path):
             if any(name.startswith("system.posix_acl_") for name in names):
                 raise VerificationError("POSIX_ACL_REQUIRES_DEDICATED_QUALIFICATION")
             attrs = {name: os.getxattr(fd, name).hex() for name in names}
+            if sorted(os.listxattr(fd)) != names:
+                raise VerificationError("XATTR_SET_CHANGED_DURING_INSPECTION")
+            if any(os.getxattr(fd, name).hex() != value for name, value in attrs.items()):
+                raise VerificationError("XATTR_VALUE_CHANGED_DURING_INSPECTION")
             after = os.fstat(fd)
             fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns",
                       "st_mode", "st_uid", "st_gid")
