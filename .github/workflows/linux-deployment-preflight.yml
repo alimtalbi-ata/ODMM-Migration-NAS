@@ -46,6 +46,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_tree_verifier_negative.py' -v
       - name: Enforce explicit NAS qualification gate
         run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_capabilities.py' -v
+      - name: Test read-only local tree migration preflight
+        run: python3 -m unittest discover -s 09-Tools -p 'test_odmm_local_tree_preflight.py' -v
       - name: Test isolated Linux copy end-to-end
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_pipeline.py' -v
       - name: Test POSIX inode substitution and symlink-swap fencing
