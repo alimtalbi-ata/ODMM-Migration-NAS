@@ -43,7 +43,7 @@ def assess(source, target, journal):
     orphan_mappings = sorted(set(mapping) - task_ids)
     unresolved = []
     for intent_id, task_id, state in rows:
-        if state not in ("PREPARED", "IN_FLIGHT", "UNCERTAIN"):
+        if state not in ("PREPARED", "IN_FLIGHT", "UNCERTAIN", "VERIFIED"):
             continue
         entry = {"intent_id": intent_id, "task_id": task_id, "state": state}
         mapped = mapping.get(task_id)
@@ -69,7 +69,8 @@ def assess(source, target, journal):
                 entry["source_identity_matches"] = False
         else:
             entry["mapping_missing"] = True
-        unresolved.append(entry)
+        if state != "VERIFIED" or entry.get("source_identity_matches") is False or entry.get("mapping_missing"):
+            unresolved.append(entry)
     return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings or duplicate_intent_tasks else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
             "unresolved_intents": unresolved, "total_intents": len(rows),
