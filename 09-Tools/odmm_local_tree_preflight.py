@@ -27,7 +27,11 @@ def inspect(source, target):
     if src == dst or src in dst.parents or dst in src.parents:
         issue("SOURCE_TARGET_OVERLAP", target)
 
-    for current, directories, filenames in os.walk(source, followlinks=False):
+    def traversal_error(exc):
+        issue("SOURCE_TRAVERSAL_UNAVAILABLE", getattr(exc, "filename", source) or source)
+
+    for current, directories, filenames in os.walk(
+            source, followlinks=False, onerror=traversal_error):
         for name in ["."] + directories + filenames if current == str(source) else directories + filenames:
             path = Path(current) if name == "." else Path(current) / name
             try:
