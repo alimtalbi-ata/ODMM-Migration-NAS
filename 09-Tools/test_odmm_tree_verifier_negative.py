@@ -42,6 +42,23 @@ class TreeVerifierNegativeTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "POST_COPY_FILE_MODE_MISMATCH"):
                 mod.verify_tree(src, dst, [], [Path("file")])
 
+    def test_target_traversal_failure_detected(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst = root / "src", root / "dst"
+            src.mkdir()
+            dst.mkdir()
+            real_walk = os.walk
+
+            def interrupted_walk(*args, **kwargs):
+                yield from real_walk(*args, **kwargs)
+                kwargs["onerror"](PermissionError(13, "denied", str(dst / "inaccessible")))
+
+            with patch.object(mod.os, "walk", interrupted_walk):
+                with self.assertRaisesRegex(RuntimeError, "POST_COPY_TARGET_TRAVERSAL_FAILED"):
+                    mod.verify_tree(src, dst, [], [])
+
     def test_unexpected_extra_file_detected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
