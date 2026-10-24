@@ -45,9 +45,15 @@ def assess(source, target, journal):
             # A source may change after interruption; never silently reuse it.
             path = source / relative
             try:
-                if Path(relative).is_absolute() or ".." in Path(relative).parts or path.is_symlink():
+                parts = Path(relative).parts
+                if (not parts or Path(relative).is_absolute() or
+                        any(part in ("..", ".") for part in parts) or
+                        any((source.joinpath(*parts[:index])).is_symlink()
+                            for index in range(1, len(parts) + 1))):
                     raise ValueError("UNSAFE_MAPPED_PATH")
                 info = path.stat(follow_symlinks=False)
+                if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+                    raise ValueError("UNSAFE_MAPPED_FILE")
                 entry["source_identity_matches"] = (
                     (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns,
                      info.st_ctime_ns) == (dev, ino, size, mtime, ctime))
