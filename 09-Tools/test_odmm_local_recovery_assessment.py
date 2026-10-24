@@ -92,6 +92,27 @@ class CombinedRecoveryTests(unittest.TestCase):
             self.assertFalse(report["unresolved_intents"][0]["source_identity_matches"])
             self.assertFalse(report["authorizes_resume"])
 
+    def test_duplicate_intents_for_one_task_require_manual_review(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            src, dst, journal = root / "source", root / "target", root / "journal.sqlite"
+            src.mkdir()
+            dst.mkdir()
+            with sqlite3.connect(journal) as db:
+                db.execute("CREATE TABLE odmm_datamover_intents (intent_id TEXT, task_id TEXT, state TEXT)")
+                db.execute("INSERT INTO odmm_datamover_intents VALUES ('i1','tree-0','VERIFIED')")
+                db.execute("INSERT INTO odmm_datamover_intents VALUES ('i2','tree-0','VERIFIED')")
+            before = journal.read_bytes()
+            result = subprocess.run([sys.executable, str(TOOL), "--source", str(src),
+                                     "--target", str(dst), "--journal", str(journal)],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["duplicate_intent_tasks"], ["tree-0"])
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(report["authorizes_resume"])
+            self.assertEqual(journal.read_bytes(), before)
+
     def test_unresolved_intent_and_missing_file_are_both_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
