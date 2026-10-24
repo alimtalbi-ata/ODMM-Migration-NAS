@@ -33,6 +33,11 @@ def assess(source, target, journal):
             source_size,source_mtime_ns,source_ctime_ns FROM odmm_tree_task_paths""").fetchall() if available else []
     mapping = {row[0]: row[1:] for row in mapping_rows}
     task_ids = {task_id for _, task_id, _ in rows}
+    task_occurrences = {}
+    for _, task_id, _ in rows:
+        task_occurrences[task_id] = task_occurrences.get(task_id, 0) + 1
+    duplicate_intent_tasks = sorted(task_id for task_id, count in task_occurrences.items()
+                                    if count > 1)
     orphan_mappings = sorted(set(mapping) - task_ids)
     unresolved = []
     for intent_id, task_id, state in rows:
@@ -63,10 +68,11 @@ def assess(source, target, journal):
         else:
             entry["mapping_missing"] = True
         unresolved.append(entry)
-    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings else "CURRENT_FILES_MATCH",
+    return {"status": "MANUAL_REVIEW_REQUIRED" if unresolved or findings or orphan_mappings or duplicate_intent_tasks else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
             "unresolved_intents": unresolved, "total_intents": len(rows),
             "orphan_task_mappings": orphan_mappings,
+            "duplicate_intent_tasks": duplicate_intent_tasks,
             "mapping_limit": "TASK_TO_PATH_AVAILABLE" if available else "NO_DURABLE_TASK_TO_PATH_MAPPING",
             "read_only": True, "authorizes_resume": False,
             "nas_migration_qualified": False}
