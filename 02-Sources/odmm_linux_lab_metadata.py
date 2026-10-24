@@ -17,6 +17,7 @@ def _snapshot(path):
         fd = os.open(path.name, flags, dir_fd=parent_fd)
         try:
             before = os.fstat(fd)
+            parent_before = os.fstat(parent_fd)
             if not stat.S_ISREG(before.st_mode):
                 raise VerificationError("NOT_REGULAR_FILE")
             # fd-based reads avoid reopening an attacker-controlled pathname.
@@ -35,6 +36,11 @@ def _snapshot(path):
                       "st_mode", "st_uid", "st_gid")
             if any(getattr(before, field) != getattr(after, field) for field in fields):
                 raise VerificationError("METADATA_CHANGED_DURING_INSPECTION")
+            parent_after = path.parent.lstat()
+            if (not stat.S_ISDIR(parent_after.st_mode) or
+                    (parent_after.st_dev, parent_after.st_ino) !=
+                    (parent_before.st_dev, parent_before.st_ino)):
+                raise VerificationError("PARENT_IDENTITY_CHANGED")
             leaf = path.lstat()
             if (not stat.S_ISREG(leaf.st_mode) or
                     (leaf.st_dev, leaf.st_ino) != (before.st_dev, before.st_ino) or
