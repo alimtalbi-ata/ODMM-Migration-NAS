@@ -26,6 +26,8 @@ jobs:
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lease_registry.py' -v
       - name: Test durable datamover intent recovery
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_datamover_intents.py' -v
+      - name: Test read-only POSIX metadata and xattr comparison
+        run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_metadata.py' -v
       - name: Test independent laboratory file verification
         run: python3 -m unittest discover -s 09-Tools -p 'test_linux_lab_verifier.py' -v
       - name: Test descriptor-pinned verifier under pathname substitution
