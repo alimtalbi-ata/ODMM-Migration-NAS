@@ -60,7 +60,7 @@ class MetadataTests(unittest.TestCase):
                 self.skipTest("user xattrs unavailable: " + str(exc))
             result = inspect_metadata(src, dst)
             self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
-            self.assertIn("xattrs_hex", result["differences"])
+            self.assertIn("xattrs_sha256", result["differences"])
             self.assertFalse(result["authorizes_resume"])
 
     def test_xattr_match_is_not_nas_acl_qualification(self):
@@ -138,6 +138,28 @@ class MetadataTests(unittest.TestCase):
                                      side_effect=replacing_getxattr):
                 result = inspect_metadata(src, dst)
             self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertFalse(result["authorizes_resume"])
+
+    def test_xattr_secret_not_exposed_in_report(self):
+        import json
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            src.write_bytes(b"same")
+            dst.write_bytes(b"same")
+            stamp = src.stat()
+            os.utime(dst, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            secret = b"odmm-private-credential-test-value"
+            try:
+                os.setxattr(src, "user.odmm_probe", secret)
+                os.setxattr(dst, "user.odmm_probe", b"different")
+            except OSError as exc:
+                self.skipTest("user xattrs unavailable: " + str(exc))
+            result = inspect_metadata(src, dst)
+            rendered = json.dumps(result)
+            self.assertEqual(result["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertNotIn(secret.decode(), rendered)
+            self.assertNotIn(secret.hex(), rendered)
+            self.assertIn("sha256", rendered)
             self.assertFalse(result["authorizes_resume"])
 
 
