@@ -14,7 +14,7 @@ from urllib.parse import quote
 from odmm_local_tree_recovery_triage import inspect
 
 
-def assess(source, target, journal):
+def assess(source, target, journal, *, inspect_posix_metadata=False):
     info = journal.lstat()
     if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
         raise ValueError("UNSAFE_JOURNAL")
@@ -81,9 +81,27 @@ def assess(source, target, journal):
             entry["mapping_missing"] = True
         if state != "VERIFIED" or entry.get("source_identity_matches") is False or entry.get("mapping_missing"):
             unresolved.append(entry)
+    metadata_findings = []
+    if inspect_posix_metadata:
+        # Optional advisory: do not silently redefine older local-copy guarantees.
+        import importlib.util
+        module_path = Path(__file__).resolve().parents[1] / "02-Sources" / "odmm_linux_lab_metadata.py"
+        spec = importlib.util.spec_from_file_location("odmm_linux_lab_metadata", module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for entry in unresolved:
+            relative = entry.get("relative_path")
+            if relative and entry.get("source_identity_matches") is True:
+                outcome = module.inspect_metadata(source / relative, target / relative)
+                if outcome["status"] != "LOCAL_METADATA_MATCH":
+                    metadata_findings.append({"task_id": entry["task_id"],
+                                              "relative_path": relative,
+                                              "result": outcome})
     missing_evidence = not rows or not available or not mapping_rows
-    return {"status": "MANUAL_REVIEW_REQUIRED" if missing_evidence or unresolved or findings or orphan_mappings or duplicate_intent_tasks or duplicate_mapping_tasks or duplicate_mapped_paths else "CURRENT_FILES_MATCH",
+    return {"status": "MANUAL_REVIEW_REQUIRED" if missing_evidence or unresolved or findings or orphan_mappings or duplicate_intent_tasks or duplicate_mapping_tasks or duplicate_mapped_paths or metadata_findings else "CURRENT_FILES_MATCH",
             "tree_counts": counts, "tree_findings": findings,
+            "posix_metadata_findings": metadata_findings,
+            "posix_metadata_inspection_enabled": inspect_posix_metadata,
             "unresolved_intents": unresolved, "total_intents": len(rows),
             "missing_recovery_evidence": missing_evidence,
             "orphan_task_mappings": orphan_mappings,
@@ -100,11 +118,14 @@ def main(argv=None):
     p.add_argument("--source", required=True, type=Path)
     p.add_argument("--target", required=True, type=Path)
     p.add_argument("--journal", required=True, type=Path)
+    p.add_argument("--inspect-posix-metadata", action="store_true",
+                   help="Advisory read-only metadata inspection of unresolved mapped tasks")
     args = p.parse_args(argv)
     if not sys.platform.startswith("linux"):
         p.error("Linux required")
     try:
-        report = assess(args.source, args.target, args.journal)
+        report = assess(args.source, args.target, args.journal,
+                        inspect_posix_metadata=args.inspect_posix_metadata)
         print(json.dumps(report, sort_keys=True))
         return 2 if report["status"] == "MANUAL_REVIEW_REQUIRED" else 0
     except (OSError, ValueError, sqlite3.Error) as exc:
