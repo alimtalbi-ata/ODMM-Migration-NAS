@@ -63,7 +63,7 @@ class MountInfoParserTests(unittest.TestCase):
     def test_assessment_identifies_expected_cifs_but_never_qualifies_acl(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
-            mountinfo = f"20 1 0:2 / {d} rw - cifs //nas/share rw,vers=3.1.1\\n"
+            mountinfo = f"20 1 0:2 / {d} rw - cifs //nas/share rw,vers=3.1.1\n"
             report = assess_mount(d, "cifs", mountinfo_text=mountinfo)
             self.assertEqual(report["status"], "MOUNT_IDENTIFIED")
             self.assertEqual(report["filesystem_type"], "cifs")
@@ -74,7 +74,7 @@ class MountInfoParserTests(unittest.TestCase):
     def test_assessment_rejects_nfs4_when_nfs3_expected(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
-            mountinfo = f"20 1 0:2 / {d} rw - nfs server:/export rw,vers=4.1\\n"
+            mountinfo = f"20 1 0:2 / {d} rw - nfs server:/export rw,vers=4.1\n"
             report = assess_mount(d, "nfs", mountinfo_text=mountinfo)
             self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
             self.assertEqual(report["reason"], "FILESYSTEM_TYPE_MISMATCH")
