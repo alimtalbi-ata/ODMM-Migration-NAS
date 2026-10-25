@@ -7,8 +7,41 @@ import argparse
 import json
 import os
 import pathlib
+import re
 import stat
 import sys
+
+
+def _unescape_mount_field(value):
+    """Decode octal escapes used by procfs mountinfo fields."""
+    return re.sub(r"\\([0-7]{3})", lambda m: chr(int(m.group(1), 8)), value)
+
+
+def find_mount(target, mountinfo_text):
+    """Return the deepest mount containing target, or None."""
+    target = pathlib.Path(target).resolve(strict=True)
+    candidates = []
+    for line in mountinfo_text.splitlines():
+        left, sep, right = line.partition(" - ")
+        if not sep:
+            continue
+        fields = left.split()
+        details = right.split()
+        if len(fields) < 5 or len(details) < 3:
+            continue
+        mountpoint = pathlib.Path(_unescape_mount_field(fields[4]))
+        try:
+            target.relative_to(mountpoint)
+        except ValueError:
+            continue
+        options = set(details[2].split(","))
+        candidates.append((len(mountpoint.parts), str(mountpoint),
+                           details[0], _unescape_mount_field(details[1]), options))
+    if not candidates:
+        return None
+    _, mountpoint, fstype, source, options = max(candidates, key=lambda item: item[0])
+    return {"mountpoint": mountpoint, "filesystem_type": fstype,
+            "source": source, "super_options": sorted(options)}
 
 
 def assess_mount(path, expected_type):
@@ -24,28 +57,23 @@ def assess_mount(path, expected_type):
         if not target.is_dir():
             result["reason"] = "NOT_DIRECTORY"
             return result
-        mountinfo = pathlib.Path("/proc/self/mountinfo").read_text()
-        candidates = []
-        for line in mountinfo.splitlines():
-            left, sep, right = line.partition(" - ")
-            if not sep:
-                continue
-            fields = left.split()
-            details = right.split()
-            if len(fields) < 5 or not details:
-                continue
-            mountpoint = pathlib.Path(fields[4].replace("\\040", " "))
-            try:
-                target.relative_to(mountpoint)
-            except ValueError:
-                continue
-            candidates.append((len(mountpoint.parts), str(mountpoint), details[0]))
-        if not candidates:
+        mounted = find_mount(target, pathlib.Path("/proc/self/mountinfo").read_text())
+        if mounted is None:
             result["reason"] = "MOUNT_NOT_FOUND"
             return result
-        _, mountpoint, fstype = max(candidates)
-        result.update({"mountpoint": mountpoint, "filesystem_type": fstype})
-        if fstype != expected_type:
+        result.update(mounted)
+        fstype = mounted["filesystem_type"]
+        options = set(mounted["super_options"])
+        if expected_type == "nfs4":
+            matched = fstype == "nfs4" or (fstype == "nfs" and
+                      any(opt in ("vers=4", "vers=4.0", "vers=4.1", "vers=4.2")
+                          for opt in options))
+        elif expected_type == "nfs":
+            matched = fstype == "nfs" and not any(
+                opt.startswith("vers=4") for opt in options)
+        else:
+            matched = fstype == "cifs"
+        if not matched:
             result["reason"] = "FILESYSTEM_TYPE_MISMATCH"
         else:
             result["status"] = "MOUNT_IDENTIFIED"
