@@ -69,7 +69,20 @@ class MountInfoParserTests(unittest.TestCase):
             self.assertEqual(report["filesystem_type"], "cifs")
             self.assertFalse(report["acl_qualified"])
             self.assertFalse(report["authorizes_migration"])
+            self.assertFalse(report["mount_read_only"])
+            self.assertTrue(report["inspection_read_only"])
             self.assertEqual(report["reason"], "ACL_AND_IDENTITY_TESTS_STILL_REQUIRED")
+
+    def test_assessment_reports_read_only_mount_without_authorizing_migration(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mountinfo = f"20 1 0:2 / {d} ro - nfs server:/export ro,vers=4.1\\n"
+            report = assess_mount(d, "nfs4", mountinfo_text=mountinfo)
+            self.assertEqual(report["status"], "MOUNT_IDENTIFIED")
+            self.assertTrue(report["mount_read_only"])
+            self.assertTrue(report["inspection_read_only"])
+            self.assertFalse(report["authorizes_migration"])
+            self.assertFalse(report["acl_qualified"])
 
     def test_assessment_rejects_nfs4_when_nfs3_expected(self):
         import tempfile
