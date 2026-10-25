@@ -60,5 +60,34 @@ class MountInfoParserTests(unittest.TestCase):
         self.assertTrue(matches_expected_type(cifs, "cifs"))
         self.assertFalse(matches_expected_type(cifs, "nfs4"))
 
+    def test_assessment_identifies_expected_cifs_but_never_qualifies_acl(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mountinfo = f"20 1 0:2 / {d} rw - cifs //nas/share rw,vers=3.1.1\\n"
+            report = assess_mount(d, "cifs", mountinfo_text=mountinfo)
+            self.assertEqual(report["status"], "MOUNT_IDENTIFIED")
+            self.assertEqual(report["filesystem_type"], "cifs")
+            self.assertFalse(report["acl_qualified"])
+            self.assertFalse(report["authorizes_migration"])
+            self.assertEqual(report["reason"], "ACL_AND_IDENTITY_TESTS_STILL_REQUIRED")
+
+    def test_assessment_rejects_nfs4_when_nfs3_expected(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mountinfo = f"20 1 0:2 / {d} rw - nfs server:/export rw,vers=4.1\\n"
+            report = assess_mount(d, "nfs", mountinfo_text=mountinfo)
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertEqual(report["reason"], "FILESYSTEM_TYPE_MISMATCH")
+            self.assertFalse(report["authorizes_migration"])
+
+    def test_assessment_identifies_nfs4_only_when_version_matches(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mountinfo = f"20 1 0:2 / {d} rw - nfs server:/export rw,vers=4.1\\n"
+            report = assess_mount(d, "nfs4", mountinfo_text=mountinfo)
+            self.assertEqual(report["status"], "MOUNT_IDENTIFIED")
+            self.assertFalse(report["acl_qualified"])
+            self.assertFalse(report["authorizes_migration"])
+
 if __name__ == "__main__":
     unittest.main()
