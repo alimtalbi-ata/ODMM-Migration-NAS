@@ -26,7 +26,7 @@ def find_mount(target, mountinfo_text):
             continue
         fields = left.split()
         details = right.split()
-        if len(fields) < 5 or len(details) < 3:
+        if len(fields) < 6 or len(details) < 3:
             continue
         mountpoint = pathlib.Path(_unescape_mount_field(fields[4]))
         try:
@@ -42,8 +42,10 @@ def find_mount(target, mountinfo_text):
         return None
     _, mountpoint, fstype, source, mount_options, super_options = max(
         candidates, key=lambda item: item[0])
-    mount_read_only = (True if "ro" in mount_options else
-                       False if "rw" in mount_options else None)
+    has_ro = "ro" in mount_options
+    has_rw = "rw" in mount_options
+    mount_read_only = True if has_ro and not has_rw else (
+        False if has_rw and not has_ro else None)
     return {"mountpoint": mountpoint, "filesystem_type": fstype,
             "source": source, "mount_options": sorted(mount_options),
             "mount_read_only": mount_read_only,
@@ -86,7 +88,9 @@ def assess_mount(path, expected_type, mountinfo_text=None):
             result["reason"] = "MOUNT_NOT_FOUND"
             return result
         result.update(mounted)
-        if not matches_expected_type(mounted, expected_type):
+        if mounted["mount_read_only"] is None:
+            result["reason"] = "MOUNT_ACCESS_MODE_AMBIGUOUS"
+        elif not matches_expected_type(mounted, expected_type):
             result["reason"] = "FILESYSTEM_TYPE_MISMATCH"
         else:
             result["status"] = "MOUNT_IDENTIFIED"
