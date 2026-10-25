@@ -33,14 +33,21 @@ def find_mount(target, mountinfo_text):
             target.relative_to(mountpoint)
         except ValueError:
             continue
-        options = set(details[2].split(","))
+        mount_options = set(fields[5].split(","))
+        super_options = set(details[2].split(","))
         candidates.append((len(mountpoint.parts), str(mountpoint),
-                           details[0], _unescape_mount_field(details[1]), options))
+                           details[0], _unescape_mount_field(details[1]),
+                           mount_options, super_options))
     if not candidates:
         return None
-    _, mountpoint, fstype, source, options = max(candidates, key=lambda item: item[0])
+    _, mountpoint, fstype, source, mount_options, super_options = max(
+        candidates, key=lambda item: item[0])
+    mount_read_only = (True if "ro" in mount_options else
+                       False if "rw" in mount_options else None)
     return {"mountpoint": mountpoint, "filesystem_type": fstype,
-            "source": source, "super_options": sorted(options)}
+            "source": source, "mount_options": sorted(mount_options),
+            "mount_read_only": mount_read_only,
+            "super_options": sorted(super_options)}
 
 
 def matches_expected_type(mounted, expected_type):
@@ -60,7 +67,9 @@ def matches_expected_type(mounted, expected_type):
 def assess_mount(path, expected_type, mountinfo_text=None):
     path = pathlib.Path(path)
     result = {"path": str(path), "expected_type": expected_type,
-              "status": "MANUAL_REVIEW_REQUIRED", "read_only": True,
+              "status": "MANUAL_REVIEW_REQUIRED",
+              "read_only": True, "inspection_read_only": True,
+              "mount_read_only": None,
               "authorizes_migration": False, "acl_qualified": False}
     if expected_type not in ("nfs", "nfs4", "cifs"):
         result["reason"] = "UNSUPPORTED_EXPECTED_TYPE"
