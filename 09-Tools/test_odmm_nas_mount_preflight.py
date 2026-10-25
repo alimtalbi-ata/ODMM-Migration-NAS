@@ -84,6 +84,20 @@ class MountInfoParserTests(unittest.TestCase):
             self.assertFalse(report["authorizes_migration"])
             self.assertFalse(report["acl_qualified"])
 
+    def test_malformed_mountinfo_line_is_ignored(self):
+        info = "20 1 0:2 / /mnt/nas rw - cifs //nas/share\\n"
+        self.assertIsNone(find_mount("/mnt/nas", info))
+
+    def test_conflicting_mount_access_flags_fail_closed(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mountinfo = f"20 1 0:2 / {d} ro,rw - nfs server:/export rw,vers=4.1\\n"
+            report = assess_mount(d, "nfs4", mountinfo_text=mountinfo)
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertEqual(report["reason"], "MOUNT_ACCESS_MODE_AMBIGUOUS")
+            self.assertIsNone(report["mount_read_only"])
+            self.assertFalse(report["authorizes_migration"])
+
     def test_assessment_rejects_nfs4_when_nfs3_expected(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
