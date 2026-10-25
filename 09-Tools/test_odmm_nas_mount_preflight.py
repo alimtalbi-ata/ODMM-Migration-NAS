@@ -29,23 +29,23 @@ class NasMountPreflightTests(unittest.TestCase):
 class MountInfoParserTests(unittest.TestCase):
     def test_selects_deepest_mount_not_a_path_prefix(self):
         info = (
-            "20 1 0:1 / / rw - ext4 /dev/root rw\\n"
-            "21 20 0:2 / /mnt/nas rw - cifs //server/share rw,vers=3.1.1\\n"
-            "22 20 0:3 / /mnt/nas-backup rw - nfs server:/backup rw,vers=3\\n"
+            "20 1 0:1 / / rw - ext4 /dev/root rw\n"
+            "21 20 0:2 / /mnt/nas rw - cifs //server/share rw,vers=3.1.1\n"
+            "22 20 0:3 / /mnt/nas-backup rw - nfs server:/backup rw,vers=3\n"
         )
         found = find_mount("/mnt/nas/folder", info)
         self.assertEqual(found["filesystem_type"], "cifs")
         self.assertEqual(found["mountpoint"], "/mnt/nas")
 
     def test_decodes_escaped_space_in_mountpoint(self):
-        info = "20 1 0:2 / /mnt/nas\\040share rw - cifs //server/share rw,vers=3.1.1\\n"
+        info = "20 1 0:2 / /mnt/nas\\040share rw - cifs //server/share rw,vers=3.1.1\n"
         found = find_mount("/mnt/nas share/subdir", info)
         self.assertEqual(found["mountpoint"], "/mnt/nas share")
         self.assertEqual(found["filesystem_type"], "cifs")
 
     def test_nfs4_super_option_is_distinguished_from_nfs3(self):
-        nfs4 = "20 1 0:2 / /mnt/nfs rw - nfs server:/export rw,vers=4.1\\n"
-        nfs3 = "20 1 0:2 / /mnt/nfs rw - nfs server:/export rw,vers=3\\n"
+        nfs4 = "20 1 0:2 / /mnt/nfs rw - nfs server:/export rw,vers=4.1\n"
+        nfs3 = "20 1 0:2 / /mnt/nfs rw - nfs server:/export rw,vers=3\n"
         self.assertIn("vers=4.1", find_mount("/mnt/nfs", nfs4)["super_options"])
         self.assertIn("vers=3", find_mount("/mnt/nfs", nfs3)["super_options"])
 
