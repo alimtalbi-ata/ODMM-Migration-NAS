@@ -57,7 +57,7 @@ def matches_expected_type(mounted, expected_type):
     return False
 
 
-def assess_mount(path, expected_type):
+def assess_mount(path, expected_type, mountinfo_text=None):
     path = pathlib.Path(path)
     result = {"path": str(path), "expected_type": expected_type,
               "status": "MANUAL_REVIEW_REQUIRED", "read_only": True,
@@ -70,7 +70,9 @@ def assess_mount(path, expected_type):
         if not target.is_dir():
             result["reason"] = "NOT_DIRECTORY"
             return result
-        mounted = find_mount(target, pathlib.Path("/proc/self/mountinfo").read_text())
+        if mountinfo_text is None:
+            mountinfo_text = pathlib.Path("/proc/self/mountinfo").read_text()
+        mounted = find_mount(target, mountinfo_text)
         if mounted is None:
             result["reason"] = "MOUNT_NOT_FOUND"
             return result
