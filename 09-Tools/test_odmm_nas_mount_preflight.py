@@ -83,7 +83,7 @@ class MountInfoParserTests(unittest.TestCase):
     def test_assessment_identifies_nfs4_only_when_version_matches(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
-            mountinfo = f"20 1 0:2 / {d} rw - nfs server:/export rw,vers=4.1\\n"
+            mountinfo = f"20 1 0:2 / {d} rw - nfs server:/export rw,vers=4.1\n"
             report = assess_mount(d, "nfs4", mountinfo_text=mountinfo)
             self.assertEqual(report["status"], "MOUNT_IDENTIFIED")
             self.assertFalse(report["acl_qualified"])
