@@ -8,7 +8,6 @@ import json
 import os
 import pathlib
 import re
-import stat
 import sys
 
 
@@ -19,7 +18,7 @@ def _unescape_mount_field(value):
 
 def find_mount(target, mountinfo_text):
     """Return the deepest mount containing target, or None."""
-    target = pathlib.Path(target).resolve(strict=True)
+    target = pathlib.Path(os.path.abspath(target))
     candidates = []
     for line in mountinfo_text.splitlines():
         left, sep, right = line.partition(" - ")
