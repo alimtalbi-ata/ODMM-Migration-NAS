@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from odmm_nas_mount_preflight import assess_mount, find_mount
+from odmm_nas_mount_preflight import assess_mount, find_mount, matches_expected_type
 
 
 @unittest.skipUnless(sys.platform.startswith("linux"), "Linux only")
@@ -48,6 +48,17 @@ class MountInfoParserTests(unittest.TestCase):
         nfs3 = "20 1 0:2 / /mnt/nfs rw - nfs server:/export rw,vers=3\n"
         self.assertIn("vers=4.1", find_mount("/mnt/nfs", nfs4)["super_options"])
         self.assertIn("vers=3", find_mount("/mnt/nfs", nfs3)["super_options"])
+
+    def test_expected_protocol_version_matching_is_strict(self):
+        nfs3 = {"filesystem_type": "nfs", "super_options": ["rw", "vers=3"]}
+        nfs41 = {"filesystem_type": "nfs", "super_options": ["rw", "vers=4.1"]}
+        cifs = {"filesystem_type": "cifs", "super_options": ["rw", "vers=3.1.1"]}
+        self.assertTrue(matches_expected_type(nfs3, "nfs"))
+        self.assertFalse(matches_expected_type(nfs41, "nfs"))
+        self.assertTrue(matches_expected_type(nfs41, "nfs4"))
+        self.assertFalse(matches_expected_type(nfs3, "nfs4"))
+        self.assertTrue(matches_expected_type(cifs, "cifs"))
+        self.assertFalse(matches_expected_type(cifs, "nfs4"))
 
 if __name__ == "__main__":
     unittest.main()
