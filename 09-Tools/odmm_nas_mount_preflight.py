@@ -40,8 +40,13 @@ def find_mount(target, mountinfo_text):
                            mount_options, super_options))
     if not candidates:
         return None
-    _, mountpoint, fstype, source, mount_options, super_options = max(
-        candidates, key=lambda item: item[0])
+    deepest_depth = max(item[0] for item in candidates)
+    deepest = [item for item in candidates if item[0] == deepest_depth]
+    # Stacked mounts at the same deepest path cannot be disambiguated safely
+    # from a textual snapshot alone. Never pick one arbitrarily.
+    if len(deepest) != 1:
+        return {"selection_ambiguous": True}
+    _, mountpoint, fstype, source, mount_options, super_options = deepest[0]
     has_ro = "ro" in mount_options
     has_rw = "rw" in mount_options
     mount_read_only = True if has_ro and not has_rw else (
@@ -86,6 +91,9 @@ def assess_mount(path, expected_type, mountinfo_text=None):
         mounted = find_mount(target, mountinfo_text)
         if mounted is None:
             result["reason"] = "MOUNT_NOT_FOUND"
+            return result
+        if mounted.get("selection_ambiguous"):
+            result["reason"] = "MOUNT_SELECTION_AMBIGUOUS"
             return result
         result.update(mounted)
         if mounted["mount_read_only"] is None:
