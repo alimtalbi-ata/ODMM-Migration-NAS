@@ -88,6 +88,19 @@ class MountInfoParserTests(unittest.TestCase):
         info = "20 1 0:2 / /mnt/nas rw - cifs //nas/share\\n"
         self.assertIsNone(find_mount("/mnt/nas", info))
 
+    def test_stacked_mounts_at_same_deepest_path_fail_closed(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mountinfo = (
+                f"20 1 0:2 / {d} rw - cifs //nas/share rw,vers=3.1.1\\n"
+                f"21 1 0:3 / {d} ro - nfs server:/export ro,vers=4.1\\n"
+            )
+            report = assess_mount(d, "nfs4", mountinfo_text=mountinfo)
+            self.assertEqual(report["status"], "MANUAL_REVIEW_REQUIRED")
+            self.assertEqual(report["reason"], "MOUNT_SELECTION_AMBIGUOUS")
+            self.assertFalse(report["authorizes_migration"])
+            self.assertFalse(report["acl_qualified"])
+
     def test_conflicting_mount_access_flags_fail_closed(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
