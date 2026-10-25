@@ -43,6 +43,20 @@ def find_mount(target, mountinfo_text):
             "source": source, "super_options": sorted(options)}
 
 
+def matches_expected_type(mounted, expected_type):
+    fstype = mounted["filesystem_type"]
+    options = set(mounted["super_options"])
+    if expected_type == "nfs4":
+        return fstype == "nfs4" or (fstype == "nfs" and
+               any(opt in ("vers=4", "vers=4.0", "vers=4.1", "vers=4.2")
+                   for opt in options))
+    if expected_type == "nfs":
+        return fstype == "nfs" and not any(opt.startswith("vers=4") for opt in options)
+    if expected_type == "cifs":
+        return fstype == "cifs"
+    return False
+
+
 def assess_mount(path, expected_type):
     path = pathlib.Path(path)
     result = {"path": str(path), "expected_type": expected_type,
@@ -61,18 +75,7 @@ def assess_mount(path, expected_type):
             result["reason"] = "MOUNT_NOT_FOUND"
             return result
         result.update(mounted)
-        fstype = mounted["filesystem_type"]
-        options = set(mounted["super_options"])
-        if expected_type == "nfs4":
-            matched = fstype == "nfs4" or (fstype == "nfs" and
-                      any(opt in ("vers=4", "vers=4.0", "vers=4.1", "vers=4.2")
-                          for opt in options))
-        elif expected_type == "nfs":
-            matched = fstype == "nfs" and not any(
-                opt.startswith("vers=4") for opt in options)
-        else:
-            matched = fstype == "cifs"
-        if not matched:
+        if not matches_expected_type(mounted, expected_type):
             result["reason"] = "FILESYSTEM_TYPE_MISMATCH"
         else:
             result["status"] = "MOUNT_IDENTIFIED"
